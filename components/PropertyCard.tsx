@@ -87,18 +87,32 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         </p>
         
         <div className="flex flex-col gap-4 pt-4 border-t border-white/5 mt-auto">
-          <div className="bg-black/30 p-3 border border-white/5 rounded space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-alt font-bold text-white/60 uppercase tracking-wider">{dict.property_card.sell_price}</span>
-              <span className="font-display font-bold text-base text-accent">{property.sellPrice || "-"}</span>
-            </div>
-            <div className="h-[1px] bg-white/5"></div>
-            <div className="flex justify-between items-center">
-              <span className="text-xs font-alt font-bold text-white/60 uppercase tracking-wider">{dict.property_card.rent_price}</span>
-              <span className="font-display font-bold text-base text-accent">
-                {property.rentPrice ? `${property.rentPrice} ${dict.property_card.month}` : "-"}
-              </span>
-            </div>
+          <div className="bg-[#0b1329]/80 p-4 border border-accent/20 rounded-xl space-y-3 shadow-inner">
+            {property.sellPrice && (
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10px] font-alt font-black text-white/40 uppercase tracking-wider">{dict.property_card.sell_price}</span>
+                <span className="font-display font-black text-xl text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                  <span className="text-xs text-accent/80 mr-0.5">฿</span>{property.sellPrice}
+                </span>
+              </div>
+            )}
+            {property.sellPrice && property.rentPrice && <div className="h-[1px] bg-white/[0.06]"></div>}
+            {property.rentPrice && (
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10px] font-alt font-black text-white/40 uppercase tracking-wider">{dict.property_card.rent_price}</span>
+                <span className="font-display font-black text-xl text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
+                  <span className="text-xs text-accent/80 mr-0.5">฿</span>{property.rentPrice}<span className="text-[10px] font-normal text-white/50 ml-1">{dict.property_card.month}</span>
+                </span>
+              </div>
+            )}
+            {!property.sellPrice && !property.rentPrice && (
+              <div className="flex justify-between items-baseline">
+                <span className="text-[10px] font-alt font-black text-white/40 uppercase tracking-wider">{dict.property_card.starts_from}</span>
+                <span className="font-display font-black text-xl text-accent">
+                  {property.price}
+                </span>
+              </div>
+            )}
           </div>
           
           <div className="flex justify-between items-center text-[10px] font-alt font-bold text-white/50 tracking-wider">
