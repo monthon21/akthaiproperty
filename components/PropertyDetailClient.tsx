@@ -234,9 +234,27 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-          <div className="relative z-10 flex-shrink-0">
-            <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-1">Asking Price</span>
-            <div className="text-3xl md:text-4xl font-black text-accent drop-shadow-md">{property.price}</div>
+          <div className="relative z-10 flex flex-wrap gap-4 items-center">
+            {property.sellPrice && (
+              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 shadow-lg flex flex-col">
+                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-0.5">{t("property_card.sell_price")}</span>
+                <div className="text-2xl md:text-3xl font-black text-accent drop-shadow-md">{property.sellPrice}</div>
+              </div>
+            )}
+            {property.rentPrice && (
+              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 shadow-lg flex flex-col">
+                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-0.5">{t("property_card.rent_price")}</span>
+                <div className="text-2xl md:text-3xl font-black text-accent drop-shadow-md">
+                  {property.rentPrice} <span className="text-sm font-normal text-white/70">{t("property_card.month")}</span>
+                </div>
+              </div>
+            )}
+            {!property.sellPrice && !property.rentPrice && (
+              <div className="bg-white/5 border border-white/10 rounded-xl px-5 py-3 shadow-lg flex flex-col">
+                <span className="text-[10px] font-bold text-white/50 uppercase tracking-widest block mb-0.5">{t("property_card.starts_from")}</span>
+                <div className="text-2xl md:text-3xl font-black text-accent drop-shadow-md">{property.price}</div>
+              </div>
+            )}
           </div>
 
           <div className="relative z-10 flex flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">

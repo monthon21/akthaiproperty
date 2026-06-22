@@ -30,6 +30,9 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   }
   if (priceParts.length > 0) priceStr = priceParts.join(" | ");
 
+  const sellPriceStr = isSell && asset.sellPrice && Number(asset.sellPrice) > 0 ? `${Number(asset.sellPrice).toLocaleString()}` : null;
+  const rentPriceStr = isRent && asset.loanPrice && Number(asset.loanPrice) > 0 ? `${Number(asset.loanPrice).toLocaleString()}` : null;
+
   // Determine category
   let category = "House";
   if (asset.type === "CONDO") category = "Condo";
@@ -76,6 +79,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     location: `${asset.address ? asset.address + " " : ""}${asset.soi ? "ซ." + asset.soi + " " : ""}${asset.road ? "ถ." + asset.road + " " : ""}${asset.subdistrict ? asset.subdistrict + ", " : ""}${asset.district ? asset.district + ", " : ""}${asset.province || ""}`,
     zipCode: asset.zipCode || undefined,
     price: priceStr,
+    sellPrice: sellPriceStr,
+    rentPrice: rentPriceStr,
     type: isRent ? "เช่า" : "ขาย",
     category,
     beds: asset.noBedroom || 0,
