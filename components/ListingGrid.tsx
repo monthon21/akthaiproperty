@@ -16,18 +16,14 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   const isSell = asset.isSell;
   
   let priceStr = "ติดต่อสอบถาม";
-  if (asset.sellPrice) {
-    if (isRent && isSell) {
-      // Both rent and sell: show sell price + rent label
-      priceStr = `${Number(asset.sellPrice).toLocaleString()} (เช่า/เดือน)`;
-    } else if (isRent) {
-      priceStr = `${Number(asset.sellPrice).toLocaleString()} / เดือน`;
-    } else {
-      priceStr = `${Number(asset.sellPrice).toLocaleString()}`;
-    }
-  } else if (asset.loanPrice) {
-    priceStr = `${Number(asset.loanPrice).toLocaleString()} (ประเมิน)`;
+  const parts: string[] = [];
+  if (isSell && asset.sellPrice) {
+    parts.push(`${Number(asset.sellPrice).toLocaleString()}`);
   }
+  if (isRent && asset.loanPrice) {
+    parts.push(`${Number(asset.loanPrice).toLocaleString()} / เดือน`);
+  }
+  if (parts.length > 0) priceStr = parts.join(" | ");
 
   // Determine category
   let category = "House";

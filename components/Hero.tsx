@@ -50,17 +50,14 @@ export default function Hero({ featuredAsset }: HeroProps) {
       displayLocation = locParts.join(", ");
     }
     
-    if (featuredAsset.sellPrice) {
-      if (featuredAsset.isRent && featuredAsset.isSell) {
-        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()} (เช่า/เดือน)`;
-      } else if (featuredAsset.isRent) {
-        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()} / เดือน`;
-      } else {
-        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()}`;
-      }
-    } else if (featuredAsset.loanPrice) {
-      displayPrice = `${Number(featuredAsset.loanPrice).toLocaleString()}`;
+    const priceParts: string[] = [];
+    if (featuredAsset.isSell && featuredAsset.sellPrice) {
+      priceParts.push(`${Number(featuredAsset.sellPrice).toLocaleString()}`);
     }
+    if (featuredAsset.isRent && featuredAsset.loanPrice) {
+      priceParts.push(`${Number(featuredAsset.loanPrice).toLocaleString()} / เดือน`);
+    }
+    if (priceParts.length > 0) displayPrice = priceParts.join(" | ");
     
     const featureImg = featuredAsset.images?.find((img: any) => img.isFeature)?.imageUrl || featuredAsset.images?.[0]?.imageUrl;
     if (featureImg) displayImage = featureImg;
