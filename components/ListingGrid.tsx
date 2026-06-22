@@ -37,7 +37,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
 
   // Determine category
   let category = "House";
-  if (asset.type === "SINGLE_HOUSE") category = "House";
+  if (asset.type === "DETACHED_HOUSE") category = "House";
   else if (asset.type === "TOWNHOUSE") category = "Townhouse";
   else if (asset.type === "SEMI_DETACHED") category = "Semi-Detached";
   else if (asset.type === "VILLA") category = "Villa";

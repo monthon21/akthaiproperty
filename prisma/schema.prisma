@@ -143,7 +143,7 @@ model Asset {
 }
 
 enum AssetType {
-  SINGLE_HOUSE // บ้านเดี่ยว
+  DETACHED_HOUSE // บ้านเดี่ยว
   TOWNHOUSE    // ทาวน์เฮาส์
   SEMI_DETACHED // บ้านแฝด
   VILLA        // วิลล่า

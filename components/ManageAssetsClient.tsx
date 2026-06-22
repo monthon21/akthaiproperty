@@ -79,7 +79,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                   </td>
                   <td className="px-6 py-4 text-xs text-white/70">
                     {{
-                      SINGLE_HOUSE: "บ้านเดี่ยว",
+                      DETACHED_HOUSE: "บ้านเดี่ยว",
                       TOWNHOUSE: "ทาวน์เฮาส์",
                       SEMI_DETACHED: "บ้านแฝด",
                       VILLA: "วิลล่า",

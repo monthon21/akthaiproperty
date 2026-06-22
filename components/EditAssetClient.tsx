@@ -385,7 +385,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     onChange={handleInputChange}
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer"
                   >
-                    <option value="SINGLE_HOUSE">บ้านเดี่ยว (Single House)</option>
+                    <option value="DETACHED_HOUSE">บ้านเดี่ยว (Detached House)</option>
                     <option value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
                     <option value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
                     <option value="VILLA">วิลล่า (Villa)</option>

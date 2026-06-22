@@ -26,7 +26,7 @@ export default function AddNewAssetPage() {
     descriptionZh: "",
     isRent: false,
     isSell: true,
-    type: "SINGLE_HOUSE" as AssetType,
+    type: "DETACHED_HOUSE" as AssetType,
     sellPrice: "",
     loanPrice: "",
     noBedroom: "",
@@ -289,7 +289,7 @@ export default function AddNewAssetPage() {
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ประเภททรัพย์สิน (Asset Type)</label>
                     <select name="type" value={formData.type} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer">
-                      <option className="bg-[#112240]" value="SINGLE_HOUSE">บ้านเดี่ยว (Single House)</option>
+                      <option className="bg-[#112240]" value="DETACHED_HOUSE">บ้านเดี่ยว (Detached House)</option>
                       <option className="bg-[#112240]" value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
                       <option className="bg-[#112240]" value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
                       <option className="bg-[#112240]" value="VILLA">วิลล่า (Villa)</option>
