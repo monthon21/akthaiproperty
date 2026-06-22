@@ -1,0 +1,110 @@
+@import "tailwindcss";
+
+:root {
+  /* Brand Colors - Gold & Dark Obsidian */
+  --primary: #112240;
+  --primary-dark: #020C1B;
+  --primary-light: #233554;
+  --accent: #BEAF87;
+  --accent-dark: #A4946C;
+  --accent-light: #D4C7A3;
+  
+  /* Neutral Palette */
+  --background: #0A192F;
+  --foreground: #ffffff;
+  --card-bg: #112240;
+  --card-border: #233554;
+  
+  /* UI Elements */
+  --header-height: 80px;
+  --sidebar-width: 280px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  
+  /* Glassmorphism */
+  --glass-bg: rgba(24, 24, 24, 0.75);
+  --glass-border: rgba(190, 175, 135, 0.15);
+  --glass-blur: blur(12px);
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.4), 0 2px 4px -1px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.5), 0 4px 6px -2px rgba(0,0,0,0.4);
+  --shadow-premium: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.5);
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-dark: var(--primary-dark);
+  --color-primary-light: var(--primary-light);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-light: var(--accent-light);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sarabun);
+  --font-display: var(--font-sarabun);
+  --font-alt: var(--font-sarabun);
+}
+
+@layer base {
+  * {
+    border-color: var(--card-border);
+    box-sizing: border-box;
+  }
+  
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sarabun), system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-sarabun), sans-serif;
+    letter-spacing: -0.01em;
+    font-weight: 700;
+  }
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+  }
+  
+  .premium-card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .premium-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-premium);
+    border-color: var(--accent);
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, var(--accent-light) 0%, var(--accent) 50%, var(--accent-dark) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+}
+
