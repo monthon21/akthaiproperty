@@ -11,6 +11,43 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
   const [assets, setAssets] = useState(initialAssets);
   const [isDeleting, setIsDeleting] = useState<string | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState("");
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+
+  const filteredAssets = assets.filter((asset) => {
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      const codeMatch = asset.code?.toLowerCase().includes(q);
+      const titleMatch = asset.title?.toLowerCase().includes(q) || asset.titleEn?.toLowerCase().includes(q) || asset.titleZh?.toLowerCase().includes(q);
+      const projectMatch = asset.projectName?.toLowerCase().includes(q);
+      const provinceMatch = asset.province?.toLowerCase().includes(q);
+      const districtMatch = asset.district?.toLowerCase().includes(q);
+      
+      if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch) {
+        return false;
+      }
+    }
+
+    const sellPrice = asset.sellPrice ? Number(asset.sellPrice) : null;
+
+    if (minPrice.trim()) {
+      const min = parseFloat(minPrice);
+      if (sellPrice === null || sellPrice < min) {
+        return false;
+      }
+    }
+
+    if (maxPrice.trim()) {
+      const max = parseFloat(maxPrice);
+      if (sellPrice === null || sellPrice > max) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
   const handleDelete = async (id: string, code: string) => {
     if (!window.confirm(`คุณแน่ใจหรือไม่ว่าต้องการลบทรัพย์สินรหัส ${code}?\nข้อมูลจะถูกลบถาวรและไม่สามารถกู้คืนได้`)) {
       return;
@@ -33,34 +70,94 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
   };
 
   return (
-    <div className="bg-[#112240] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm text-white min-w-[800px]">
-          <thead className="bg-black/40 text-[10px] uppercase text-white/50 tracking-widest border-b border-white/5">
-            <tr>
-              <th className="px-6 py-4 font-bold">รูปภาพ (Image)</th>
-              <th className="px-6 py-4 font-bold">รหัส (Code)</th>
-              <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน (Title)</th>
-              <th className="px-6 py-4 font-bold">ประเภท (Type)</th>
-              <th className="px-6 py-4 font-bold">สถานะ (Status)</th>
-              <th className="px-6 py-4 font-bold">ราคาขาย (Price)</th>
-              <th className="px-6 py-4 font-bold text-center">ออนไลน์ (Online)</th>
-              <th className="px-6 py-4 font-bold text-center">หน้าแรก (Home)</th>
-              <th className="px-6 py-4 font-bold text-right">จัดการ (Actions)</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-white/5">
-            {assets.length === 0 ? (
+    <div className="space-y-6">
+      {/* Search and Price Filter Controls */}
+      <div className="bg-[#112240] border border-white/10 rounded-2xl p-5 shadow-xl">
+        <div className="flex flex-col lg:flex-row items-end gap-4">
+          <div className="flex-1 w-full space-y-1.5">
+            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ค้นหาทรัพย์สิน (Search)</label>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="ค้นหาด้วยรหัสทรัพย์, ชื่อทรัพย์สิน, โครงการ, จังหวัด..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-10 pr-4 bg-black/45 border border-white/10 rounded-xl text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+              />
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-accent">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+            </div>
+          </div>
+          
+          <div className="w-full lg:w-80 space-y-1.5">
+            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ช่วงราคาขาย (Sell Price Range)</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                placeholder="ราคาต่ำสุด"
+                value={minPrice}
+                onChange={(e) => setMinPrice(e.target.value)}
+                className="flex-1 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+              />
+              <span className="text-white/20 text-xs">-</span>
+              <input
+                type="number"
+                placeholder="ราคาสูงสุด"
+                value={maxPrice}
+                onChange={(e) => setMaxPrice(e.target.value)}
+                className="flex-1 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+              />
+            </div>
+          </div>
+
+          {(searchQuery || minPrice || maxPrice) && (
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setMinPrice("");
+                setMaxPrice("");
+              }}
+              className="h-11 px-4 border border-white/10 text-xs font-bold text-white/70 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all cursor-pointer w-full lg:w-auto"
+            >
+              ล้างค่า
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="bg-[#112240] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-sm text-white min-w-[800px]">
+            <thead className="bg-black/40 text-[10px] uppercase text-white/50 tracking-widest border-b border-white/5">
               <tr>
-                <td colSpan={9} className="px-6 py-12 text-center text-white/40">
-                  <p className="text-sm">ไม่มีข้อมูลทรัพย์สินในระบบ</p>
-                  <Link href={`/${currentLang}/addnew`} className="text-xs text-accent hover:underline mt-2 inline-block">
-                    + เพิ่มทรัพย์สินใหม่
-                  </Link>
-                </td>
+                <th className="px-6 py-4 font-bold">รูปภาพ (Image)</th>
+                <th className="px-6 py-4 font-bold">รหัส (Code)</th>
+                <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน (Title)</th>
+                <th className="px-6 py-4 font-bold">ประเภท (Type)</th>
+                <th className="px-6 py-4 font-bold">สถานะ (Status)</th>
+                <th className="px-6 py-4 font-bold">ราคาขาย (Price)</th>
+                <th className="px-6 py-4 font-bold text-center">ออนไลน์ (Online)</th>
+                <th className="px-6 py-4 font-bold text-center">หน้าแรก (Home)</th>
+                <th className="px-6 py-4 font-bold text-right">จัดการ (Actions)</th>
               </tr>
-            ) : (
-              assets.map((asset) => (
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {filteredAssets.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="px-6 py-12 text-center text-white/40">
+                    <p className="text-sm">
+                      {assets.length === 0 ? "ไม่มีข้อมูลทรัพย์สินในระบบ" : "ไม่พบทรัพย์สินที่ตรงกับเงื่อนไขการกรองของคุณ"}
+                    </p>
+                    {assets.length === 0 && (
+                      <Link href={`/${currentLang}/addnew`} className="text-xs text-accent hover:underline mt-2 inline-block">
+                        + เพิ่มทรัพย์สินใหม่
+                      </Link>
+                    )}
+                  </td>
+                </tr>
+              ) : (
+                filteredAssets.map((asset) => (
                 <tr key={asset.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
                     <div className="w-16 h-12 relative rounded-md overflow-hidden bg-black/50 border border-white/10">
@@ -165,6 +262,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
           </tbody>
         </table>
       </div>
+    </div>
     </div>
   );
 }
