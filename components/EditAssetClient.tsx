@@ -35,6 +35,8 @@ interface DBAsset {
   descriptionZh: string | null;
   isRent: boolean;
   isSell: boolean;
+  isAvailable: boolean;
+  isRecommended: boolean;
   type: AssetType;
   sellPrice: any;
   loanPrice: any;
@@ -58,6 +60,8 @@ interface DBAsset {
   amenities: string | null;
   images: DBAssetImage[];
   prices: DBAssetPrice[];
+  createdAt: Date | string;
+  updatedAt: Date | string;
 }
 
 interface EditAssetClientProps {
