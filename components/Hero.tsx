@@ -51,8 +51,13 @@ export default function Hero({ featuredAsset }: HeroProps) {
     }
     
     if (featuredAsset.sellPrice) {
-      displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()}`;
-      if (featuredAsset.isRent && !featuredAsset.isSell) displayPrice += " / เดือน";
+      if (featuredAsset.isRent && featuredAsset.isSell) {
+        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()} (เช่า/เดือน)`;
+      } else if (featuredAsset.isRent) {
+        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()} / เดือน`;
+      } else {
+        displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()}`;
+      }
     } else if (featuredAsset.loanPrice) {
       displayPrice = `${Number(featuredAsset.loanPrice).toLocaleString()}`;
     }
