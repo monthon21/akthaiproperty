@@ -211,7 +211,7 @@ export default function AddNewAssetPage() {
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none text-white/50 cursor-not-allowed font-mono"
                     />
                   </div>
-                  <div className="md:col-span-2">
+                  <div className="md:col-span-3">
                     <LangTabInput
                       label="ชื่อทรัพย์สิน (Asset Title)*"
                       nameTh="title" nameEn="titleEn" nameZh="titleZh"

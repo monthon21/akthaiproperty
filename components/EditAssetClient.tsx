@@ -288,7 +288,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   />
                 </div>
                 {/* Title — Language Tabs */}
-                <div className="md:col-span-2">
+                <div className="md:col-span-3">
                   <LangTabInput
                     label="ชื่อทรัพย์สิน (Asset Title)*"
                     nameTh="title"
