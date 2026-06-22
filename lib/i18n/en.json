@@ -81,6 +81,8 @@
     "sqm": "Sq.m.",
     "rent": "Rent",
     "sell": "Sell",
+    "sell_price": "Sell Price",
+    "rent_price": "Monthly Rent",
     "month": "/ month",
     "contact": "Contact Us",
     "appraised": "(Appraised)",

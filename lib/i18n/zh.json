@@ -81,6 +81,8 @@
     "sqm": "平米",
     "rent": "出租",
     "sell": "出售",
+    "sell_price": "售价",
+    "rent_price": "月租",
     "month": "/ 月",
     "contact": "联系咨询",
     "appraised": "(估价)",

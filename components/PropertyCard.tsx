@@ -8,6 +8,8 @@ interface PropertyProps {
   title: string;
   location: string;
   price: string;
+  sellPrice?: string | null;
+  rentPrice?: string | null;
   type: string;
   category: string;
   beds: number;
@@ -20,7 +22,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
   const dict = await getDictionary(lang as Locale);
 
   return (
-    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border border-white/5 rounded">
+    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border border-white/5 rounded flex flex-col h-full">
       <div className="relative aspect-4/3 overflow-hidden">
         <div className="absolute top-4 left-4 z-10">
           <span className="px-2.5 py-1 bg-accent text-primary-dark text-[8px] font-alt font-black uppercase tracking-widest rounded-sm shadow-lg">
@@ -39,6 +41,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             fill 
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="object-cover" 
+            priority={false}
           />
         </Link>
         
@@ -61,7 +64,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         </div>
       </div>
       
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-1">
         <div className="flex justify-between items-center mb-3">
           <span className="text-[9px] font-alt font-bold text-accent uppercase tracking-widest">{property.id_string}</span>
           <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{property.category}</span>
@@ -73,7 +76,6 @@ export default async function PropertyCard({ property, lang = "th" }: { property
           </Link>
         </h4>
 
-        
         <p className="text-white/50 text-[11px] font-medium tracking-wide mb-4 flex items-center gap-1.5">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5 text-accent">
             <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -82,10 +84,19 @@ export default async function PropertyCard({ property, lang = "th" }: { property
           {property.location}
         </p>
         
-        <div className="flex flex-col gap-4 pt-4 border-t border-white/5">
-          <div className="flex justify-between items-center bg-black/30 p-3 border border-white/5 rounded">
-            <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{dict.property_card.starts_from}</span>
-            <span className="font-display font-bold text-lg text-accent">{property.price}</span>
+        <div className="flex flex-col gap-4 pt-4 border-t border-white/5 mt-auto">
+          <div className="bg-black/30 p-3 border border-white/5 rounded space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{dict.property_card.sell_price}</span>
+              <span className="font-display font-bold text-sm text-accent">{property.sellPrice || "-"}</span>
+            </div>
+            <div className="h-[1px] bg-white/5"></div>
+            <div className="flex justify-between items-center">
+              <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{dict.property_card.rent_price}</span>
+              <span className="font-display font-bold text-sm text-accent">
+                {property.rentPrice ? `${property.rentPrice} ${dict.property_card.month}` : "-"}
+              </span>
+            </div>
           </div>
           
           <div className="flex justify-between items-center text-[10px] font-alt font-bold text-white/50 tracking-wider">

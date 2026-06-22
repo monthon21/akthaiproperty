@@ -353,13 +353,13 @@ export default function AddNewAssetPage() {
 
               {/* ── 3. Amenities ── */}
               <div className="space-y-4">
-                <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
+                <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                   สิ่งอำนวยความสะดวก (Amenities)
                 </h3>
                 <div className="space-y-5">
                   {AMENITY_GROUPS.map((group) => (
                     <div key={group.id}>
-                      <p className="text-[10px] font-medium text-white/40 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
                         {group.title}
                         <span className="text-white/20">/ {group.titleEn} / {group.titleZh}</span>
                       </p>
@@ -376,7 +376,7 @@ export default function AddNewAssetPage() {
                               }`}
                             >
                               <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleAmenity(item.key)} />
-                              <span className="text-[11px] font-normal leading-tight">
+                              <span className="text-sm font-normal leading-tight">
                                 {lang === "zh" ? item.labelZh : lang === "en" ? item.labelEn : item.label}
                               </span>
                               {checked && (

@@ -13,6 +13,8 @@ export interface Property {
   location: string;
   zipCode?: string;
   price: string;
+  sellPrice?: string | null;
+  rentPrice?: string | null;
   type: string; // "ขาย" | "เช่า"
   category: string; // "House" | "Condo" | "Villa"
   beds: number;
@@ -39,7 +41,9 @@ export const featuredProperties: Property[] = [
     id_string: "AK-101",
     title: "บ้านเดี่ยว ศุภาลัย ปาล์มสปริงส์",
     location: "บางโจ, ภูเก็ต",
-    price: "฿6,500,000",
+    price: "6,500,000",
+    sellPrice: "6,500,000",
+    rentPrice: null,
     type: "ขาย",
     category: "House",
     beds: 3,
@@ -72,7 +76,9 @@ export const featuredProperties: Property[] = [
     id_string: "AK-102",
     title: "คอนโดหรู เดอะ รีเวียร่า",
     location: "ทองหล่อ, กรุงเทพฯ",
-    price: "฿45,000 / เดือน",
+    price: "45,000 / เดือน",
+    sellPrice: null,
+    rentPrice: "45,000",
     type: "เช่า",
     category: "Condo",
     beds: 2,
@@ -105,7 +111,9 @@ export const featuredProperties: Property[] = [
     id_string: "AK-103",
     title: "วิลล่าส่วนตัว บ่อผุด",
     location: "เกาะสมุย, สุราษฎร์ธานี",
-    price: "฿18,900,000",
+    price: "18,900,000",
+    sellPrice: "18,900,000",
+    rentPrice: null,
     type: "ขาย",
     category: "Villa",
     beds: 4,
