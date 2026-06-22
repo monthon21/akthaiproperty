@@ -135,7 +135,7 @@ model Asset {
   
   images      AssetImage[]
   prices      AssetPrice[]
-  customerId  String?
+  customerId  Int?
   customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   
   createdAt   DateTime     @default(now())
@@ -205,7 +205,7 @@ model Customer {
 
 model CustomerDetails {
   id Int @id @default(autoincrement())
-  customerId String @unique
+  customerId Int @unique
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   fullname String
   phone String?
@@ -227,7 +227,7 @@ enum CustomerRoleType {
 
 model CustomerRole {
   id        Int      @id @default(autoincrement())
-  customerId String @unique
+  customerId Int
   customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
   role CustomerRoleType
   createdAt DateTime @default(now())

@@ -106,7 +106,7 @@ export async function createAssetAction(input: AssetInput) {
     }
 
     // Handle customer info (find or create)
-    let customerId: string | null = null;
+    let customerId: number | null = null;
     if (ownerName && ownerName.trim()) {
       const oName = ownerName.trim();
       const oPhone = ownerPhone?.trim() || null;
@@ -277,7 +277,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     }
 
     // Handle customer info (find or create)
-    let customerId: string | null = null;
+    let customerId: number | null = null;
     if (ownerName && ownerName.trim()) {
       const oName = ownerName.trim();
       const oPhone = ownerPhone?.trim() || null;

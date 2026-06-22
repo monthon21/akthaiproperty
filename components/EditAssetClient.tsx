@@ -62,9 +62,9 @@ interface DBAsset {
   prices: DBAssetPrice[];
   createdAt: Date | string;
   updatedAt: Date | string;
-  customerId?: string | null;
+  customerId?: number | null;
   customer?: {
-    id: string;
+    id: number;
     name: string;
     phone: string | null;
     line: string | null;

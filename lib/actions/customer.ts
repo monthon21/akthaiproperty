@@ -37,7 +37,7 @@ export async function getAllCustomersAction() {
 }
 
 // 2. Get details for a specific customer
-export async function getCustomerDetailsAction(customerId: string) {
+export async function getCustomerDetailsAction(customerId: number) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
     return { success: false, error: authCheck.error };
@@ -76,7 +76,7 @@ export async function getCustomerDetailsAction(customerId: string) {
 
 // 3. Update customer details (upsert CustomerDetails & update Customer basic info)
 export async function updateCustomerDetailsAction(
-  customerId: string,
+  customerId: number,
   input: {
     name: string;
     phone?: string;
@@ -216,7 +216,7 @@ export async function createCustomerAction(
 }
 
 // 5. Delete Customer
-export async function deleteCustomerAction(customerId: string) {
+export async function deleteCustomerAction(customerId: number) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
     return { success: false, error: authCheck.error };

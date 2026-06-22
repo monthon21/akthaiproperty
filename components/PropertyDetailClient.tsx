@@ -52,14 +52,21 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     fetchSession();
   }, []);
 
-  // Airbnb Calculator state
-  const priceNum = parseInt(property.price.replace(/[^0-9]/g, "")) || 5000000;
-  const isRent = property.type === "เช่า";
+  // Airbnb & Mortgage Calculator state
+  const sellPriceNum = property.sellPrice ? parseInt(property.sellPrice.replace(/[^0-9]/g, "")) || 0 : 0;
+  const rentPriceNum = property.rentPrice ? parseInt(property.rentPrice.replace(/[^0-9]/g, "")) || 0 : 0;
+  const isRent = property.type === "เช่า" || property.type === "Rent" || property.type === "租";
+
+  // Use sell price if available for mortgage/basic price number, else fallback
+  const priceNum = sellPriceNum > 0 ? sellPriceNum : (rentPriceNum > 0 ? rentPriceNum : 5000000);
 
   // Calculate default nightly rate: standard yield metric
-  const defaultNightlyRate = isRent
-    ? Math.round(priceNum / 10)
-    : Math.round(priceNum * 0.0011);
+  const defaultNightlyRate = Math.max(
+    100,
+    rentPriceNum > 0
+      ? Math.round(rentPriceNum / 10)
+      : (sellPriceNum > 0 ? Math.round(sellPriceNum * 0.0011) : 2500)
+  );
 
   const [nightlyRate, setNightlyRate] = useState(defaultNightlyRate);
   const [occupancy, setOccupancy] = useState(58);
@@ -152,7 +159,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     : `${Math.round((priceNum / property.sqft) / 1000)}k / Sq.M.`;
 
   return (
-    <main className="pt-28 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
+    <main className="pt-32 md:pt-36 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
 
       {/* Breadcrumbs & Search */}
       <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -163,7 +170,9 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
           <span>/</span>
           <span className="text-white/60 uppercase">{t("property_detail.property")}</span>
           <span>/</span>
-          <span className="text-accent uppercase">{property.title}</span>
+          <span className="text-accent uppercase truncate max-w-[200px] sm:max-w-[400px] inline-block" title={property.title}>
+            {property.title}
+          </span>
         </div>
         <div className="w-full md:w-80 relative z-50">
           <SearchBox 
@@ -190,7 +199,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               Available
             </span>
           </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/50 mb-5 leading-[1.15] w-full">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/50 mb-5 leading-tight w-full">
             {property.title}
           </h1>
           {property.projectName && (

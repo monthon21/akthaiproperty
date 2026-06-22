@@ -22,7 +22,7 @@ export default function ManageCustomersClient({
   const router = useRouter();
   const [customers, setCustomers] = useState(initialCustomers);
   const [searchQuery, setSearchQuery] = useState("");
-  const [isDeleting, setIsDeleting] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [actionError, setActionError] = useState(errorMsg);
   const [successMessage, setSuccessMessage] = useState("");
 
@@ -30,7 +30,7 @@ export default function ManageCustomersClient({
   const [showModal, setShowModal] = useState(false);
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
 
   // Form states
   const [formName, setFormName] = useState("");
@@ -56,7 +56,7 @@ export default function ManageCustomersClient({
     );
   });
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = async (id: number, name: string) => {
     if (
       !window.confirm(
         `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเจ้าของทรัพย์ "${name}"?\nการลบนี้จะลบรายละเอียดส่วนตัว (CustomerDetails) ทั้งหมดด้วย แต่ทรัพย์สินต่างๆ ที่เชื่อมโยงจะยังอยู่ (โดยจะถูกตั้งค่าเจ้าของเป็นค่าว่าง)`
@@ -81,7 +81,7 @@ export default function ManageCustomersClient({
     setIsDeleting(null);
   };
 
-  const handleOpenEdit = async (customerId: string) => {
+  const handleOpenEdit = async (customerId: number) => {
     setActionError("");
     setSuccessMessage("");
     setIsNewCustomer(false);
