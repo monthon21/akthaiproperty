@@ -160,9 +160,9 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 <th className="px-6 py-4 font-bold">รูปภาพ (Image)</th>
                 <th className="px-6 py-4 font-bold">รหัส (Code)</th>
                 <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน (Title)</th>
-                <th className="px-6 py-4 font-bold">ประเภท (Type)</th>
                 <th className="px-6 py-4 font-bold">สถานะ (Status)</th>
-                <th className="px-6 py-4 font-bold">ราคาขาย (Price)</th>
+                <th className="px-6 py-4 font-bold">ราคาขาย (Sell Price)</th>
+                <th className="px-6 py-4 font-bold">ราคาเช่า (Rent Price)</th>
                 <th className="px-6 py-4 font-bold text-center">ออนไลน์ (Online)</th>
                 <th className="px-6 py-4 font-bold text-center">หน้าแรก (Home)</th>
                 <th className="px-6 py-4 font-bold text-right">จัดการ (Actions)</th>
@@ -196,25 +196,25 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     </div>
                   </td>
                   <td className="px-6 py-4 font-mono text-xs text-accent font-bold">{asset.code}</td>
-                  <td className="px-6 py-4 font-medium max-w-[200px]">
+                   <td className="px-6 py-4 font-medium max-w-[200px]">
                     <div className="truncate text-white" title={asset.title}>{asset.title}</div>
                     {asset.titleEn && <div className="truncate text-[10px] text-white/40" title={asset.titleEn}>{asset.titleEn}</div>}
-                  </td>
-                  <td className="px-6 py-4 text-xs text-white/70">
-                    {{
-                      DETACHED_HOUSE: "บ้านเดี่ยว",
-                      TOWNHOUSE: "ทาวน์เฮาส์",
-                      SEMI_DETACHED: "บ้านแฝด",
-                      VILLA: "วิลล่า",
-                      FACTORY: "โรงงาน",
-                      WAREHOUSE: "โกดัง",
-                      OFFICE: "ออฟฟิศ",
-                      RETAIL: "ร้านค้า",
-                      LAND: "ที่ดินเปล่า",
-                      COMMERCIAL: "อาคารพาณิชย์",
-                      APARTMENT: "อพาร์ทเม้นท์",
-                      OTHER: "อื่นๆ"
-                    }[asset.type as string] || asset.type}
+                    <div className="text-[10px] text-accent/80 font-bold mt-1 uppercase tracking-wider">
+                      {{
+                        DETACHED_HOUSE: "บ้านเดี่ยว",
+                        TOWNHOUSE: "ทาวน์เฮาส์",
+                        SEMI_DETACHED: "บ้านแฝด",
+                        VILLA: "วิลล่า",
+                        FACTORY: "โรงงาน",
+                        WAREHOUSE: "โกดัง",
+                        OFFICE: "ออฟฟิศ",
+                        RETAIL: "ร้านค้า",
+                        LAND: "ที่ดินเปล่า",
+                        COMMERCIAL: "อาคารพาณิชย์",
+                        APARTMENT: "อพาร์ทเม้นท์",
+                        OTHER: "อื่นๆ"
+                      }[asset.type as string] || asset.type}
+                    </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-1.5 flex-wrap">
@@ -223,6 +223,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     </div>
                   </td>
                   <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.sellPrice)}</td>
+                  <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.loanPrice)}</td>
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={async () => {
