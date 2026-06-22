@@ -14,6 +14,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
   const [searchQuery, setSearchQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [dealType, setDealType] = useState("all");
 
   const filteredAssets = assets.filter((asset) => {
     if (searchQuery.trim()) {
@@ -27,6 +28,13 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
       if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch) {
         return false;
       }
+    }
+
+    if (dealType === "sell" && !asset.isSell) {
+      return false;
+    }
+    if (dealType === "rent" && !asset.isRent) {
+      return false;
     }
 
     const sellPrice = asset.sellPrice ? Number(asset.sellPrice) : null;
@@ -73,8 +81,8 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
     <div className="space-y-6">
       {/* Search and Price Filter Controls */}
       <div className="bg-[#112240] border border-white/10 rounded-2xl p-5 shadow-xl">
-        <div className="flex flex-col lg:flex-row items-end gap-4">
-          <div className="flex-1 w-full space-y-1.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
+          <div className="md:col-span-2 lg:col-span-5 space-y-1.5 w-full">
             <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ค้นหาทรัพย์สิน (Search)</label>
             <div className="relative">
               <input
@@ -89,8 +97,21 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
               </svg>
             </div>
           </div>
+
+          <div className="col-span-1 lg:col-span-3 space-y-1.5 w-full">
+            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ลักษณะการทำรายการ (Deal Type)</label>
+            <select
+              value={dealType}
+              onChange={(e) => setDealType(e.target.value)}
+              className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white cursor-pointer focus:outline-none focus:border-accent appearance-none"
+            >
+              <option className="bg-[#112240]" value="all">ทั้งหมด (All)</option>
+              <option className="bg-[#112240]" value="sell">ขาย (For Sell)</option>
+              <option className="bg-[#112240]" value="rent">เช่า (For Rent)</option>
+            </select>
+          </div>
           
-          <div className="w-full lg:w-80 space-y-1.5">
+          <div className="col-span-1 lg:col-span-3 space-y-1.5 w-full">
             <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ช่วงราคาขาย (Sell Price Range)</label>
             <div className="flex items-center gap-2">
               <input
@@ -98,31 +119,36 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 placeholder="ราคาต่ำสุด"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="flex-1 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
-              <span className="text-white/20 text-xs">-</span>
+              <span className="text-white/20 text-xs shrink-0">-</span>
               <input
                 type="number"
                 placeholder="ราคาสูงสุด"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="flex-1 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
             </div>
           </div>
 
-          {(searchQuery || minPrice || maxPrice) && (
-            <button
-              onClick={() => {
-                setSearchQuery("");
-                setMinPrice("");
-                setMaxPrice("");
-              }}
-              className="h-11 px-4 border border-white/10 text-xs font-bold text-white/70 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all cursor-pointer w-full lg:w-auto"
-            >
-              ล้างค่า
-            </button>
-          )}
+          <div className="col-span-1 lg:col-span-1 w-full">
+            {(searchQuery || minPrice || maxPrice || dealType !== "all") ? (
+              <button
+                onClick={() => {
+                  setSearchQuery("");
+                  setMinPrice("");
+                  setMaxPrice("");
+                  setDealType("all");
+                }}
+                className="h-11 w-full border border-white/10 text-xs font-bold text-white/70 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all cursor-pointer text-center"
+              >
+                ล้างค่า
+              </button>
+            ) : (
+              <div className="h-11 hidden lg:block"></div>
+            )}
+          </div>
         </div>
       </div>
 
