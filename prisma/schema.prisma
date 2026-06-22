@@ -170,3 +170,12 @@ model NewsletterSubscriber {
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
 }
+
+model PasswordResetToken {
+  id      Int      @id @default(autoincrement())
+  email   String
+  token   String   @unique
+  expires DateTime
+
+  @@unique([email, token])
+}
