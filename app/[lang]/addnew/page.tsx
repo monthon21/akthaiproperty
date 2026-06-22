@@ -92,7 +92,7 @@ export default function AddNewAssetPage() {
   const priceNum = parseInt(formData.sellPrice.replace(/,/g, "")) || (parseInt(formData.loanPrice.replace(/,/g, "")) || 0);
   let priceStr = "ติดต่อสอบถาม";
   if (priceNum > 0) {
-    priceStr = `฿${priceNum.toLocaleString()}`;
+    priceStr = `${priceNum.toLocaleString()}`;
     if (formData.isRent && !formData.isSell) priceStr += " / เดือน";
   }
 

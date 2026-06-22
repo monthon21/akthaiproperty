@@ -29,7 +29,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
 
   const formatPrice = (price: any) => {
     if (!price) return "-";
-    return `฿${Number(price).toLocaleString()}`;
+    return `${Number(price).toLocaleString()}`;
   };
 
   return (

@@ -148,8 +148,8 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
   // Calculated Price per Sqm Text
   const pricePerSqmText = isRent
-    ? `฿${Math.round(priceNum / property.sqft).toLocaleString()} / Sq.M.`
-    : `฿${Math.round((priceNum / property.sqft) / 1000)}k / Sq.M.`;
+    ? `${Math.round(priceNum / property.sqft).toLocaleString()} / Sq.M.`
+    : `${Math.round((priceNum / property.sqft) / 1000)}k / Sq.M.`;
 
   return (
     <main className="pt-28 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
@@ -427,7 +427,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 <div>
                   <div className="flex justify-between items-center text-xs font-semibold text-white/50 mb-1.5">
                     <span>Est. Nightly Rate (ค่าเช่า/คืน)</span>
-                    <span className="text-accent font-bold">฿{nightlyRate.toLocaleString()}</span>
+                    <span className="text-accent font-bold">{nightlyRate.toLocaleString()}</span>
                   </div>
                   <input
                     type="range"
@@ -459,12 +459,12 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <div className="border-t border-white/5 pt-4 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-medium text-white/50">Est. Monthly Income</span>
-                  <span className="text-base font-bold text-white">฿{estMonthlyIncome.toLocaleString()}</span>
+                  <span className="text-base font-bold text-white">{estMonthlyIncome.toLocaleString()}</span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-medium text-white/50">Est. Annual Income</span>
-                  <span className="text-lg font-black text-accent">฿{estAnnualIncome.toLocaleString()}</span>
+                  <span className="text-lg font-black text-accent">{estAnnualIncome.toLocaleString()}</span>
                 </div>
 
                 {/* Progress bar split */}
@@ -475,10 +475,10 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   </div>
                   <div className="flex justify-between text-[9px] font-bold tracking-wider uppercase text-white/40">
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent"></span> You Keep (84.5%): ฿{youKeep.toLocaleString()}
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent"></span> You Keep (84.5%): {youKeep.toLocaleString()}
                     </span>
                     <span className="flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span> Airbnb fee (15.5%): ฿{airbnbFee.toLocaleString()}
+                      <span className="w-1.5 h-1.5 rounded-full bg-white/30"></span> Airbnb fee (15.5%): {airbnbFee.toLocaleString()}
                     </span>
                   </div>
                 </div>
@@ -552,7 +552,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                     <div>
                       <div className="flex justify-between items-center text-[10px] font-bold text-white/50 mb-1.5">
                         <span>Loan Amount (วงเงินกู้)</span>
-                        <span className="text-accent font-bold">฿{loanAmount.toLocaleString()}</span>
+                        <span className="text-accent font-bold">{loanAmount.toLocaleString()}</span>
                       </div>
                       <input
                         type="number"
@@ -595,7 +595,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
                     <div className="border-t border-white/5 pt-3 flex justify-between items-center">
                       <span className="font-bold text-white/60">ยอดผ่อนชำระ/เดือน</span>
-                      <span className="text-lg font-black text-accent">฿{monthlyMortgagePayment.toLocaleString()}</span>
+                      <span className="text-lg font-black text-accent">{monthlyMortgagePayment.toLocaleString()}</span>
                     </div>
                   </div>
                 )}

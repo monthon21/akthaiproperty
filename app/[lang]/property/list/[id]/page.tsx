@@ -22,12 +22,12 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   
   let priceStr = "ติดต่อสอบถาม";
   if (asset.sellPrice) {
-    priceStr = `฿${Number(asset.sellPrice).toLocaleString()}`;
+    priceStr = `${Number(asset.sellPrice).toLocaleString()}`;
     if (isRent && !isSell) {
       priceStr += " / เดือน";
     }
   } else if (asset.loanPrice) {
-    priceStr = `฿${Number(asset.loanPrice).toLocaleString()} (ประเมิน)`;
+    priceStr = `${Number(asset.loanPrice).toLocaleString()} (ประเมิน)`;
   }
 
   // Determine category

@@ -218,7 +218,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const priceNum = parseInt(formData.sellPrice.replace(/,/g, "")) || (parseInt(formData.loanPrice.replace(/,/g, "")) || 0);
   let priceStr = "ติดต่อสอบถาม";
   if (priceNum > 0) {
-    priceStr = `฿${priceNum.toLocaleString()}`;
+    priceStr = `${priceNum.toLocaleString()}`;
     if (formData.isRent && !formData.isSell) {
       priceStr += " / เดือน";
     }
@@ -713,13 +713,13 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                       <div>
                         <span className="text-white/45 block mb-0.5">ราคาขายเดิม</span>
                         <span className="font-bold text-white">
-                          {log.sellPrice ? `฿${Number(log.sellPrice).toLocaleString()}` : "-"}
+                          {log.sellPrice ? `${Number(log.sellPrice).toLocaleString()}` : "-"}
                         </span>
                       </div>
                       <div>
                         <span className="text-white/45 block mb-0.5">วงเงินประเมินเดิม</span>
                         <span className="font-bold text-white">
-                          {log.loanPrice ? `฿${Number(log.loanPrice).toLocaleString()}` : "-"}
+                          {log.loanPrice ? `${Number(log.loanPrice).toLocaleString()}` : "-"}
                         </span>
                       </div>
                     </div>

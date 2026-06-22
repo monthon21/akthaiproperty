@@ -132,7 +132,7 @@ export default function LoanPage() {
 
                 <div className="pt-8 border-t border-foreground/5 text-center">
                   <p className="text-[10px] font-bold text-foreground/30 uppercase tracking-[0.4em] mb-4">{t("loan_page.monthly_payment")}</p>
-                  <p className="text-5xl font-black text-accent mb-2">฿{Math.round(monthlyPayment || 0).toLocaleString()}</p>
+                  <p className="text-5xl font-black text-accent mb-2">{Math.round(monthlyPayment || 0).toLocaleString()}</p>
                   <p className="text-xs text-foreground/30 font-medium">{t("loan_page.estimate_only")}</p>
                 </div>
 

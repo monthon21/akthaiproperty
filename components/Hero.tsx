@@ -51,10 +51,10 @@ export default function Hero({ featuredAsset }: HeroProps) {
     }
     
     if (featuredAsset.sellPrice) {
-      displayPrice = `฿${Number(featuredAsset.sellPrice).toLocaleString()}`;
+      displayPrice = `${Number(featuredAsset.sellPrice).toLocaleString()}`;
       if (featuredAsset.isRent && !featuredAsset.isSell) displayPrice += " / เดือน";
     } else if (featuredAsset.loanPrice) {
-      displayPrice = `฿${Number(featuredAsset.loanPrice).toLocaleString()}`;
+      displayPrice = `${Number(featuredAsset.loanPrice).toLocaleString()}`;
     }
     
     const featureImg = featuredAsset.images?.find((img: any) => img.isFeature)?.imageUrl || featuredAsset.images?.[0]?.imageUrl;
