@@ -105,7 +105,7 @@ model Asset {
   isRecommended Boolean    @default(false) // แสดงในหน้าแรก
   
   // asset type
-  type        AssetType    // SINGLE_HOUSE, CONDO, LAND
+  type        AssetType
   
   // Price
   sellPrice   Decimal?
@@ -144,8 +144,17 @@ model Asset {
 
 enum AssetType {
   SINGLE_HOUSE // บ้านเดี่ยว
-  CONDO        // คอนโด
+  TOWNHOUSE    // ทาวน์เฮาส์
+  SEMI_DETACHED // บ้านแฝด
+  VILLA        // วิลล่า
+  FACTORY      // โรงงาน
+  WAREHOUSE    // โกดัง
+  OFFICE       // ออฟฟิศ
+  RETAIL       // ร้านค้า
   LAND         // ที่ดินเปล่า
+  COMMERCIAL   // อาคารพาณิชย์
+  APARTMENT    // อพาร์ทเม้นท์
+  OTHER        // อื่นๆ
 }
 
 model AssetImage {

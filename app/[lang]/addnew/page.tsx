@@ -290,8 +290,17 @@ export default function AddNewAssetPage() {
                     <select name="type" value={formData.type} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer">
                       <option className="bg-[#112240]" value="SINGLE_HOUSE">บ้านเดี่ยว (Single House)</option>
-                      <option className="bg-[#112240]" value="CONDO">คอนโด (Condo)</option>
+                      <option className="bg-[#112240]" value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
+                      <option className="bg-[#112240]" value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
+                      <option className="bg-[#112240]" value="VILLA">วิลล่า (Villa)</option>
+                      <option className="bg-[#112240]" value="FACTORY">โรงงาน (Factory)</option>
+                      <option className="bg-[#112240]" value="WAREHOUSE">โกดัง (Warehouse)</option>
+                      <option className="bg-[#112240]" value="OFFICE">ออฟฟิศ (Office)</option>
+                      <option className="bg-[#112240]" value="RETAIL">ร้านค้า (Retail)</option>
                       <option className="bg-[#112240]" value="LAND">ที่ดินเปล่า (Land)</option>
+                      <option className="bg-[#112240]" value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                      <option className="bg-[#112240]" value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
+                      <option className="bg-[#112240]" value="OTHER">อื่นๆ (Other)</option>
                     </select>
                   </div>
                   <div className="space-y-1.5">

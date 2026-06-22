@@ -386,8 +386,17 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer"
                   >
                     <option value="SINGLE_HOUSE">บ้านเดี่ยว (Single House)</option>
-                    <option value="CONDO">คอนโด (Condo)</option>
+                    <option value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
+                    <option value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
+                    <option value="VILLA">วิลล่า (Villa)</option>
+                    <option value="FACTORY">โรงงาน (Factory)</option>
+                    <option value="WAREHOUSE">โกดัง (Warehouse)</option>
+                    <option value="OFFICE">ออฟฟิศ (Office)</option>
+                    <option value="RETAIL">ร้านค้า (Retail)</option>
                     <option value="LAND">ที่ดินเปล่า (Land)</option>
+                    <option value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                    <option value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
+                    <option value="OTHER">อื่นๆ (Other)</option>
                   </select>
                 </div>
 

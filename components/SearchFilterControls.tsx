@@ -158,8 +158,17 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
                 >
                   <option value="ALL">ทั้งหมด (All Types)</option>
                   <option value="SINGLE_HOUSE">บ้านเดี่ยว (Single House)</option>
-                  <option value="CONDO">คอนโด (Condo)</option>
+                  <option value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
+                  <option value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
+                  <option value="VILLA">วิลล่า (Villa)</option>
+                  <option value="FACTORY">โรงงาน (Factory)</option>
+                  <option value="WAREHOUSE">โกดัง (Warehouse)</option>
+                  <option value="OFFICE">ออฟฟิศ (Office)</option>
+                  <option value="RETAIL">ร้านค้า (Retail)</option>
                   <option value="LAND">ที่ดินเปล่า (Land)</option>
+                  <option value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                  <option value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
+                  <option value="OTHER">อื่นๆ (Other)</option>
                 </select>
               </div>
               <div className="space-y-1">

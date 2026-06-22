@@ -37,8 +37,18 @@ function mapAssetToProperty(asset: any, lang: string): Property {
 
   // Determine category
   let category = "House";
-  if (asset.type === "CONDO") category = "Condo";
+  if (asset.type === "SINGLE_HOUSE") category = "House";
+  else if (asset.type === "TOWNHOUSE") category = "Townhouse";
+  else if (asset.type === "SEMI_DETACHED") category = "Semi-Detached";
+  else if (asset.type === "VILLA") category = "Villa";
+  else if (asset.type === "FACTORY") category = "Factory";
+  else if (asset.type === "WAREHOUSE") category = "Warehouse";
+  else if (asset.type === "OFFICE") category = "Office";
+  else if (asset.type === "RETAIL") category = "Retail";
   else if (asset.type === "LAND") category = "Land";
+  else if (asset.type === "COMMERCIAL") category = "Commercial";
+  else if (asset.type === "APARTMENT") category = "Apartment";
+  else if (asset.type === "OTHER") category = "Other";
 
   // Fallback default image
   const featureImage = asset.images.find((img: any) => img.isFeature)?.imageUrl 
@@ -48,8 +58,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   // Fallback size
   let sqft = asset.usableArea ? Number(asset.usableArea) : (asset.landSize ? Number(asset.landSize) : 120);
   if (!asset.usableArea && !asset.landSize) {
-    if (asset.type === "CONDO") sqft = 50;
-    else if (asset.type === "LAND") sqft = 200;
+    if (asset.type === "LAND") sqft = 200;
+    else if (asset.type === "APARTMENT" || asset.type === "OFFICE" || asset.type === "RETAIL") sqft = 50;
   }
 
   let title = asset.title;

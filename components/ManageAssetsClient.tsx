@@ -78,7 +78,20 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     {asset.titleEn && <div className="truncate text-[10px] text-white/40" title={asset.titleEn}>{asset.titleEn}</div>}
                   </td>
                   <td className="px-6 py-4 text-xs text-white/70">
-                    {asset.type === "SINGLE_HOUSE" ? "บ้านเดี่ยว" : asset.type === "CONDO" ? "คอนโด" : "ที่ดินเปล่า"}
+                    {{
+                      SINGLE_HOUSE: "บ้านเดี่ยว",
+                      TOWNHOUSE: "ทาวน์เฮาส์",
+                      SEMI_DETACHED: "บ้านแฝด",
+                      VILLA: "วิลล่า",
+                      FACTORY: "โรงงาน",
+                      WAREHOUSE: "โกดัง",
+                      OFFICE: "ออฟฟิศ",
+                      RETAIL: "ร้านค้า",
+                      LAND: "ที่ดินเปล่า",
+                      COMMERCIAL: "อาคารพาณิชย์",
+                      APARTMENT: "อพาร์ทเม้นท์",
+                      OTHER: "อื่นๆ"
+                    }[asset.type as string] || asset.type}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-1.5 flex-wrap">
