@@ -1,19 +1,59 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ListingGrid from "@/components/ListingGrid";
+import SearchFilterControls from "@/components/SearchFilterControls";
 
 export default async function SearchPage(props: {
   params: Promise<{ lang: string }> | { lang: string };
-  searchParams: Promise<{ q?: string; type?: string }> | { q?: string; type?: string };
+  searchParams: Promise<{ 
+    q?: string; 
+    type?: string; 
+    deal?: string;
+    code?: string;
+    province?: string;
+    zipCode?: string;
+    projectName?: string;
+    propertyType?: string;
+    minPrice?: string;
+    maxPrice?: string;
+  }> | { 
+    q?: string; 
+    type?: string; 
+    deal?: string;
+    code?: string;
+    province?: string;
+    zipCode?: string;
+    projectName?: string;
+    propertyType?: string;
+    minPrice?: string;
+    maxPrice?: string;
+  };
 }) {
   const resolvedParams = await props.params;
   const lang = resolvedParams?.lang || "th";
   
   const resolvedSearchParams = await props.searchParams;
   const query = resolvedSearchParams?.q || "";
-  const typeParam = resolvedSearchParams?.type || "all";
-  
-  const type = (typeParam === "sell" || typeParam === "rent") ? typeParam : undefined;
+  const code = resolvedSearchParams?.code || "";
+  const province = resolvedSearchParams?.province || "";
+  const zipCode = resolvedSearchParams?.zipCode || "";
+  const projectName = resolvedSearchParams?.projectName || "";
+  const propertyType = resolvedSearchParams?.propertyType || "";
+
+  // Handle both 'deal' and legacy 'type' query parameters from HeroSearchBox
+  const dealParam = resolvedSearchParams?.deal || resolvedSearchParams?.type || "all";
+  let deal: "sell" | "rent" | "all" = "all";
+  if (dealParam === "sell" || dealParam === "buy") {
+    deal = "sell";
+  } else if (dealParam === "rent") {
+    deal = "rent";
+  }
+
+  const minPriceStr = resolvedSearchParams?.minPrice || "";
+  const maxPriceStr = resolvedSearchParams?.maxPrice || "";
+
+  const minPrice = minPriceStr ? parseFloat(minPriceStr) : undefined;
+  const maxPrice = maxPriceStr ? parseFloat(maxPriceStr) : undefined;
 
   return (
     <>
@@ -27,9 +67,25 @@ export default async function SearchPage(props: {
             แสดงรายการทรัพย์สินทั้งหมดที่ตรงกับเงื่อนไขการค้นหาของคุณ
           </p>
         </div>
-        <ListingGrid lang={lang} type={type as "sell" | "rent"} searchQuery={query} />
+
+        {/* Advanced Search & Filter Controls */}
+        <SearchFilterControls currentLang={lang} />
+
+        <ListingGrid 
+          lang={lang} 
+          type={deal === "all" ? undefined : deal} 
+          searchQuery={query}
+          code={code}
+          province={province}
+          zipCode={zipCode}
+          projectName={projectName}
+          propertyType={propertyType}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+        />
       </main>
       <Footer />
     </>
   );
 }
+

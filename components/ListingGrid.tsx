@@ -9,6 +9,13 @@ interface ListingGridProps {
   lang?: string;
   isRecommendedOnly?: boolean;
   searchQuery?: string;
+  code?: string;
+  province?: string;
+  zipCode?: string;
+  projectName?: string;
+  propertyType?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 function mapAssetToProperty(asset: any, lang: string): Property {
@@ -86,29 +93,105 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   };
 }
 
-export default async function ListingGrid({ type, lang = "th", isRecommendedOnly = false, searchQuery = "" }: ListingGridProps) {
+export default async function ListingGrid({ 
+  type, 
+  lang = "th", 
+  isRecommendedOnly = false, 
+  searchQuery = "",
+  code,
+  province,
+  zipCode,
+  projectName,
+  propertyType,
+  minPrice,
+  maxPrice
+}: ListingGridProps) {
   const dict = await getDictionary(lang as Locale);
+
+  // Construct dynamic database query
+  const whereConditions: any = {
+    isAvailable: true,
+  };
+
+  if (type === "sell") {
+    whereConditions.isSell = true;
+  } else if (type === "rent") {
+    whereConditions.isRent = true;
+  }
+
+  if (propertyType && propertyType !== "ALL") {
+    whereConditions.type = propertyType;
+  }
+
+  if (code && code.trim()) {
+    whereConditions.code = { contains: code.trim() };
+  }
+  if (province && province.trim()) {
+    whereConditions.province = { contains: province.trim() };
+  }
+  if (zipCode && zipCode.trim()) {
+    whereConditions.zipCode = { contains: zipCode.trim() };
+  }
+  if (projectName && projectName.trim()) {
+    whereConditions.projectName = { contains: projectName.trim() };
+  }
+  if (isRecommendedOnly) {
+    whereConditions.isRecommended = true;
+  }
+
+  if (searchQuery && searchQuery.trim()) {
+    whereConditions.OR = [
+      { code: { contains: searchQuery.trim() } },
+      { district: { contains: searchQuery.trim() } },
+      { province: { contains: searchQuery.trim() } },
+      { projectName: { contains: searchQuery.trim() } },
+      { zipCode: { contains: searchQuery.trim() } },
+      { title: { contains: searchQuery.trim() } },
+      { titleEn: { contains: searchQuery.trim() } },
+      { titleZh: { contains: searchQuery.trim() } }
+    ];
+  }
+
+  if (minPrice !== undefined || maxPrice !== undefined) {
+    const minVal = minPrice ?? 0;
+    const maxVal = maxPrice ?? Number.MAX_SAFE_INTEGER;
+
+    if (type === "sell") {
+      whereConditions.sellPrice = {
+        gte: minVal,
+        lte: maxVal
+      };
+    } else if (type === "rent") {
+      whereConditions.loanPrice = {
+        gte: minVal,
+        lte: maxVal
+      };
+    } else {
+      whereConditions.AND = whereConditions.AND || [];
+      whereConditions.AND.push({
+        OR: [
+          {
+            isSell: true,
+            sellPrice: {
+              gte: minVal,
+              lte: maxVal
+            }
+          },
+          {
+            isRent: true,
+            loanPrice: {
+              gte: minVal,
+              lte: maxVal
+            }
+          }
+        ]
+      });
+    }
+  }
 
   // Query database assets
   const dbAssets = await prisma.asset.findMany({
-    where: {
-      isAvailable: true,
-      ...(type === "sell" ? { isSell: true } : {}),
-      ...(type === "rent" ? { isRent: true } : {}),
-      ...(isRecommendedOnly ? { isRecommended: true } : {}),
-      ...(searchQuery ? {
-        OR: [
-          { code: { contains: searchQuery } },
-          { district: { contains: searchQuery } },
-          { province: { contains: searchQuery } },
-          { projectName: { contains: searchQuery } },
-          { zipCode: { contains: searchQuery } },
-          { title: { contains: searchQuery } },
-          { titleEn: { contains: searchQuery } },
-          { titleZh: { contains: searchQuery } }
-        ]
-      } : {})
-    },
+    where: whereConditions,
     include: {
       images: true
     },
