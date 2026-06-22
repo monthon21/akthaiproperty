@@ -349,6 +349,38 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
                 {/* Detailed Specs Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                  {property.beds !== undefined && property.beds !== null ? (
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 5.25v13.5M2.25 12h19.5M21.75 12v6.75M2.25 7.5h7.5V12M12 7.5h7.5V12M6.75 18v1.5M17.25 18v1.5" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.beds_label")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.beds} <span className="text-xs font-normal text-white/60 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.baths !== undefined && property.baths !== null ? (
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12h19.5M3.75 12v3c0 1.657 1.343 3 3 3h10.5c1.657 0 3-1.343 3-3v-3M9 6v6m6-6v6M6 18v1.5m12-1.5v1.5" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.baths_label")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.baths} <span className="text-xs font-normal text-white/60 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span>
+                        </span>
+                      </div>
+                    </div>
+                  ) : null}
+
                   {property.landSize ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
