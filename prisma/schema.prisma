@@ -135,6 +135,8 @@ model Asset {
   
   images      AssetImage[]
   prices      AssetPrice[]
+  customerId  String?
+  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
   
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
@@ -178,4 +180,14 @@ model PasswordResetToken {
   expires DateTime
 
   @@unique([email, token])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String?
+  line      String?
+  assets    Asset[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

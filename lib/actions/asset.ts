@@ -40,6 +40,9 @@ export interface AssetInput {
   subdistrict?: string;
   zipCode?: string;
   googleMap?: string;
+  ownerName?: string;
+  ownerPhone?: string;
+  ownerLine?: string;
   images: AssetImageInput[];
 }
 
@@ -77,8 +80,11 @@ export async function createAssetAction(input: AssetInput) {
     subdistrict,
     zipCode,
     googleMap,
+    ownerName,
+    ownerPhone,
+    ownerLine,
     images
-} = input;
+  } = input;
 
   if (!title || !type) {
     return { success: false, error: "กรุณาระบุชื่อทรัพย์ และประเภททรัพย์สิน" };
@@ -97,6 +103,49 @@ export async function createAssetAction(input: AssetInput) {
     });
     if (existingAsset) {
       return { success: false, error: `รหัสทรัพย์ "${finalCode}" มีในระบบแล้ว กรุณาใช้รหัสอื่น` };
+    }
+
+    // Handle customer info (find or create)
+    let customerId: string | null = null;
+    if (ownerName && ownerName.trim()) {
+      const oName = ownerName.trim();
+      const oPhone = ownerPhone?.trim() || null;
+      const oLine = ownerLine?.trim() || null;
+
+      let existingCustomer = null;
+      if (oPhone) {
+        existingCustomer = await prisma.customer.findFirst({
+          where: {
+            name: oName,
+            phone: oPhone
+          }
+        });
+      } else {
+        existingCustomer = await prisma.customer.findFirst({
+          where: {
+            name: oName
+          }
+        });
+      }
+
+      if (existingCustomer) {
+        customerId = existingCustomer.id;
+        if (oLine && !existingCustomer.line) {
+          await prisma.customer.update({
+            where: { id: customerId },
+            data: { line: oLine }
+          });
+        }
+      } else {
+        const newCustomer = await prisma.customer.create({
+          data: {
+            name: oName,
+            phone: oPhone,
+            line: oLine
+          }
+        });
+        customerId = newCustomer.id;
+      }
     }
 
     const asset = await prisma.asset.create({
@@ -132,6 +181,7 @@ export async function createAssetAction(input: AssetInput) {
         subdistrict,
         zipCode: zipCode || null,
         googleMap: googleMap || null,
+        customerId: customerId,
         images: {
           create: images.map(img => ({
             imageUrl: img.imageUrl,
@@ -182,6 +232,9 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     subdistrict,
     zipCode,
     googleMap,
+    ownerName,
+    ownerPhone,
+    ownerLine,
     images
   } = input;
 
@@ -223,6 +276,52 @@ export async function updateAssetAction(id: string, input: AssetInput) {
       });
     }
 
+    // Handle customer info (find or create)
+    let customerId: string | null = null;
+    if (ownerName && ownerName.trim()) {
+      const oName = ownerName.trim();
+      const oPhone = ownerPhone?.trim() || null;
+      const oLine = ownerLine?.trim() || null;
+
+      let existingCustomer = null;
+      if (oPhone) {
+        existingCustomer = await prisma.customer.findFirst({
+          where: {
+            name: oName,
+            phone: oPhone
+          }
+        });
+      } else {
+        existingCustomer = await prisma.customer.findFirst({
+          where: {
+            name: oName
+          }
+        });
+      }
+
+      if (existingCustomer) {
+        customerId = existingCustomer.id;
+        if (existingCustomer.line !== oLine || existingCustomer.phone !== oPhone) {
+          await prisma.customer.update({
+            where: { id: customerId },
+            data: { 
+              phone: oPhone || existingCustomer.phone,
+              line: oLine || existingCustomer.line 
+            }
+          });
+        }
+      } else {
+        const newCustomer = await prisma.customer.create({
+          data: {
+            name: oName,
+            phone: oPhone,
+            line: oLine
+          }
+        });
+        customerId = newCustomer.id;
+      }
+    }
+
     // Update asset info
     await prisma.asset.update({
       where: { id },
@@ -257,7 +356,8 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         district,
         subdistrict,
         zipCode: zipCode || null,
-        googleMap: googleMap || null
+        googleMap: googleMap || null,
+        customerId: customerId
       }
     });
 
@@ -292,7 +392,8 @@ export async function getAssetAction(id: string) {
         images: true,
         prices: {
           orderBy: { createdAt: "desc" }
-        }
+        },
+        customer: true
       }
     });
 
@@ -339,7 +440,8 @@ export async function getAllAssetsAction() {
         images: {
           where: { isFeature: true },
           take: 1
-        }
+        },
+        customer: true
       }
     });
     return { success: true, assets };

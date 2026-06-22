@@ -43,6 +43,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
               <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน (Title)</th>
               <th className="px-6 py-4 font-bold">ประเภท (Type)</th>
               <th className="px-6 py-4 font-bold">สถานะ (Status)</th>
+              <th className="px-6 py-4 font-bold">เจ้าของทรัพย์ (Owner)</th>
               <th className="px-6 py-4 font-bold">ราคาขาย (Price)</th>
               <th className="px-6 py-4 font-bold text-center">ออนไลน์ (Online)</th>
               <th className="px-6 py-4 font-bold text-center">หน้าแรก (Home)</th>
@@ -52,7 +53,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
           <tbody className="divide-y divide-white/5">
             {assets.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-6 py-12 text-center text-white/40">
+                <td colSpan={10} className="px-6 py-12 text-center text-white/40">
                   <p className="text-sm">ไม่มีข้อมูลทรัพย์สินในระบบ</p>
                   <Link href={`/${currentLang}/addnew`} className="text-xs text-accent hover:underline mt-2 inline-block">
                     + เพิ่มทรัพย์สินใหม่
@@ -85,6 +86,17 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       {asset.isSell && <span className="bg-green-500/10 text-green-400 border border-green-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ขาย</span>}
                       {asset.isRent && <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">เช่า</span>}
                     </div>
+                  </td>
+                  <td className="px-6 py-4 text-xs">
+                    {asset.customer ? (
+                      <div>
+                        <div className="font-bold text-white/80">{asset.customer.name}</div>
+                        {asset.customer.phone && <div className="text-[10px] text-white/40 font-mono mt-0.5">Tel: {asset.customer.phone}</div>}
+                        {asset.customer.line && <div className="text-[10px] text-white/40 font-mono mt-0.5">Line: {asset.customer.line}</div>}
+                      </div>
+                    ) : (
+                      <span className="text-white/20">-</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.sellPrice)}</td>
                   <td className="px-6 py-4 text-center">

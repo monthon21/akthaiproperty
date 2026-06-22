@@ -45,7 +45,10 @@ export default function AddNewAssetPage() {
     district: "",
     subdistrict: "",
     zipCode: "",
-    googleMap: ""
+    googleMap: "",
+    ownerName: "",
+    ownerPhone: "",
+    ownerLine: ""
   });
 
   const [images, setImages] = useState<ImageItem[]>([]);
@@ -224,7 +227,7 @@ export default function AddNewAssetPage() {
                   <div className="md:col-span-3">
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อโครงการ (Project Name)</label>
-                      <input type="text" name="projectName" placeholder="e.g. โครงการลุมพินี วิลล์" value={formData.projectName} onChange={handleInputChange}
+                      <input type="text" name="projectName" placeholder="e.g. The Grand Rama 2" value={formData.projectName} onChange={handleInputChange}
                         className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                     </div>
                   </div>
@@ -369,11 +372,10 @@ export default function AddNewAssetPage() {
                           return (
                             <label
                               key={item.key}
-                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${
-                                checked
+                              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${checked
                                   ? "bg-accent/10 border-accent/40 text-accent"
                                   : "bg-black/20 border-white/5 text-white/50 hover:border-white/20 hover:text-white/70"
-                              }`}
+                                }`}
                             >
                               <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleAmenity(item.key)} />
                               <span className="text-sm font-normal leading-tight">
@@ -442,7 +444,31 @@ export default function AddNewAssetPage() {
                 </div>
               </div>
 
-              {/* ── 5. Images ── */}
+              {/* ── 5. เจ้าของทรัพย์ (Owner Details) ── */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
+                  ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="space-y-1.5 md:col-span-1">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
+                    <input type="text" name="ownerName" placeholder="e.g. คุณสมชาย" value={formData.ownerName || ""} onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-1">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
+                    <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-1">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">Line ID</label>
+                    <input type="text" name="ownerLine" placeholder="e.g. somchai_line" value={formData.ownerLine || ""} onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  </div>
+                </div>
+              </div>
+
+              {/* ── 6. Images ── */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                   รูปภาพประกอบ (Images List)

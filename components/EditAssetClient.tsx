@@ -62,6 +62,13 @@ interface DBAsset {
   prices: DBAssetPrice[];
   createdAt: Date | string;
   updatedAt: Date | string;
+  customerId?: string | null;
+  customer?: {
+    id: string;
+    name: string;
+    phone: string | null;
+    line: string | null;
+  } | null;
 }
 
 interface EditAssetClientProps {
@@ -128,7 +135,10 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     district: asset.district || "",
     subdistrict: asset.subdistrict || "",
     zipCode: asset.zipCode || "",
-    googleMap: asset.googleMap || ""
+    googleMap: asset.googleMap || "",
+    ownerName: asset.customer?.name || "",
+    ownerPhone: asset.customer?.phone || "",
+    ownerLine: asset.customer?.line || ""
   });
 
   const [images, setImages] = useState<ImageItem[]>(
@@ -644,6 +654,30 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     onChange={handleInputChange}
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
                   />
+                </div>
+              </div>
+            </div>
+
+            {/* ข้อมูลเจ้าของทรัพย์ (Owner Details) */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
+                ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div className="space-y-1.5 md:col-span-1">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
+                  <input type="text" name="ownerName" placeholder="e.g. คุณสมชาย" value={formData.ownerName || ""} onChange={handleInputChange}
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                </div>
+                <div className="space-y-1.5 md:col-span-1">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
+                  <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                </div>
+                <div className="space-y-1.5 md:col-span-1">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">Line ID</label>
+                  <input type="text" name="ownerLine" placeholder="e.g. somchai_line" value={formData.ownerLine || ""} onChange={handleInputChange}
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                 </div>
               </div>
             </div>
