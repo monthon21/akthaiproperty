@@ -46,6 +46,13 @@ export default function PropertyGallery({ gallery, title }: PropertyGalleryProps
                 className="object-cover" 
               />
               <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors duration-500"></div>
+              
+              {/* Watermark Overlay */}
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+                <div className="text-white/10 text-xl md:text-3xl lg:text-4xl font-black tracking-[0.25em] uppercase select-none -rotate-12 transform scale-110 border border-white/5 px-6 py-2 rounded-xl bg-black/5 backdrop-blur-[0.5px]">
+                  AK THAI PROPERTY
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -117,6 +124,13 @@ export default function PropertyGallery({ gallery, title }: PropertyGalleryProps
               fill
               className="object-contain"
             />
+            
+            {/* Watermark Overlay */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none overflow-hidden">
+              <div className="text-white/10 text-2xl md:text-5xl lg:text-6xl font-black tracking-[0.25em] uppercase select-none -rotate-12 transform scale-110 border border-white/5 px-8 py-3 rounded-2xl bg-black/5 backdrop-blur-[0.5px]">
+                AK THAI PROPERTY
+              </div>
+            </div>
             
             {gallery.length > 1 && (
               <>
