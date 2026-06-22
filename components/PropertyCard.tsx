@@ -15,6 +15,8 @@ interface PropertyProps {
   beds: number;
   baths: number;
   sqft: number;
+  landSize?: number | null;
+  usableArea?: number | null;
   image: string;
 }
 
@@ -112,7 +114,11 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             <div className="w-[1px] h-3 bg-white/10"></div>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
-              <span>{property.sqft} {dict.property_card.sqm}</span>
+              <span>
+                {property.category === "Land"
+                  ? `${property.landSize || property.sqft} ${lang === "th" ? "ตร.วา" : "Sq.wah"}`
+                  : `${property.usableArea || property.sqft} ${dict.property_card.sqm}`}
+              </span>
             </div>
           </div>
         </div>

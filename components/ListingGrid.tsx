@@ -39,9 +39,11 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     || "/house1.png";
 
   // Fallback size
-  let sqft = 120;
-  if (asset.type === "CONDO") sqft = 50;
-  else if (asset.type === "LAND") sqft = 200;
+  let sqft = asset.usableArea ? Number(asset.usableArea) : (asset.landSize ? Number(asset.landSize) : 120);
+  if (!asset.usableArea && !asset.landSize) {
+    if (asset.type === "CONDO") sqft = 50;
+    else if (asset.type === "LAND") sqft = 200;
+  }
 
   let title = asset.title;
   if (lang === "en" && asset.titleEn) title = asset.titleEn;
@@ -64,6 +66,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     beds: asset.noBedroom || 0,
     baths: asset.noBathroom || 0,
     sqft,
+    landSize: asset.landSize ? Number(asset.landSize) : undefined,
+    usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
     image: featureImage,
     description: description,
     facilities: [
