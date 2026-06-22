@@ -92,7 +92,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
               <div className="flex justify-between items-baseline">
                 <span className="text-[10px] font-alt font-black text-white/40 uppercase tracking-wider">{dict.property_card.sell_price}</span>
                 <span className="font-display font-black text-xl text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
-                  <span className="text-xs text-accent/80 mr-0.5">฿</span>{property.sellPrice}
+                  {property.sellPrice}
                 </span>
               </div>
             )}
@@ -101,7 +101,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
               <div className="flex justify-between items-baseline">
                 <span className="text-[10px] font-alt font-black text-white/40 uppercase tracking-wider">{dict.property_card.rent_price}</span>
                 <span className="font-display font-black text-xl text-accent drop-shadow-[0_2px_4px_rgba(0,0,0,0.6)]">
-                  <span className="text-xs text-accent/80 mr-0.5">฿</span>{property.rentPrice}<span className="text-[10px] font-normal text-white/50 ml-1">{dict.property_card.month}</span>
+                  {property.rentPrice}<span className="text-[10px] font-normal text-white/50 ml-1">{dict.property_card.month}</span>
                 </span>
               </div>
             )}

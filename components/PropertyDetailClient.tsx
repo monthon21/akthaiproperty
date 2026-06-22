@@ -248,7 +248,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <div className="bg-accent/[0.04] border border-accent/30 rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
                 <span className="text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1">{t("property_card.sell_price")}</span>
                 <div className="text-3xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none">
-                  <span className="text-xl md:text-2xl text-accent/85 mr-0.5">฿</span>{property.sellPrice}
+                  {property.sellPrice}
                 </div>
               </div>
             )}
@@ -256,7 +256,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <div className="bg-accent/[0.04] border border-accent/30 rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
                 <span className="text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1">{t("property_card.rent_price")}</span>
                 <div className="text-3xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none">
-                  <span className="text-xl md:text-2xl text-accent/85 mr-0.5">฿</span>{property.rentPrice}<span className="text-sm md:text-base font-normal text-white/60 ml-1">{t("property_card.month")}</span>
+                  {property.rentPrice}<span className="text-sm md:text-base font-normal text-white/60 ml-1">{t("property_card.month")}</span>
                 </div>
               </div>
             )}
