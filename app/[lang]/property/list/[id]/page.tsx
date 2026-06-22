@@ -10,6 +10,8 @@ interface PageProps {
   params: Promise<{ id: string; lang: string }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams() {
   return featuredProperties.map((property) => ({
     id: property.id.toString(),

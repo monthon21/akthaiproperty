@@ -4,6 +4,8 @@ import ListingGrid from "@/components/ListingGrid";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import HeroSearchBox from "@/components/HeroSearchBox";
 
+export const dynamic = "force-dynamic";
+
 export default async function BuyPage({ params }: { params: Promise<{ lang: string }> }) {
   const { lang } = await params;
   const dict = await getDictionary(lang as Locale);
