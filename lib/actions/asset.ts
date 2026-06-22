@@ -555,3 +555,28 @@ export async function searchAssetSuggestionsAction(query: string) {
   }
 }
 
+// 10. Search Customers for Owner autocomplete suggestions
+export async function searchCustomersAction(query: string) {
+  if (!query || query.length < 2) return { success: true, customers: [] };
+  
+  try {
+    const customers = await prisma.customer.findMany({
+      where: {
+        name: { contains: query }
+      },
+      take: 10,
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        line: true
+      }
+    });
+    
+    return { success: true, customers };
+  } catch (error: any) {
+    console.error("Error searching customers:", error);
+    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการค้นหาลูกค้า" };
+  }
+}
+

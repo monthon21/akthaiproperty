@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
@@ -71,6 +71,49 @@ export default function AddNewAssetPage() {
     }
     fetchNextCode();
   }, []);
+
+  const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
+  const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
+  const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
+  const customerContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (customerContainerRef.current && !customerContainerRef.current.contains(event.target as Node)) {
+        setShowCustomerSuggestions(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      const q = formData.ownerName || "";
+      if (q.trim().length < 2) {
+        setCustomerSuggestions([]);
+        return;
+      }
+      setIsSearchingCustomers(true);
+      try {
+        const { searchCustomersAction } = await import("@/lib/actions/asset");
+        const res = await searchCustomersAction(q.trim());
+        if (res.success && res.customers) {
+          setCustomerSuggestions(res.customers);
+        }
+      } catch (err) {
+        console.error("Error fetching customer suggestions:", err);
+      } finally {
+        setIsSearchingCustomers(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => {
+      fetchSuggestions();
+    }, 300);
+
+    return () => clearTimeout(debounceTimer);
+  }, [formData.ownerName]);
 
   const formatNumberWithCommas = (value: string) => {
     const clean = value.replace(/[^0-9]/g, "");
@@ -450,10 +493,60 @@ export default function AddNewAssetPage() {
                   ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="space-y-1.5 md:col-span-1">
+                  <div className="space-y-1.5 md:col-span-1 relative" ref={customerContainerRef}>
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
-                    <input type="text" name="ownerName" placeholder="e.g. คุณสมชาย" value={formData.ownerName || ""} onChange={handleInputChange}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                    <input 
+                      type="text" 
+                      name="ownerName" 
+                      placeholder="e.g. คุณสมชาย" 
+                      value={formData.ownerName || ""} 
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        setShowCustomerSuggestions(true);
+                      }}
+                      onFocus={() => setShowCustomerSuggestions(true)}
+                      autoComplete="off"
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" 
+                    />
+                    
+                    {/* Customer Autocomplete Dropdown */}
+                    {showCustomerSuggestions && (formData.ownerName || "").trim().length >= 2 && (
+                      <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        {isSearchingCustomers ? (
+                          <div className="px-4 py-3 text-xs text-white/50 animate-pulse">
+                            กำลังค้นหา... (Searching...)
+                          </div>
+                        ) : customerSuggestions.length > 0 ? (
+                          <ul className="max-h-48 overflow-y-auto divide-y divide-white/5">
+                            {customerSuggestions.map((item) => (
+                              <li 
+                                key={item.id}
+                                onClick={() => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    ownerName: item.name,
+                                    ownerPhone: item.phone || "",
+                                    ownerLine: item.line || ""
+                                  }));
+                                  setShowCustomerSuggestions(false);
+                                }}
+                                className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors flex flex-col gap-0.5 text-left text-white"
+                              >
+                                <span className="text-xs font-bold text-white">{item.name}</span>
+                                <div className="text-[10px] text-white/40 flex justify-between mt-0.5">
+                                  <span>{item.phone ? `Tel: ${item.phone}` : "No Phone"}</span>
+                                  <span>{item.line ? `Line: ${item.line}` : ""}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="px-4 py-3 text-xs text-white/40">
+                            ไม่พบรายชื่อนี้ (New owner)
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-1.5 md:col-span-1">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
