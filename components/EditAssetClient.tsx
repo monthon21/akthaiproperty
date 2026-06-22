@@ -380,7 +380,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">วงเงินประเมินสินเชื่อ (Loan Price / บาท)</label>
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ค่าเช่า / เดือน (Rent Price / Month)</label>
                   <input
                     type="text"
                     name="loanPrice"
@@ -717,7 +717,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                         </span>
                       </div>
                       <div>
-                        <span className="text-white/45 block mb-0.5">วงเงินประเมินเดิม</span>
+                        <span className="text-white/45 block mb-0.5">ค่าเช่าเดิม (Rent/Month)</span>
                         <span className="font-bold text-white">
                           {log.loanPrice ? `${Number(log.loanPrice).toLocaleString()}` : "-"}
                         </span>

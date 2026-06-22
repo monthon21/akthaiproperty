@@ -277,7 +277,7 @@ export default function AddNewAssetPage() {
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">วงเงินประเมินสินเชื่อ (Loan Price / บาท)</label>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ค่าเช่า / เดือน (Rent Price / Month)</label>
                     <input type="text" name="loanPrice" placeholder="e.g. 10,000,000" value={formData.loanPrice} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
