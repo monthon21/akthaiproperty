@@ -33,6 +33,8 @@ export default async function EditAssetPage({ params }: PageProps) {
     ...asset,
     sellPrice: asset.sellPrice ? Number(asset.sellPrice) : null,
     loanPrice: asset.loanPrice ? Number(asset.loanPrice) : null,
+    landSize: asset.landSize ? Number(asset.landSize) : null,
+    usableArea: asset.usableArea ? Number(asset.usableArea) : null,
     prices: asset.prices.map(p => ({
       ...p,
       sellPrice: p.sellPrice ? Number(p.sellPrice) : null,
