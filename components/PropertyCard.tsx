@@ -89,13 +89,13 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         <div className="flex flex-col gap-4 pt-4 border-t border-white/5 mt-auto">
           <div className="bg-black/30 p-3 border border-white/5 rounded space-y-2">
             <div className="flex justify-between items-center">
-              <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{dict.property_card.sell_price}</span>
-              <span className="font-display font-bold text-sm text-accent">{property.sellPrice || "-"}</span>
+              <span className="text-xs font-alt font-bold text-white/60 uppercase tracking-wider">{dict.property_card.sell_price}</span>
+              <span className="font-display font-bold text-base text-accent">{property.sellPrice || "-"}</span>
             </div>
             <div className="h-[1px] bg-white/5"></div>
             <div className="flex justify-between items-center">
-              <span className="text-[9px] font-alt font-bold text-white/40 uppercase tracking-widest">{dict.property_card.rent_price}</span>
-              <span className="font-display font-bold text-sm text-accent">
+              <span className="text-xs font-alt font-bold text-white/60 uppercase tracking-wider">{dict.property_card.rent_price}</span>
+              <span className="font-display font-bold text-base text-accent">
                 {property.rentPrice ? `${property.rentPrice} ${dict.property_card.month}` : "-"}
               </span>
             </div>
