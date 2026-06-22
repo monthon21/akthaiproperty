@@ -209,10 +209,16 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     if (name === "sellPrice" || name === "loanPrice") {
       finalValue = formatNumberWithCommas(value);
     }
-    setFormData((prev) => ({
-      ...prev,
-      [name]: finalValue
-    }));
+    setFormData((prev) => {
+      const nextState = { ...prev, [name]: finalValue };
+      if (name === "isSell" && !checked) {
+        nextState.sellPrice = "";
+      }
+      if (name === "isRent" && !checked) {
+        nextState.loanPrice = "";
+      }
+      return nextState;
+    });
   };
 
 
@@ -439,10 +445,11 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   <input
                     type="text"
                     name="sellPrice"
-                    placeholder="e.g. 12,500,000"
+                    placeholder={formData.isSell ? "e.g. 12,500,000" : "กรุณาเลือก สำหรับขาย (Sell) ก่อน"}
                     value={formData.sellPrice}
                     onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
+                    disabled={!formData.isSell}
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -450,10 +457,11 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   <input
                     type="text"
                     name="loanPrice"
-                    placeholder="e.g. 10,000,000"
+                    placeholder={formData.isRent ? "e.g. 10,000,000" : "กรุณาเลือก สำหรับเช่า (Rent) ก่อน"}
                     value={formData.loanPrice}
                     onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
+                    disabled={!formData.isRent}
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                   />
                 </div>
               </div>

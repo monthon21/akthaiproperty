@@ -40,6 +40,12 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
                 กลับหน้า Profile
               </Link>
               <Link
+                href={`/${lang}/manage/customers`}
+                className="border border-accent/40 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent text-xs font-bold px-6 py-3 rounded-xl tracking-widest uppercase transition-all shadow-md active:scale-95"
+              >
+                ข้อมูลเจ้าของทรัพย์
+              </Link>
+              <Link
                 href={`/${lang}/addnew`}
                 className="bg-accent hover:bg-accent-dark text-primary-dark text-xs font-bold px-6 py-3 rounded-xl tracking-widest uppercase transition-all shadow-lg active:scale-95"
               >

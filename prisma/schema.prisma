@@ -192,11 +192,44 @@ model PasswordResetToken {
 }
 
 model Customer {
-  id        String   @id @default(cuid())
+  id        Int   @id @default(autoincrement())
   name      String
   phone     String?
   line      String?
   assets    Asset[]
+  details   CustomerDetails?
+  customerRoles CustomerRole[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model CustomerDetails {
+  id Int @id @default(autoincrement())
+  customerId String @unique
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fullname String
+  phone String?
+  idcard String?
+  email String?
+  line String?
+  address String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+enum CustomerRoleType {
+  BUYER    // ผู้ซื้อ
+  SELLER   // ผู้ขาย
+  LANDLORD // เจ้าของทรัพย์
+  TENANT   // ผู้เช่า
+  OTHER    // อื่นๆ
+}
+
+model CustomerRole {
+  id        Int      @id @default(autoincrement())
+  customerId String @unique
+  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  role CustomerRoleType
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

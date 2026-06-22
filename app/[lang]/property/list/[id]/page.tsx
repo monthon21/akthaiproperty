@@ -93,7 +93,11 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     price: priceStr,
     sellPrice: sellPriceStr,
     rentPrice: rentPriceStr,
-    type: isRent ? "เช่า" : "ขาย",
+    type: isSell && isRent 
+      ? (lang === "en" ? "Sell / Rent" : lang === "zh" ? "售 / 租" : "ขาย / เช่า") 
+      : isRent 
+        ? (lang === "en" ? "Rent" : lang === "zh" ? "租" : "เช่า") 
+        : (lang === "en" ? "Sell" : lang === "zh" ? "售" : "ขาย"),
     category,
     beds: asset.noBedroom || 0,
     baths: asset.noBathroom || 0,
