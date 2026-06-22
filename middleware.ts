@@ -1,12 +1,9 @@
-import NextAuth from "next-auth";
-import { authConfig } from "./auth.config";
-import { NextResponse } from "next/server";
-
-const { auth } = NextAuth(authConfig);
+import { NextRequest, NextResponse } from "next/server";
+import { getToken } from "next-auth/jwt";
 
 const locales = ["th", "en", "zh"];
 
-export default auth(async function middleware(req) {
+export async function middleware(req: NextRequest) {
   const { nextUrl } = req;
   const { pathname } = nextUrl;
 
@@ -15,19 +12,38 @@ export default auth(async function middleware(req) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameHasLocale) {
-    return;
+  // Protect /myprofile pages
+  const isMyProfile = locales.some(
+    (locale) =>
+      pathname.startsWith(`/${locale}/myprofile`)
+  );
+
+  if (isMyProfile) {
+    const token = await getToken({
+      req,
+      secret: process.env.AUTH_SECRET,
+    });
+    if (!token) {
+      const locale = locales.find((l) => pathname.startsWith(`/${l}/`)) || "th";
+      return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
+    }
   }
 
-  // Get locale from cookie, headers, or default
+  if (pathnameHasLocale) {
+    return NextResponse.next();
+  }
+
+  // Get locale from cookie or default to "th"
   const cookieLocale = req.cookies.get("NEXT_LOCALE")?.value;
-  const locale = (cookieLocale && locales.includes(cookieLocale)) ? cookieLocale : "th";
+  const locale = cookieLocale && locales.includes(cookieLocale) ? cookieLocale : "th";
 
   // Redirect to localized URL
   const targetUrl = new URL(`/${locale}${pathname}${nextUrl.search}`, req.url);
   return NextResponse.redirect(targetUrl);
-});
+}
 
 export const config = {
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.png|.*\\.webp|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.gif|.*\\.ico).*)"],
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|uploads|.*\\.png|.*\\.webp|.*\\.jpg|.*\\.jpeg|.*\\.svg|.*\\.gif|.*\\.ico).*)",
+  ],
 };
