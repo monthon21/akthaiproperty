@@ -350,45 +350,111 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 {/* Detailed Specs Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5">
                   {property.landSize ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.land_size")}</span>
-                      <span className="text-sm font-bold text-accent">{property.landSize} <span className="text-xs font-normal text-white/70">{t("property_detail.sqw")}</span></span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.land_size")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.landSize} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.sqw")}</span>
+                        </span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.usableArea ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
-                      <span className="text-sm font-bold text-accent">{property.usableArea} <span className="text-xs font-normal text-white/70">{t("property_detail.sqm")}</span></span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v16.5h16.5M8.25 12h7.5m-7.5 3h7.5m-7.5-6h3.75M20.25 9h-3.75" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.area_label")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.usableArea} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.sqm")}</span>
+                        </span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.noFloor ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.no_floor")}</span>
-                      <span className="text-sm font-bold text-accent">{property.noFloor} <span className="text-xs font-normal text-white/70">{t("property_detail.floor")}</span></span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m-15 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 3 12v.878m18-3A2.25 2.25 0 0 1 21 12v.878m-18 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 1.5 15v.878m19.5-3A2.25 2.25 0 0 1 22.5 15v.878m-21 0a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 15" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.no_floor")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.noFloor} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.floor")}</span>
+                        </span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.parkingLot ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.parking_lot")}</span>
-                      <span className="text-sm font-bold text-accent">{property.parkingLot} <span className="text-xs font-normal text-white/70">{t("property_detail.cars")}</span></span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.parking_lot")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.parkingLot} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.cars")}</span>
+                        </span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.maidRoom ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.maid_room")}</span>
-                      <span className="text-sm font-bold text-accent">{property.maidRoom} <span className="text-xs font-normal text-white/70">{t("property_detail.beds")}</span></span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.maid_room")}</span>
+                        <span className="text-sm font-black text-accent truncate">
+                          {property.maidRoom} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.beds")}</span>
+                        </span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.facing ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.facing")}</span>
-                      <span className="text-sm font-bold text-accent">{property.facing}</span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m-9-9h18" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.facing")}</span>
+                        <span className="text-sm font-black text-accent truncate">{property.facing}</span>
+                      </div>
                     </div>
                   ) : null}
+
                   {property.otherFeatures ? (
-                    <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.other_features")}</span>
-                      <span className="text-xs font-bold text-accent truncate block" title={property.otherFeatures}>{property.otherFeatures}</span>
+                    <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md sm:col-span-1 col-span-2">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 21l8.982-5.096c.071-.04.148-.061.226-.061h2.292a1.125 1.125 0 0 0 1.125-1.125V4.875A1.125 1.125 0 0 0 20.378 3.75H3.622a1.125 1.125 0 0 0-1.125 1.125v9.964c0 .621.504 1.125 1.125 1.125h2.292c.078 0 .155.021.226.061L12 18l-.982-5.096" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0 w-full">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.other_features")}</span>
+                        <span className="text-xs font-bold text-accent truncate block" title={property.otherFeatures}>{property.otherFeatures}</span>
+                      </div>
                     </div>
                   ) : null}
                 </div>
