@@ -12,12 +12,17 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
   const resolvedParams = await params;
   const lang = resolvedParams?.lang || "th";
 
-  if (!session) {
+  if (!session || !session.user) {
+    redirect("/login");
+  }
+
+  const rawUserId = Number((session.user as any).id);
+  if (isNaN(rawUserId)) {
     redirect("/login");
   }
 
   const userFromDb = await prisma.user.findUnique({
-    where: { id: Number((session.user as any).id) }
+    where: { id: rawUserId }
   });
 
   return (
