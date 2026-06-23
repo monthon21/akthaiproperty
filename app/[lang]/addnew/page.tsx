@@ -59,17 +59,17 @@ export default function AddNewAssetPage() {
   const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
-    async function fetchNextCode() {
+    async function initPage() {
       try {
         const res = await getNextAssetCodeAction();
         if (res.success) {
           setFormData((prev) => ({ ...prev, code: res.code }));
         }
       } catch (err) {
-        console.error("Error fetching next code:", err);
+        console.error("Error initializing page:", err);
       }
     }
-    fetchNextCode();
+    initPage();
   }, []);
 
   const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
@@ -601,7 +601,13 @@ export default function AddNewAssetPage() {
                 <p className="text-[10px] text-white/30 -mt-2">
                   อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
                 </p>
-                <ImageUploader images={images} onChange={setImages} />
+                {formData.code ? (
+                  <ImageUploader images={images} onChange={setImages} assetId={formData.code} />
+                ) : (
+                  <div className="h-28 flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-black/25">
+                    <span className="text-xs text-white/40 animate-pulse">กำลังเตรียมรหัสทรัพย์สำหรับจัดเก็บ...</span>
+                  </div>
+                )}
               </div>
 
               {/* ── Buttons ── */}

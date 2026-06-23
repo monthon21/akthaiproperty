@@ -800,7 +800,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               <p className="text-[10px] text-white/30 -mt-2">
                 อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
               </p>
-              <ImageUploader images={images} onChange={setImages} />
+              <ImageUploader images={images} onChange={setImages} assetId={asset.code} />
             </div>
 
             {/* Buttons */}

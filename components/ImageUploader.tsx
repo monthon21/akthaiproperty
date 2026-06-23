@@ -11,9 +11,10 @@ export interface ImageItem {
 interface ImageUploaderProps {
   images: ImageItem[];
   onChange: (images: ImageItem[]) => void;
+  assetId?: string; // Google Drive folder ID mapping
 }
 
-export default function ImageUploader({ images, onChange }: ImageUploaderProps) {
+export default function ImageUploader({ images, onChange, assetId }: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadError, setUploadError] = useState("");
@@ -22,6 +23,10 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
   const uploadFile = async (file: File): Promise<string | null> => {
     const form = new FormData();
     form.append("file", file);
+    if (assetId) {
+      form.append("assetId", assetId);
+    }
+    
     try {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
@@ -56,7 +61,7 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
         onChange([...images, ...newImages]);
       }
     },
-    [images, onChange]
+    [images, onChange, assetId]
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

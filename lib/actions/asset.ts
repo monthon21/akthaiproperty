@@ -9,6 +9,7 @@ export interface AssetImageInput {
 }
 
 export interface AssetInput {
+  id?: string;
   code: string;
   projectName?: string;
   title: string;
@@ -49,6 +50,7 @@ export interface AssetInput {
 // 1. Create Asset
 export async function createAssetAction(input: AssetInput) {
   const {
+    id,
     code,
     projectName,
     title,
@@ -150,6 +152,7 @@ export async function createAssetAction(input: AssetInput) {
 
     const asset = await prisma.asset.create({
       data: {
+        id: id || undefined,
         code: finalCode,
         projectName: projectName || null,
         title,

@@ -1,9 +1,10 @@
 import { auth, signOut } from "@/auth";
 import { redirect } from "next/navigation";
-import Image from "next/image";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import AvatarUploader from "@/components/AvatarUploader";
+import { prisma } from "@/lib/prisma";
 
 export default async function MyProfilePage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
@@ -15,7 +16,9 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
     redirect("/login");
   }
 
-  const user = session.user;
+  const userFromDb = await prisma.user.findUnique({
+    where: { id: Number((session.user as any).id) }
+  });
 
   return (
     <>
@@ -42,34 +45,20 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
             <div className="h-2 bg-gradient-to-r from-accent/60 via-accent to-accent-dark"></div>
 
             <div className="p-8 md:p-10">
-              <div className="flex flex-col md:flex-row gap-8 items-start md:items-center pb-8 border-b border-white/5 mb-8">
-                {/* Avatar */}
-                <div className="relative shrink-0">
-                  <div className="w-24 h-24 bg-accent/15 border-2 border-accent/40 rounded-2xl flex items-center justify-center text-3xl font-black text-accent shadow-xl shadow-accent/5">
-                    {user?.image ? (
-                      <Image
-                        src={user.image}
-                        alt={user.name || "User"}
-                        width={96}
-                        height={96}
-                        className="rounded-xl object-cover"
-                      />
-                    ) : (
-                      (user?.name?.[0] || user?.email?.[0] || "U").toUpperCase()
-                    )}
-                  </div>
-                  <span className="absolute -bottom-2 -right-2 bg-accent text-primary-dark text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded shadow">
-                    Active
-                  </span>
-                </div>
+              <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-white/5 mb-8">
+                {/* Avatar Uploader */}
+                <AvatarUploader
+                  currentImage={userFromDb?.image || null}
+                  userName={userFromDb?.fullname || userFromDb?.username || "User"}
+                />
 
                 {/* Name / Role */}
                 <div className="space-y-1">
                   <h2 className="text-2xl font-black tracking-tight text-white">
-                    {user?.name || "Anonymous User"}
+                    {userFromDb?.fullname || userFromDb?.username || "Anonymous User"}
                   </h2>
                   <p className="text-white/50 text-xs font-medium tracking-wide">
-                    {user?.email || "ไม่มีข้อมูลอีเมล"}
+                    {userFromDb?.email || "ไม่มีข้อมูลอีเมล"}
                   </p>
                   <div className="pt-2">
                     <span className="text-[9px] font-bold text-primary-dark bg-accent uppercase tracking-widest px-2.5 py-1 rounded">
@@ -83,7 +72,7 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div className="p-5 bg-black/25 border border-white/5 rounded-xl space-y-1">
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">User ID</span>
-                  <span className="text-xs font-mono font-medium text-white/95 break-all">{user?.id}</span>
+                  <span className="text-xs font-mono font-medium text-white/95 break-all">{userFromDb?.id}</span>
                 </div>
                 <div className="p-5 bg-black/25 border border-white/5 rounded-xl space-y-1">
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ประเภทผู้ใช้ (Role)</span>
