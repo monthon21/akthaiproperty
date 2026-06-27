@@ -385,7 +385,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
             </div>
           )}
 
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
 
             {/* Basic Info */}
             <div className="space-y-4">

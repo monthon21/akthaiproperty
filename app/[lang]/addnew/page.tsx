@@ -272,7 +272,7 @@ export default function AddNewAssetPage() {
               </div>
             )}
 
-            <form className="space-y-8">
+            <form className="space-y-8" onSubmit={handleSubmit}>
 
               {/* ── 1. Basic Info ── */}
               <div className="space-y-4">
