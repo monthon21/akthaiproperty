@@ -56,10 +56,10 @@ export default async function Home({ params }: PageProps) {
         <Hero featuredAsset={featuredAsset} />
         
         {/* Direct Listings Selection */}
-        <ListingGrid lang={lang} isRecommendedOnly={true} />
+        <ListingGrid lang={lang} isRecommendedOnly={true} bgColor="bg-primary" />
 
         {/* Focus Services */}
-        <ServiceCards lang={lang} />
+        <ServiceCards lang={lang} bgColor="bg-primary-dark" />
         
         {/* Specialized Mortgage Section */}
         <LoanSection lang={lang} />

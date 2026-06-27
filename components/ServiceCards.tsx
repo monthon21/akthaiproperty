@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 
-export default async function ServiceCards({ lang = "th" }: { lang?: string }) {
+export default async function ServiceCards({ lang = "th", bgColor = "bg-primary" }: { lang?: string; bgColor?: string }) {
   const dict = await getDictionary(lang as Locale);
 
   const services = [
@@ -44,7 +44,7 @@ export default async function ServiceCards({ lang = "th" }: { lang?: string }) {
   ];
 
   return (
-    <section className="py-24 px-6 bg-primary">
+    <section className={`py-24 px-6 ${bgColor}`}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-20">
           <h2 className="text-[10px] font-alt font-extrabold text-accent uppercase tracking-[0.35em] mb-4">{dict.services.subtitle}</h2>

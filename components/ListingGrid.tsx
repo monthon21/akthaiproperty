@@ -16,6 +16,7 @@ interface ListingGridProps {
   propertyType?: string;
   minPrice?: number;
   maxPrice?: number;
+  bgColor?: string;
 }
 
 function mapAssetToProperty(asset: any, lang: string): Property {
@@ -118,7 +119,8 @@ export default async function ListingGrid({
   projectName,
   propertyType,
   minPrice,
-  maxPrice
+  maxPrice,
+  bgColor = "bg-primary-dark"
 }: ListingGridProps) {
   const dict = await getDictionary(lang as Locale);
 
@@ -219,7 +221,7 @@ export default async function ListingGrid({
   const allProperties = mappedDbAssets;
 
   return (
-    <section className="py-24 px-6 bg-primary-dark">
+    <section className={`py-24 px-6 ${bgColor}`}>
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
           <div>
