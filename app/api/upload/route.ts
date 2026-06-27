@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import path from "path";
-import fs from "fs/promises";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_DOC_MIME_TYPES = [
@@ -12,6 +11,16 @@ const ALLOWED_DOC_MIME_TYPES = [
 
 const MAX_IMAGE_SIZE = 10 * 1024 * 1024; // 10 MB
 const MAX_DOC_SIZE = 25 * 1024 * 1024; // 25 MB
+
+// Configure S3 Client for Cloudflare R2
+const s3Client = new S3Client({
+  region: "auto",
+  endpoint: process.env.R2_ENDPOINT || "",
+  credentials: {
+    accessKeyId: process.env.R2_ACCESS_KEY_ID || "",
+    secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || "",
+  },
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -63,14 +72,24 @@ export async function POST(request: NextRequest) {
     }
     const fileName = `${crypto.randomUUID()}.${ext}`;
 
-    // Save to local storage (public/uploads)
-    const uploadDir = path.join(process.cwd(), "public", "uploads");
-    await fs.mkdir(uploadDir, { recursive: true });
+    // Upload to Cloudflare R2
+    const bucketName = process.env.R2_BUCKET_NAME || "";
+    if (!bucketName) {
+      throw new Error("R2_BUCKET_NAME is not configured");
+    }
 
-    const filePath = path.join(uploadDir, fileName);
-    await fs.writeFile(filePath, buffer);
+    const command = new PutObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+      Body: buffer,
+      ContentType: file.type,
+    });
 
-    const fileUrl = `/uploads/${fileName}`;
+    await s3Client.send(command);
+
+    // Build the public URL
+    const publicUrlBase = process.env.R2_PUBLIC_URL || "";
+    const fileUrl = `${publicUrlBase.replace(/\/$/, '')}/${fileName}`;
 
     return NextResponse.json({
       success: true,
