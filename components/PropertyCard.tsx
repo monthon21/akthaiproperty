@@ -56,7 +56,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             {dict.property_card.view_details}
           </Link>
           <a 
-            href="https://line.me" 
+            href="https://line.me/R/ti/p/@akthai59" 
             target="_blank" 
             rel="noopener noreferrer"
             className="w-10 h-10 flex items-center justify-center bg-[#06C755] text-white rounded-sm transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 delay-75 shadow-lg group/line"
