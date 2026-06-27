@@ -213,7 +213,7 @@ export default function AddNewAssetPage() {
       const result = await createAssetAction(submissionData);
       if (result.success) {
         setSuccess(true);
-        setTimeout(() => { router.push(`/property/list/${result.id}`); }, 1500);
+        setTimeout(() => { router.push(`/property/list/${result.code || result.id}`); }, 1500);
       } else {
         setError(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }

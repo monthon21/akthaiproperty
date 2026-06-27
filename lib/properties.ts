@@ -7,6 +7,7 @@ export interface Agent {
 
 export interface Property {
   id: number | string;
+  code?: string;
   id_string: string;
   title: string;
   projectName?: string;

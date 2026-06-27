@@ -214,7 +214,7 @@ export async function createAssetAction(input: AssetInput) {
     });
 
     revalidatePath("/", "layout");
-    return { success: true, id: asset.id };
+    return { success: true, id: asset.id, code: asset.code };
   } catch (error: any) {
     console.error("Error creating asset:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการสร้างทรัพย์สิน" };
@@ -262,6 +262,10 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     images,
     assetPlaces
   } = input;
+
+  try {
+    require('fs').writeFileSync('scratch/debug_input_images.json', JSON.stringify(images || [], null, 2));
+  } catch (e) {}
 
   try {
     // Fetch current asset to check if price has changed
@@ -419,7 +423,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     }
 
     revalidatePath("/", "layout");
-    return { success: true, id };
+    return { success: true, id, code: input.code };
   } catch (error: any) {
     console.error("Error updating asset:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการแก้ไขทรัพย์สิน" };
@@ -429,8 +433,13 @@ export async function updateAssetAction(id: string, input: AssetInput) {
 // 3. Get Asset details
 export async function getAssetAction(id: string) {
   try {
-    const asset = await prisma.asset.findUnique({
-      where: { id },
+    const asset = await prisma.asset.findFirst({
+      where: {
+        OR: [
+          { id },
+          { code: id }
+        ]
+      },
       include: {
         images: true,
         assetPlaces: true,

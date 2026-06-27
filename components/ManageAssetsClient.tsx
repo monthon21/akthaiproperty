@@ -267,10 +267,10 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     </button>
                   </td>
                   <td className="px-6 py-4 text-right space-x-4 whitespace-nowrap opacity-70 group-hover:opacity-100 transition-opacity">
-                    <Link href={`/${currentLang}/property/list/${asset.id}`} target="_blank" className="text-xs font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest">
+                    <Link href={`/${currentLang}/property/list/${asset.code || asset.id}`} target="_blank" className="text-xs font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest">
                       View
                     </Link>
-                    <Link href={`/${currentLang}/edit/${asset.id}`} className="text-xs font-bold text-accent hover:text-accent-dark transition-colors uppercase tracking-widest">
+                    <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} className="text-xs font-bold text-accent hover:text-accent-dark transition-colors uppercase tracking-widest">
                       Edit
                     </Link>
                     {isAdmin && (

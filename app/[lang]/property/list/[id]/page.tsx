@@ -166,8 +166,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
   }
 
   if (!property) {
-    const dbAsset = await prisma.asset.findUnique({
-      where: { id: resolvedParams.id },
+    const dbAsset = await prisma.asset.findFirst({
+      where: {
+        OR: [
+          { id: resolvedParams.id },
+          { code: resolvedParams.id }
+        ]
+      },
       include: {
         images: true,
         assetPlaces: true

@@ -322,7 +322,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
       if (result.success) {
         setSuccess(true);
         setTimeout(() => {
-          router.push(`/property/list/${result.id}`);
+          router.push(`/property/list/${result.code || result.id}`);
           router.refresh();
         }, 1500);
       } else {

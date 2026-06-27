@@ -226,7 +226,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <>
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
                 <Link
-                  href={`/edit/${property.id}`}
+                  href={`/edit/${property.code || property.id}`}
                   className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent hover:text-white uppercase tracking-wider transition-colors border border-accent/20 px-2.5 py-1 rounded-md bg-accent/5 hover:bg-accent/10"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
