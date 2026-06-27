@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
-import { uploadToDrive, getOrCreateFolder } from "@/lib/gdrive";
+import path from "path";
+import fs from "fs/promises";
 
 const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 const ALLOWED_DOC_MIME_TYPES = [
@@ -63,40 +64,24 @@ export async function POST(request: NextRequest) {
     }
     const fileName = `${crypto.randomUUID()}.${ext}`;
 
-    // Determine target folder in Google Drive
-    const rootFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
-    if (!rootFolderId) {
-      return NextResponse.json(
-        { success: false, error: "ระบบจัดเก็บข้อมูล Google Drive ยังไม่ได้ตั้งค่าโฟลเดอร์หลัก" },
-        { status: 500 }
-      );
-    }
+    // Save to local storage (public/uploads)
+    const uploadDir = path.join(process.cwd(), "public", "uploads");
+    await fs.mkdir(uploadDir, { recursive: true });
 
-    let targetFolderId = rootFolderId;
+    const filePath = path.join(uploadDir, fileName);
+    await fs.writeFile(filePath, buffer);
 
-    if (type === "avatar") {
-      targetFolderId = await getOrCreateFolder("users", rootFolderId);
-    } else if (isDoc) {
-      const docsFolderId = await getOrCreateFolder("docs", rootFolderId);
-      targetFolderId = assetId ? await getOrCreateFolder(assetId, docsFolderId) : docsFolderId;
-    } else {
-      // Default: Asset images
-      const assetFolderId = await getOrCreateFolder("asset", rootFolderId);
-      targetFolderId = assetId ? await getOrCreateFolder(assetId, assetFolderId) : assetFolderId;
-    }
-
-    // Upload to Google Drive
-    const uploadResult = await uploadToDrive(buffer, fileName, file.type, targetFolderId);
+    const fileUrl = `/uploads/${fileName}`;
 
     return NextResponse.json({
       success: true,
-      url: uploadResult.url,
-      fileId: uploadResult.id,
+      url: fileUrl,
+      fileId: fileName,
     });
   } catch (error: any) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { success: false, error: error.message || "เกิดข้อผิดพลาดในการอัพโหลดไปยัง Google Drive" },
+      { success: false, error: error.message || "เกิดข้อผิดพลาดในการอัพโหลดไฟล์" },
       { status: 500 }
     );
   }

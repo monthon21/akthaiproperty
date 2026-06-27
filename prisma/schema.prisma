@@ -156,7 +156,9 @@ enum AssetType {
   APARTMENT    // อพาร์ทเม้นท์
   OTHER        // อื่นๆ
 }
-
+model Asset{
+  
+}
 model AssetImage {
   id        String   @id @default(cuid())
   assetId   String
