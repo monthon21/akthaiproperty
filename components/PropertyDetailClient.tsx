@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Property } from "@/lib/properties";
 import PropertyGallery from "./PropertyGallery";
+import FormattedText from "./FormattedText";
 import { getSessionAction } from "@/lib/actions/auth";
 import SearchBox from "./SearchBox";
 
@@ -345,7 +346,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 {currentLang === "th" ? "ข้อมูลอสังหาริมทรัพย์" : currentLang === "zh" ? "关于此房产" : "About this Property"}
               </h2>
               <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
-                <p>{property.description}</p>
+                <FormattedText text={property.description} className="text-white/70" />
 
                 {/* Detailed Specs Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5">
