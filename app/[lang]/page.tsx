@@ -55,11 +55,11 @@ export default async function Home({ params }: PageProps) {
         {/* Entrance Section */}
         <Hero featuredAsset={featuredAsset} />
         
-        {/* Focus Services */}
-        <ServiceCards lang={lang} />
-        
         {/* Direct Listings Selection */}
         <ListingGrid lang={lang} isRecommendedOnly={true} />
+
+        {/* Focus Services */}
+        <ServiceCards lang={lang} />
         
         {/* Specialized Mortgage Section */}
         <LoanSection lang={lang} />
