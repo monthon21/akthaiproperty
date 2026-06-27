@@ -11,9 +11,10 @@ export interface ImageItem {
 interface ImageUploaderProps {
   images: ImageItem[];
   onChange: (images: ImageItem[]) => void;
+  folder?: string;
 }
 
-export default function ImageUploader({ images, onChange }: ImageUploaderProps) {
+export default function ImageUploader({ images, onChange, folder }: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
   const [uploadError, setUploadError] = useState("");
@@ -22,6 +23,9 @@ export default function ImageUploader({ images, onChange }: ImageUploaderProps) 
   const uploadFile = async (file: File): Promise<string | null> => {
     const form = new FormData();
     form.append("file", file);
+    if (folder) {
+      form.append("folder", folder);
+    }
     
     try {
       const res = await fetch("/api/upload", { method: "POST", body: form });

@@ -71,7 +71,10 @@ export async function POST(request: NextRequest) {
         ext = parts[parts.length - 1].toLowerCase();
       }
     }
-    const fileName = `${crypto.randomUUID()}.${ext}`;
+    
+    const folder = formData.get("folder") as string | null;
+    const prefix = folder ? `${folder}/` : "";
+    const fileName = `${prefix}${crypto.randomUUID()}.${ext}`;
 
     // Upload to Cloudflare R2
     const bucketName = process.env.R2_BUCKET_NAME || "";

@@ -701,7 +701,7 @@ export default function AddNewAssetPage() {
                   อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
                 </p>
                 {formData.code ? (
-                  <ImageUploader images={images} onChange={setImages} />
+                  <ImageUploader images={images} onChange={setImages} folder={formData.code || "temp"} />
                 ) : (
                   <div className="h-28 flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-black/25">
                     <span className="text-xs text-white/40 animate-pulse">กำลังเตรียมรหัสทรัพย์สำหรับจัดเก็บ...</span>
