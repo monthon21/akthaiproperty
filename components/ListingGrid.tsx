@@ -74,7 +74,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     id: asset.id,
     id_string: asset.code,
     title: title,
-    location: `${asset.subdistrict ? asset.subdistrict + ", " : ""}${asset.district ? asset.district + ", " : ""}${asset.province || ""}`,
+    location: `${asset.road ? "ถ." + asset.road + " " : ""}${asset.subdistrict ? asset.subdistrict + ", " : ""}${asset.district ? asset.district + ", " : ""}${asset.province || ""}`,
     price: priceStr,
     sellPrice: sellPriceStr,
     rentPrice: rentPriceStr,

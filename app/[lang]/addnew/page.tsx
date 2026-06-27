@@ -142,7 +142,7 @@ export default function AddNewAssetPage() {
     if (formData.isRent && !formData.isSell) priceStr += " / เดือน";
   }
 
-  const fullLocation = `${formData.address ? formData.address + " " : ""}${formData.soi ? "ซ." + formData.soi + " " : ""}${formData.road ? "ถ." + formData.road + " " : ""}${formData.subdistrict ? formData.subdistrict + ", " : ""}${formData.district ? formData.district + ", " : ""}${formData.province || ""}`;
+  const fullLocation = `${formData.road ? "ถ." + formData.road + " " : ""}${formData.subdistrict ? formData.subdistrict + ", " : ""}${formData.district ? formData.district + ", " : ""}${formData.province || ""}`;
   const mapUrl = getGoogleMapsEmbedUrl(formData.googleMap, fullLocation);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {

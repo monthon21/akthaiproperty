@@ -21,7 +21,7 @@ export async function generateStaticParams() {
 function mapAssetToProperty(asset: any, lang: string): Property {
   const isRent = asset.isRent;
   const isSell = asset.isSell;
-  
+
   let priceStr = "ติดต่อสอบถาม";
   const priceParts: string[] = [];
   if (isSell && asset.sellPrice) {
@@ -51,8 +51,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   else if (asset.type === "OTHER") category = "Other";
 
   // Fallback default image
-  const featureImage = asset.images.find((img: any) => img.isFeature)?.imageUrl 
-    || asset.images[0]?.imageUrl 
+  const featureImage = asset.images.find((img: any) => img.isFeature)?.imageUrl
+    || asset.images[0]?.imageUrl
     || "/house1.png";
 
   let galleryUrls: string[] = [];
@@ -88,15 +88,15 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     id_string: asset.code,
     title: title,
     projectName: asset.projectName || undefined,
-    location: `${asset.address ? asset.address + " " : ""}${asset.soi ? "ซ." + asset.soi + " " : ""}${asset.road ? "ถ." + asset.road + " " : ""}${asset.subdistrict ? asset.subdistrict + ", " : ""}${asset.district ? asset.district + ", " : ""}${asset.province || ""}`,
+    location: `${asset.road ? "ถ." + asset.road + " " : ""}${asset.subdistrict ? asset.subdistrict + ", " : ""}${asset.district ? asset.district + ", " : ""}${asset.province || ""}`,
     zipCode: asset.zipCode || undefined,
     price: priceStr,
     sellPrice: sellPriceStr,
     rentPrice: rentPriceStr,
-    type: isSell && isRent 
-      ? (lang === "en" ? "Sell / Rent" : lang === "zh" ? "售 / 租" : "ขาย / เช่า") 
-      : isRent 
-        ? (lang === "en" ? "Rent" : lang === "zh" ? "租" : "เช่า") 
+    type: isSell && isRent
+      ? (lang === "en" ? "Sell / Rent" : lang === "zh" ? "售 / 租" : "ขาย / เช่า")
+      : isRent
+        ? (lang === "en" ? "Rent" : lang === "zh" ? "租" : "เช่า")
         : (lang === "en" ? "Sell" : lang === "zh" ? "售" : "ขาย"),
     category,
     beds: asset.noBedroom || 0,
@@ -122,7 +122,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
         return item.label;
       });
       if (translated.length > 0) return translated;
-      
+
       // Fallback
       if (lang === "en") return ["24-Hour Security", "CCTV", "Private Parking", "Public Park"];
       if (lang === "zh") return ["24小时保安", "闭路电视", "私人停车场", "公园"];
@@ -136,8 +136,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     gallery: galleryUrls,
     agent: {
       name: "AK Thai Property Office",
-      phone: "081-234-5678",
-      email: "info@akthaiproperty.com",
+      phone: "082-444-8989",
+      email: "[EMAIL_ADDRESS]",
       line: "@akproperty"
     }
   };
@@ -146,7 +146,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
 export default async function PropertyDetailPage({ params }: PageProps) {
   const resolvedParams = await params;
   const propertyId = parseInt(resolvedParams.id);
-  
+
   let property: Property | null = null;
   let similarProperties: Property[] = [];
 
@@ -170,13 +170,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
 
     if (dbAsset) {
       property = mapAssetToProperty(dbAsset, resolvedParams.lang);
-      
+
       const dbSimilar = await prisma.asset.findMany({
         where: { id: { not: dbAsset.id } },
         take: 3,
         include: { images: true }
       });
-      
+
       similarProperties = dbSimilar.map(asset => mapAssetToProperty(asset, resolvedParams.lang));
       if (similarProperties.length < 3) {
         const needed = 3 - similarProperties.length;
