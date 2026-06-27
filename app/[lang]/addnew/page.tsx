@@ -53,6 +53,7 @@ export default function AddNewAssetPage() {
 
   const [images, setImages] = useState<ImageItem[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -163,7 +164,7 @@ export default function AddNewAssetPage() {
     });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, isDrafting: boolean = false) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
@@ -172,14 +173,16 @@ export default function AddNewAssetPage() {
       setError("กรุณากรอกรหัสทรัพย์และชื่อทรัพย์สิน");
       return;
     }
-    if (images.length === 0) {
-      setError("กรุณาเพิ่มรูปภาพประกอบอย่างน้อย 1 รูป");
-      return;
-    }
-    const hasFeature = images.some((img) => img.isFeature);
-    if (!hasFeature) {
-      setError("กรุณาเลือกรูปภาพหลัก (Feature Image) 1 รูป");
-      return;
+    if (!isDrafting) {
+      if (images.length === 0) {
+        setError("กรุณาเพิ่มรูปภาพประกอบอย่างน้อย 1 รูป");
+        return;
+      }
+      const hasFeature = images.some((img) => img.isFeature);
+      if (!hasFeature) {
+        setError("กรุณาเลือกรูปภาพหลัก (Feature Image) 1 รูป");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -196,7 +199,15 @@ export default function AddNewAssetPage() {
         maidRoom: formData.maidRoom ? Number(formData.maidRoom) : undefined,
         parkingLot: formData.parkingLot ? Number(formData.parkingLot) : undefined,
         amenities,
-        images
+        images,
+        assetPlaces: assetPlaces
+          .filter(p => p.placeName.trim() !== "")
+          .map(p => ({
+            placeName: p.placeName,
+            distance: p.type === "distance" && p.value ? `${p.value} ${p.unit}` : undefined,
+            travelTime: p.type === "time" && p.value ? `${p.value} ${p.unit}` : undefined
+          })),
+        isDraft: isDrafting
       };
 
       const result = await createAssetAction(submissionData);
@@ -215,6 +226,18 @@ export default function AddNewAssetPage() {
 
   const toggleAmenity = (key: string) => {
     setAmenities((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
+  };
+
+  const addAssetPlace = () => {
+    setAssetPlaces([...assetPlaces, { id: Date.now().toString(), type: "distance", value: "", unit: "km", placeName: "" }]);
+  };
+
+  const updateAssetPlace = (id: string, field: "type" | "value" | "unit" | "placeName", val: string) => {
+    setAssetPlaces(assetPlaces.map(p => p.id === id ? { ...p, [field]: val } : p));
+  };
+
+  const removeAssetPlace = (id: string) => {
+    setAssetPlaces(assetPlaces.filter(p => p.id !== id));
   };
 
   return (
@@ -249,7 +272,7 @@ export default function AddNewAssetPage() {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-8">
+            <form className="space-y-8">
 
               {/* ── 1. Basic Info ── */}
               <div className="space-y-4">
@@ -593,6 +616,82 @@ export default function AddNewAssetPage() {
                 </div>
               </div>
 
+              {/* ── 5.1 สถานที่ใกล้เคียง (Nearby Places) ── */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                  <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
+                    สถานที่ใกล้เคียง (Nearby Places)
+                  </h3>
+                  <button type="button" onClick={addAssetPlace}
+                    className="text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors uppercase tracking-wider flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    เพิ่มรายการ
+                  </button>
+                </div>
+                
+                {assetPlaces.length === 0 ? (
+                  <p className="text-xs text-white/40 italic">ยังไม่มีข้อมูลสถานที่ใกล้เคียง กด "เพิ่มรายการ" เพื่อระบุสถานที่ ระยะทาง และเวลาเดินทาง</p>
+                ) : (
+                  <div className="space-y-3">
+                    {assetPlaces.map((place, index) => (
+                      <div key={place.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ระบุด้วย (Type)</label>
+                          <select value={place.type} onChange={(e) => {
+                              const newType = e.target.value as "distance" | "time";
+                              const newUnit = newType === "distance" ? "km" : "นาที";
+                              setAssetPlaces(assetPlaces.map(p => p.id === place.id ? { ...p, type: newType, unit: newUnit, value: "" } : p));
+                            }}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer"
+                          >
+                            <option className="bg-[#112240]" value="distance">ระยะทาง</option>
+                            <option className="bg-[#112240]" value="time">ระยะเวลา</option>
+                          </select>
+                        </div>
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ตัวเลข (Value)</label>
+                          <input type="number" placeholder="e.g. 5" value={place.value} onChange={(e) => updateAssetPlace(place.id, "value", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                        </div>
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">หน่วย (Unit)</label>
+                          <select value={place.unit} onChange={(e) => updateAssetPlace(place.id, "unit", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer"
+                          >
+                            {place.type === "distance" ? (
+                              <>
+                                <option className="bg-[#112240]" value="m">m (เมตร)</option>
+                                <option className="bg-[#112240]" value="km">km (กิโลเมตร)</option>
+                              </>
+                            ) : (
+                              <>
+                                <option className="bg-[#112240]" value="นาที">นาที (mins)</option>
+                                <option className="bg-[#112240]" value="ชั่วโมง">ชั่วโมง (hours)</option>
+                              </>
+                            )}
+                          </select>
+                        </div>
+                        <div className="md:col-span-5 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ชื่อสถานที่ (Place Name)</label>
+                          <input type="text" placeholder="e.g. ห้างสรรพสินค้าเซ็นทรัล" value={place.placeName} onChange={(e) => updateAssetPlace(place.id, "placeName", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                        </div>
+                        <div className="md:col-span-1 flex justify-end md:mt-6">
+                          <button type="button" onClick={() => removeAssetPlace(place.id)}
+                            className="h-10 w-10 flex items-center justify-center bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* ── 6. Images ── */}
               <div className="space-y-4">
                 <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
@@ -602,7 +701,7 @@ export default function AddNewAssetPage() {
                   อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
                 </p>
                 {formData.code ? (
-                  <ImageUploader images={images} onChange={setImages} assetId={formData.code} />
+                  <ImageUploader images={images} onChange={setImages} />
                 ) : (
                   <div className="h-28 flex items-center justify-center border-2 border-dashed border-white/10 rounded-2xl bg-black/25">
                     <span className="text-xs text-white/40 animate-pulse">กำลังเตรียมรหัสทรัพย์สำหรับจัดเก็บ...</span>
@@ -620,7 +719,11 @@ export default function AddNewAssetPage() {
                   className="px-6 h-11 border border-accent/30 hover:border-accent bg-accent/5 hover:bg-accent/10 text-accent rounded-xl text-xs font-bold uppercase transition-all tracking-wider cursor-pointer">
                   ดูตัวอย่าง (Preview)
                 </button>
-                <button type="submit" disabled={isSubmitting}
+                <button type="button" onClick={(e) => handleSubmit(e, true)} disabled={isSubmitting}
+                  className="px-6 h-11 border border-accent/30 hover:border-accent bg-accent/5 hover:bg-accent/10 text-accent rounded-xl text-xs font-bold uppercase transition-all tracking-wider cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed">
+                  บันทึกแบบร่าง (Save Draft)
+                </button>
+                <button type="button" onClick={(e) => handleSubmit(e, false)} disabled={isSubmitting}
                   className="px-10 h-11 bg-accent text-primary-dark rounded-xl font-black text-xs tracking-widest uppercase hover:bg-accent-dark transition-all shadow-lg hover:shadow-accent/15 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">
                   {isSubmitting ? "กำลังบันทึก..." : "บันทึกข้อมูล (Save)"}
                 </button>
@@ -758,6 +861,34 @@ export default function AddNewAssetPage() {
                   <div className="w-full h-[320px] rounded-xl overflow-hidden border border-white/10 shadow-lg relative group">
                     <iframe src={mapUrl} width="100%" height="100%" style={{ border: 0 }} allowFullScreen={false} loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="w-full h-full grayscale opacity-80"></iframe>
                   </div>
+
+                  {/* Nearby Places Preview */}
+                  {assetPlaces.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                      <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
+                        สถานที่ใกล้เคียง (Nearby Places)
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {assetPlaces.filter(p => p.placeName.trim() !== "").map((place, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-4 bg-black/20 border border-white/5 rounded-xl">
+                            <span className="text-xs font-semibold text-white">{place.placeName}</span>
+                            <div className="text-right">
+                              {place.type === "distance" && place.value && (
+                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                  {place.value} {place.unit}
+                                </span>
+                              )}
+                              {place.type === "time" && place.value && (
+                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                  {place.value} {place.unit}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </section>
               </div>
 

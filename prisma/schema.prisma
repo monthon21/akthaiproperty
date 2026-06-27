@@ -10,21 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum  UserRole {
+enum UserRole {
   USER
   ADMIN
   CUSTOMER
 }
 
 model User {
-  id            Int          @id @default(autoincrement())
-  username      String          @unique
+  id            Int       @id @default(autoincrement())
+  username      String    @unique
   password      String
   fullname      String?
-  email         String?         @unique
+  email         String?   @unique
   emailVerified DateTime?
   image         String?
-  role          UserRole         @default(USER)
+  role          UserRole  @default(USER)
   accounts      Account[]
   sessions      Session[]
 
@@ -33,7 +33,7 @@ model User {
 }
 
 model Account {
-  id                Int  @id @default(autoincrement())
+  id                Int     @id @default(autoincrement())
   userId            Int
   type              String
   provider          String
@@ -55,7 +55,7 @@ model Account {
 }
 
 model Session {
-  id           Int   @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   sessionToken String   @unique
   userId       Int
   expires      DateTime
@@ -66,7 +66,7 @@ model Session {
 }
 
 model VerificationToken {
-  id         Int   @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   identifier String
   token      String
   expires    DateTime
@@ -84,44 +84,45 @@ model Contact {
 }
 
 model Asset {
-  id          String       @id @default(cuid())
-  code        String       @unique  // รหัสทรัพย์
-  
+  id   String @id @default(cuid())
+  code String @unique // รหัสทรัพย์
+
   // Multilingual title & description (TH / EN / ZH)
-  title       String                     // ภาษาไทย (required)
-  titleEn     String?                    // English
-  titleZh     String?                    // 中文
-  description String?      @db.Text     // ภาษาไทย
-  descriptionEn String?    @db.Text     // English
-  descriptionZh String?    @db.Text     // 中文
-  
+  title         String // ภาษาไทย (required)
+  titleEn       String? // English
+  titleZh       String? // 中文
+  description   String? @db.Text // ภาษาไทย
+  descriptionEn String? @db.Text // English
+  descriptionZh String? @db.Text // 中文
+
   // Project
-  projectName   String?                 // ชื่อโครงการ
-  
+  projectName String? // ชื่อโครงการ
+
   // checkboxrent sell
-  isRent      Boolean      @default(false)
-  isSell      Boolean      @default(false)
-  isAvailable Boolean      @default(true)
-  isRecommended Boolean    @default(false) // แสดงในหน้าแรก
-  
+  isRent        Boolean @default(false)
+  isSell        Boolean @default(false)
+  isAvailable   Boolean @default(true)
+  isRecommended Boolean @default(false) // แสดงในหน้าแรก
+  isDraft       Boolean @default(false) // บันทึกแบบร่าง
+
   // asset type
-  type        AssetType
-  
+  type AssetType
+
   // Price
-  sellPrice   Decimal?
-  loanPrice   Decimal?     // วงเงินสินเชื่อประเมิน
-  
+  sellPrice Decimal?
+  loanPrice Decimal? // วงเงินสินเชื่อประเมิน
+
   // Specs
-  noBedroom   Int?
-  noBathroom  Int?
-  noFloor     Int?
-  landSize    Decimal?     // ขนาดที่ดิน (ตร.วา)
-  usableArea  Decimal?     // พื้นที่ใช้สอย (ตร.ม.)
-  maidRoom    Int?
-  parkingLot  Int?
-  facing      String?
-  otherFeatures String?    @db.Text
-  amenities   String?      @db.Text  // JSON array of amenity keys
+  noBedroom     Int?
+  noBathroom    Int?
+  noFloor       Int?
+  landSize      Decimal? // ขนาดที่ดิน (ตร.วา)
+  usableArea    Decimal? // พื้นที่ใช้สอย (ตร.ม.)
+  maidRoom      Int?
+  parkingLot    Int?
+  facing        String?
+  otherFeatures String?  @db.Text
+  amenities     String?  @db.Text // JSON array of amenity keys
 
   // Location
   address     String?
@@ -131,34 +132,44 @@ model Asset {
   district    String?
   subdistrict String?
   zipCode     String?
-  googleMap   String?      @db.Text
-  
-  images      AssetImage[]
-  prices      AssetPrice[]
-  customerId  Int?
-  customer    Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
-  
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  googleMap   String? @db.Text
+
+  images     AssetImage[]
+  prices     AssetPrice[]
+  customerId Int?
+  customer   Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  assetPlaces AssetPlaces[]
 }
 
 enum AssetType {
   DETACHED_HOUSE // บ้านเดี่ยว
-  TOWNHOUSE    // ทาวน์เฮาส์
+  TOWNHOUSE // ทาวน์เฮาส์
   SEMI_DETACHED // บ้านแฝด
-  VILLA        // วิลล่า
-  FACTORY      // โรงงาน
-  WAREHOUSE    // โกดัง
-  OFFICE       // ออฟฟิศ
-  RETAIL       // ร้านค้า
-  LAND         // ที่ดินเปล่า
-  COMMERCIAL   // อาคารพาณิชย์
-  APARTMENT    // อพาร์ทเม้นท์
-  OTHER        // อื่นๆ
+  VILLA // วิลล่า
+  FACTORY // โรงงาน
+  WAREHOUSE // โกดัง
+  OFFICE // ออฟฟิศ
+  RETAIL // ร้านค้า
+  LAND // ที่ดินเปล่า
+  COMMERCIAL // อาคารพาณิชย์
+  APARTMENT // อพาร์ทเม้นท์
+  OTHER // อื่นๆ
 }
-model Asset{
-  
+
+model AssetPlaces {
+  id          Int  @id @default(autoincrement())
+  assetId     String
+  asset       Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  placeName   String
+  distance    String?
+  travelTime  String? // นาที, ชั่วโมง
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
+
 model AssetImage {
   id        String   @id @default(cuid())
   assetId   String
@@ -194,44 +205,44 @@ model PasswordResetToken {
 }
 
 model Customer {
-  id        Int   @id @default(autoincrement())
-  name      String
-  phone     String?
-  line      String?
-  assets    Asset[]
-  details   CustomerDetails?
+  id            Int              @id @default(autoincrement())
+  name          String
+  phone         String?
+  line          String?
+  assets        Asset[]
+  details       CustomerDetails?
   customerRoles CustomerRole[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
 }
 
 model CustomerDetails {
-  id Int @id @default(autoincrement())
-  customerId Int @unique
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  fullname String
-  phone String?
-  idcard String?
-  email String?
-  line String?
-  address String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  customerId Int      @unique
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  fullname   String
+  phone      String?
+  idcard     String?
+  email      String?
+  line       String?
+  address    String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 enum CustomerRoleType {
-  BUYER    // ผู้ซื้อ
-  SELLER   // ผู้ขาย
+  BUYER // ผู้ซื้อ
+  SELLER // ผู้ขาย
   LANDLORD // เจ้าของทรัพย์
-  TENANT   // ผู้เช่า
-  OTHER    // อื่นๆ
+  TENANT // ผู้เช่า
+  OTHER // อื่นๆ
 }
 
 model CustomerRole {
-  id        Int      @id @default(autoincrement())
+  id         Int              @id @default(autoincrement())
   customerId Int
-  customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  role CustomerRoleType
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  customer   Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  role       CustomerRoleType
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
 }

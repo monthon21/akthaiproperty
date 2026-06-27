@@ -139,7 +139,12 @@ function mapAssetToProperty(asset: any, lang: string): Property {
       phone: "082-444-8989",
       email: "[EMAIL_ADDRESS]",
       line: "@akproperty"
-    }
+    },
+    nearbyPlaces: asset.assetPlaces ? asset.assetPlaces.map((p: any) => ({
+      placeName: p.placeName,
+      distance: p.distance || undefined,
+      travelTime: p.travelTime || undefined
+    })) : []
   };
 }
 
@@ -164,7 +169,8 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     const dbAsset = await prisma.asset.findUnique({
       where: { id: resolvedParams.id },
       include: {
-        images: true
+        images: true,
+        assetPlaces: true
       }
     });
 

@@ -33,6 +33,11 @@ export interface Property {
   facilities: string[];
   gallery: string[];
   agent: Agent;
+  nearbyPlaces?: {
+    placeName: string;
+    distance?: string;
+    travelTime?: string;
+  }[];
 }
 
 export const featuredProperties: Property[] = [

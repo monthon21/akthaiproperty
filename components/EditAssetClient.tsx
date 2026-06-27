@@ -23,6 +23,13 @@ interface DBAssetImage {
   isFeature: boolean;
 }
 
+interface DBAssetPlace {
+  id: number;
+  placeName: string;
+  distance: string | null;
+  travelTime: any;
+}
+
 interface DBAsset {
   id: string;
   code: string;
@@ -60,6 +67,7 @@ interface DBAsset {
   amenities: string | null;
   images: DBAssetImage[];
   prices: DBAssetPrice[];
+  assetPlaces: DBAssetPlace[];
   createdAt: Date | string;
   updatedAt: Date | string;
   customerId?: number | null;
@@ -153,6 +161,33 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const [amenities, setAmenities] = useState<string[]>(
     parseAmenities(asset.amenities)
   );
+  const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>(
+    (asset.assetPlaces || []).map(p => {
+      let type: "distance" | "time" = "distance";
+      let value = "";
+      let unit = "km";
+
+      if (p.distance) {
+        type = "distance";
+        const parts = p.distance.split(" ");
+        value = parts[0] || "";
+        unit = parts[1] || "km";
+      } else if (p.travelTime) {
+        type = "time";
+        const parts = (p.travelTime as string).split(" ");
+        value = parts[0] || "";
+        unit = parts[1] || "นาที";
+      }
+
+      return {
+        id: p.id.toString(),
+        type,
+        value,
+        unit,
+        placeName: p.placeName
+      };
+    })
+  );
 
   const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
@@ -201,6 +236,18 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     setAmenities((prev) => prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]);
   };
 
+  const addAssetPlace = () => {
+    setAssetPlaces([...assetPlaces, { id: Date.now().toString(), type: "distance", value: "", unit: "km", placeName: "" }]);
+  };
+
+  const updateAssetPlace = (id: string, field: "type" | "value" | "unit" | "placeName", val: string) => {
+    setAssetPlaces(assetPlaces.map(p => p.id === id ? { ...p, [field]: val } : p));
+  };
+
+  const removeAssetPlace = (id: string) => {
+    setAssetPlaces(assetPlaces.filter(p => p.id !== id));
+  };
+
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -222,7 +269,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   };
 
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, isDrafting: boolean = false) => {
     e.preventDefault();
     setError("");
     setSuccess(false);
@@ -232,15 +279,17 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
       return;
     }
 
-    if (images.length === 0) {
-      setError("กรุณาเพิ่มรูปภาพประกอบอย่างน้อย 1 รูป");
-      return;
-    }
+    if (!isDrafting) {
+      if (images.length === 0) {
+        setError("กรุณาเพิ่มรูปภาพประกอบอย่างน้อย 1 รูป");
+        return;
+      }
 
-    const hasFeature = images.some((img) => img.isFeature);
-    if (!hasFeature) {
-      setError("กรุณาเลือกรูปภาพหลัก (Feature Image) 1 รูป");
-      return;
+      const hasFeature = images.some((img) => img.isFeature);
+      if (!hasFeature) {
+        setError("กรุณาเลือกรูปภาพหลัก (Feature Image) 1 รูป");
+        return;
+      }
     }
 
     setIsSubmitting(true);
@@ -258,7 +307,15 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         maidRoom: formData.maidRoom ? Number(formData.maidRoom) : undefined,
         parkingLot: formData.parkingLot ? Number(formData.parkingLot) : undefined,
         amenities,
-        images
+        images,
+        assetPlaces: assetPlaces
+          .filter(p => p.placeName.trim() !== "")
+          .map(p => ({
+            placeName: p.placeName,
+            distance: p.type === "distance" && p.value ? `${p.value} ${p.unit}` : undefined,
+            travelTime: p.type === "time" && p.value ? `${p.value} ${p.unit}` : undefined
+          })),
+        isDraft: isDrafting
       };
 
       const result = await updateAssetAction(asset.id, submissionData);
@@ -328,7 +385,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form className="space-y-6">
 
             {/* Basic Info */}
             <div className="space-y-4">
@@ -718,81 +775,157 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
             </div>
 
-            {/* ข้อมูลเจ้าของทรัพย์ (Owner Details) */}
-            <div className="space-y-4">
-              <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
-                ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                <div className="space-y-1.5 md:col-span-1 relative" ref={customerContainerRef}>
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
-                  <input 
-                    type="text" 
-                    name="ownerName" 
-                    placeholder="e.g. คุณสมชาย" 
-                    value={formData.ownerName || ""} 
-                    onChange={(e) => {
-                      handleInputChange(e);
-                      setShowCustomerSuggestions(true);
-                    }}
-                    onFocus={() => setShowCustomerSuggestions(true)}
-                    autoComplete="off"
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" 
-                  />
-                  
-                  {/* Customer Autocomplete Dropdown */}
-                  {showCustomerSuggestions && (formData.ownerName || "").trim().length >= 2 && (
-                    <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
-                      {isSearchingCustomers ? (
-                        <div className="px-4 py-3 text-xs text-white/50 animate-pulse">
-                          กำลังค้นหา... (Searching...)
-                        </div>
-                      ) : customerSuggestions.length > 0 ? (
-                        <ul className="max-h-48 overflow-y-auto divide-y divide-white/5">
-                          {customerSuggestions.map((item) => (
-                            <li 
-                              key={item.id}
-                              onClick={() => {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  ownerName: item.name,
-                                  ownerPhone: item.phone || "",
-                                  ownerLine: item.line || ""
-                                }));
-                                setShowCustomerSuggestions(false);
-                              }}
-                              className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors flex flex-col gap-0.5 text-left text-white"
-                            >
-                              <span className="text-xs font-bold text-white">{item.name}</span>
-                              <div className="text-[10px] text-white/40 flex justify-between mt-0.5">
-                                <span>{item.phone ? `Tel: ${item.phone}` : "No Phone"}</span>
-                                <span>{item.line ? `Line: ${item.line}` : ""}</span>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <div className="px-4 py-3 text-xs text-white/40">
-                          ไม่พบรายชื่อนี้ (New owner)
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
-                  <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
-                </div>
-                <div className="space-y-1.5 md:col-span-1">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">Line ID</label>
-                  <input type="text" name="ownerLine" placeholder="e.g. somchai_line" value={formData.ownerLine || ""} onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+              {/* ข้อมูลเจ้าของทรัพย์ (Owner Details) */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
+                  ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  <div className="space-y-1.5 md:col-span-1 relative" ref={customerContainerRef}>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
+                    <input 
+                      type="text" 
+                      name="ownerName" 
+                      placeholder="e.g. คุณสมชาย" 
+                      value={formData.ownerName || ""} 
+                      onChange={(e) => {
+                        handleInputChange(e);
+                        setShowCustomerSuggestions(true);
+                      }}
+                      onFocus={() => setShowCustomerSuggestions(true)}
+                      autoComplete="off"
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" 
+                    />
+                    
+                    {/* Customer Autocomplete Dropdown */}
+                    {showCustomerSuggestions && (formData.ownerName || "").trim().length >= 2 && (
+                      <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                        {isSearchingCustomers ? (
+                          <div className="px-4 py-3 text-xs text-white/50 animate-pulse">
+                            กำลังค้นหา... (Searching...)
+                          </div>
+                        ) : customerSuggestions.length > 0 ? (
+                          <ul className="max-h-48 overflow-y-auto divide-y divide-white/5">
+                            {customerSuggestions.map((item) => (
+                              <li 
+                                key={item.id}
+                                onClick={() => {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    ownerName: item.name,
+                                    ownerPhone: item.phone || "",
+                                    ownerLine: item.line || ""
+                                  }));
+                                  setShowCustomerSuggestions(false);
+                                }}
+                                className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors flex flex-col gap-0.5 text-left text-white"
+                              >
+                                <span className="text-xs font-bold text-white">{item.name}</span>
+                                <div className="text-[10px] text-white/40 flex justify-between mt-0.5">
+                                  <span>{item.phone ? `Tel: ${item.phone}` : "No Phone"}</span>
+                                  <span>{item.line ? `Line: ${item.line}` : ""}</span>
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <div className="px-4 py-3 text-xs text-white/40">
+                            ไม่พบรายชื่อนี้ (New owner)
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="space-y-1.5 md:col-span-1">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
+                    <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  </div>
+                  <div className="space-y-1.5 md:col-span-1">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">Line ID</label>
+                    <input type="text" name="ownerLine" placeholder="e.g. somchai_line" value={formData.ownerLine || ""} onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Images */}
+              {/* ── 5.1 สถานที่ใกล้เคียง (Nearby Places) ── */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-end border-b border-white/5 pb-2">
+                  <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
+                    สถานที่ใกล้เคียง (Nearby Places)
+                  </h3>
+                  <button type="button" onClick={addAssetPlace}
+                    className="text-[10px] font-bold bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-lg transition-colors uppercase tracking-wider flex items-center gap-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    เพิ่มรายการ
+                  </button>
+                </div>
+                
+                {assetPlaces.length === 0 ? (
+                  <p className="text-xs text-white/40 italic">ยังไม่มีข้อมูลสถานที่ใกล้เคียง กด "เพิ่มรายการ" เพื่อระบุสถานที่ ระยะทาง และเวลาเดินทาง</p>
+                ) : (
+                  <div className="space-y-3">
+                    {assetPlaces.map((place, index) => (
+                      <div key={place.id} className="grid grid-cols-1 md:grid-cols-12 gap-3 items-start bg-black/20 p-4 rounded-xl border border-white/5">
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ระบุด้วย (Type)</label>
+                          <select value={place.type} onChange={(e) => {
+                              const newType = e.target.value as "distance" | "time";
+                              const newUnit = newType === "distance" ? "km" : "นาที";
+                              setAssetPlaces(assetPlaces.map(p => p.id === place.id ? { ...p, type: newType, unit: newUnit, value: "" } : p));
+                            }}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer"
+                          >
+                            <option className="bg-[#112240]" value="distance">ระยะทาง</option>
+                            <option className="bg-[#112240]" value="time">ระยะเวลา</option>
+                          </select>
+                        </div>
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ตัวเลข (Value)</label>
+                          <input type="number" placeholder="e.g. 5" value={place.value} onChange={(e) => updateAssetPlace(place.id, "value", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                        </div>
+                        <div className="md:col-span-2 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">หน่วย (Unit)</label>
+                          <select value={place.unit} onChange={(e) => updateAssetPlace(place.id, "unit", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer"
+                          >
+                            {place.type === "distance" ? (
+                              <>
+                                <option className="bg-[#112240]" value="m">m (เมตร)</option>
+                                <option className="bg-[#112240]" value="km">km (กิโลเมตร)</option>
+                              </>
+                            ) : (
+                              <>
+                                <option className="bg-[#112240]" value="นาที">นาที (mins)</option>
+                                <option className="bg-[#112240]" value="ชั่วโมง">ชั่วโมง (hours)</option>
+                              </>
+                            )}
+                          </select>
+                        </div>
+                        <div className="md:col-span-5 space-y-1.5">
+                          <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ชื่อสถานที่ (Place Name)</label>
+                          <input type="text" placeholder="e.g. ห้างสรรพสินค้าเซ็นทรัล" value={place.placeName} onChange={(e) => updateAssetPlace(place.id, "placeName", e.target.value)}
+                            className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                        </div>
+                        <div className="md:col-span-1 flex justify-end md:mt-6">
+                          <button type="button" onClick={() => removeAssetPlace(place.id)}
+                            className="h-10 w-10 flex items-center justify-center bg-red-500/10 text-red-400 hover:bg-red-500/20 hover:text-red-300 rounded-lg transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                            </svg>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Images */}
             <div className="space-y-4">
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 รูปภาพประกอบ (Images List)
@@ -800,7 +933,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               <p className="text-[10px] text-white/30 -mt-2">
                 อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
               </p>
-              <ImageUploader images={images} onChange={setImages} assetId={asset.code} />
+              <ImageUploader images={images} onChange={setImages} />
             </div>
 
             {/* Buttons */}
@@ -1078,6 +1211,34 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                       className="w-full h-full grayscale opacity-80"
                     ></iframe>
                   </div>
+
+                  {/* Nearby Places Preview */}
+                  {assetPlaces.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                      <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
+                        สถานที่ใกล้เคียง (Nearby Places)
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {assetPlaces.filter(p => p.placeName.trim() !== "").map((place, idx) => (
+                          <div key={idx} className="flex justify-between items-center p-4 bg-black/20 border border-white/5 rounded-xl">
+                            <span className="text-xs font-semibold text-white">{place.placeName}</span>
+                            <div className="text-right">
+                              {place.type === "distance" && place.value && (
+                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                  {place.value} {place.unit}
+                                </span>
+                              )}
+                              {place.type === "time" && place.value && (
+                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                  {place.value} {place.unit}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </section>
               </div>
 

@@ -2,10 +2,17 @@
 
 import { prisma } from "@/lib/prisma";
 import { AssetType } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 
 export interface AssetImageInput {
   imageUrl: string;
   isFeature: boolean;
+}
+
+export interface AssetPlaceInput {
+  placeName: string;
+  distance?: string;
+  travelTime?: string;
 }
 
 export interface AssetInput {
@@ -20,6 +27,7 @@ export interface AssetInput {
   descriptionZh?: string;
   isRent: boolean;
   isSell: boolean;
+  isDraft?: boolean;
   type: AssetType;
   sellPrice?: number;
   loanPrice?: number;
@@ -45,6 +53,7 @@ export interface AssetInput {
   ownerPhone?: string;
   ownerLine?: string;
   images: AssetImageInput[];
+  assetPlaces?: AssetPlaceInput[];
 }
 
 // 1. Create Asset
@@ -61,6 +70,7 @@ export async function createAssetAction(input: AssetInput) {
     descriptionZh,
     isRent,
     isSell,
+    isDraft,
     type,
     sellPrice,
     loanPrice,
@@ -85,7 +95,8 @@ export async function createAssetAction(input: AssetInput) {
     ownerName,
     ownerPhone,
     ownerLine,
-    images
+    images,
+    assetPlaces
   } = input;
 
   if (!title || !type) {
@@ -163,6 +174,7 @@ export async function createAssetAction(input: AssetInput) {
         descriptionZh: descriptionZh || null,
         isRent,
         isSell,
+        isDraft: isDraft || false,
         type,
         sellPrice: sellPrice ? Number(sellPrice) : null,
         loanPrice: loanPrice ? Number(loanPrice) : null,
@@ -190,10 +202,18 @@ export async function createAssetAction(input: AssetInput) {
             imageUrl: img.imageUrl,
             isFeature: img.isFeature
           }))
-        }
+        },
+        assetPlaces: assetPlaces && assetPlaces.length > 0 ? {
+          create: assetPlaces.map(place => ({
+            placeName: place.placeName,
+            distance: place.distance || null,
+            travelTime: place.travelTime || null
+          }))
+        } : undefined
       }
     });
 
+    revalidatePath("/", "layout");
     return { success: true, id: asset.id };
   } catch (error: any) {
     console.error("Error creating asset:", error);
@@ -214,6 +234,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     descriptionZh,
     isRent,
     isSell,
+    isDraft,
     type,
     sellPrice,
     loanPrice,
@@ -238,7 +259,8 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     ownerName,
     ownerPhone,
     ownerLine,
-    images
+    images,
+    assetPlaces
   } = input;
 
   try {
@@ -339,6 +361,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         descriptionZh: descriptionZh || null,
         isRent,
         isSell,
+        isDraft: isDraft || false,
         type,
         sellPrice: newSellPriceNum,
         loanPrice: newLoanPriceNum,
@@ -379,6 +402,23 @@ export async function updateAssetAction(id: string, input: AssetInput) {
       });
     }
 
+    // Refresh assetPlaces: delete existing and recreate
+    await prisma.assetPlaces.deleteMany({
+      where: { assetId: id }
+    });
+
+    if (assetPlaces && assetPlaces.length > 0) {
+      await prisma.assetPlaces.createMany({
+        data: assetPlaces.map(place => ({
+          assetId: id,
+          placeName: place.placeName,
+          distance: place.distance || null,
+          travelTime: place.travelTime || null
+        }))
+      });
+    }
+
+    revalidatePath("/", "layout");
     return { success: true, id };
   } catch (error: any) {
     console.error("Error updating asset:", error);
@@ -393,6 +433,7 @@ export async function getAssetAction(id: string) {
       where: { id },
       include: {
         images: true,
+        assetPlaces: true,
         prices: {
           orderBy: { createdAt: "desc" }
         },
@@ -472,6 +513,7 @@ export async function deleteAssetAction(id: string) {
       where: { id }
     });
 
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     console.error("Error deleting asset:", error);

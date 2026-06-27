@@ -17,7 +17,6 @@ export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
-    const assetId = formData.get("assetId") as string | null;
     const type = formData.get("type") as string | null; // "image" | "avatar" | "document"
 
     if (!file) {

@@ -533,6 +533,34 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   className="w-full h-full grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"
                 ></iframe>
               </div>
+
+              {/* Nearby Places */}
+              {property.nearbyPlaces && property.nearbyPlaces.length > 0 && (
+                <div className="mt-6 pt-6 border-t border-white/5 space-y-4">
+                  <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
+                    {currentLang === "th" ? "สถานที่ใกล้เคียง (Nearby Places)" : currentLang === "zh" ? "附近地点" : "Nearby Places"}
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {property.nearbyPlaces.map((place, idx) => (
+                      <div key={idx} className="flex justify-between items-center p-4 bg-black/20 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                        <span className="text-xs font-semibold text-white">{place.placeName}</span>
+                        <div className="text-right">
+                          {place.distance && (
+                            <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                              {place.distance}
+                            </span>
+                          )}
+                          {place.travelTime && (
+                            <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                              {place.travelTime}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
 
           </div>
