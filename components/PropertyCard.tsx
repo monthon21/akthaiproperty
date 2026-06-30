@@ -48,10 +48,10 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         </Link>
         
         {/* Hover overlay details drawer */}
-        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-6 gap-3 z-20">
+        <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-6 gap-3 z-20 pointer-events-none">
           <Link 
             href={`/${lang}/property/list/${property.id}`}
-            className="flex-1 py-2.5 bg-accent text-primary-dark font-alt font-extrabold rounded-sm text-xs transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 hover:bg-accent-dark cursor-pointer text-center"
+            className="flex-1 py-2.5 bg-accent text-primary-dark font-alt font-extrabold rounded-sm text-xs transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 hover:bg-accent-dark cursor-pointer text-center pointer-events-auto"
           >
             {dict.property_card.view_details}
           </Link>
@@ -59,7 +59,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             href="https://line.me/R/ti/p/@akthai59" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="w-10 h-10 flex items-center justify-center bg-[#06C755] text-white rounded-sm transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 delay-75 shadow-lg group/line"
+            className="w-10 h-10 flex items-center justify-center bg-[#06C755] text-white rounded-sm transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 delay-75 shadow-lg group/line pointer-events-auto"
           >
             <span className="font-alt font-black text-[9px] group-hover/line:scale-110 transition-transform">LINE</span>
           </a>
