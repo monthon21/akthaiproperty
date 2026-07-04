@@ -8,8 +8,8 @@ import PropertyGallery from "./PropertyGallery";
 import FormattedText from "./FormattedText";
 import { getSessionAction } from "@/lib/actions/auth";
 import SearchBox from "./SearchBox";
-
 import { usePathname } from "next/navigation";
+import * as htmlToImage from "html-to-image";
 import th from "@/lib/i18n/th.json";
 import en from "@/lib/i18n/en.json";
 import zh from "@/lib/i18n/zh.json";
@@ -35,6 +35,38 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
       }
     }
     return result || key;
+  };
+
+  const translateFacing = (facingValue: string | undefined | null) => {
+    if (!facingValue) return "";
+    const cleanValue = facingValue.trim();
+
+    const facingMap: Record<string, { th: string; en: string; zh: string }> = {
+      "เหนือ": { th: "ทิศเหนือ", en: "North", zh: "北" },
+      "ใต้": { th: "ทิศใต้", en: "South", zh: "南" },
+      "ตะวันออก": { th: "ทิศตะวันออก", en: "East", zh: "东" },
+      "ตะวันตก": { th: "ทิศตะวันตก", en: "West", zh: "西" },
+      "ตะวันออกเฉียงเหนือ": { th: "ทิศตะวันออกเฉียงเหนือ", en: "Northeast", zh: "东北" },
+      "ตะวันออกเฉียงใต้": { th: "ทิศตะวันออกเฉียงใต้", en: "Southeast", zh: "东南" },
+      "ตะวันตกเฉียงเหนือ": { th: "ทิศตะวันตกเฉียงเหนือ", en: "Northwest", zh: "西北" },
+      "ตะวันตกเฉียงใต้": { th: "ทิศตะวันตกเฉียงใต้", en: "Southwest", zh: "西南" },
+      "North": { th: "ทิศเหนือ", en: "North", zh: "北" },
+      "South": { th: "ทิศใต้", en: "South", zh: "南" },
+      "East": { th: "ทิศตะวันออก", en: "East", zh: "东" },
+      "West": { th: "ทิศตะวันตก", en: "West", zh: "西" },
+      "Northeast": { th: "ทิศตะวันออกเฉียงเหนือ", en: "Northeast", zh: "东北" },
+      "Southeast": { th: "ทิศตะวันออกเฉียงใต้", en: "Southeast", zh: "东南" },
+      "Northwest": { th: "ทิศตะวันตกเฉียงเหนือ", en: "Northwest", zh: "西北" },
+      "Southwest": { th: "ทิศตะวันตกเฉียงใต้", en: "Southwest", zh: "西南" }
+    };
+
+    const matched = facingMap[cleanValue];
+    if (matched) {
+      if (currentLang === "en") return matched.en;
+      if (currentLang === "zh") return matched.zh;
+      return matched.th;
+    }
+    return facingValue;
   };
 
   const [session, setSession] = useState<any>(null);
@@ -76,6 +108,63 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
   const [loanAmount, setLoanAmount] = useState(Math.round(priceNum * 0.8));
   const [interestRate, setInterestRate] = useState(3.5);
   const [tenureYears, setTenureYears] = useState(30);
+
+  // Share Card Modal state
+  const [showShareModal, setShowShareModal] = useState(false);
+
+  const getMultilingualFacing = (facingValue: string | undefined | null) => {
+    if (!facingValue) return "-";
+    const cleanValue = facingValue.trim();
+
+    const facingMap: Record<string, { th: string; zh: string; en: string }> = {
+      "เหนือ": { th: "เหนือ", zh: "北", en: "north" },
+      "ใต้": { th: "ใต้", zh: "南", en: "south" },
+      "ตะวันออก": { th: "ตะวันออก", zh: "东", en: "east" },
+      "ตะวันตก": { th: "ตะวันตก", zh: "西", en: "west" },
+      "ตะวันออกเฉียงเหนือ": { th: "ตะวันออกเฉียงเหนือ", zh: "东北", en: "northeast" },
+      "ตะวันออกเฉียงใต้": { th: "ตะวันออกเฉียงใต้", zh: "东南", en: "southeast" },
+      "ตะวันตกเฉียงเหนือ": { th: "ตะวันตกเฉียงเหนือ", zh: "西北", en: "northwest" },
+      "ตะวันตกเฉียงใต้": { th: "ตะวันตกเฉียงใต้", zh: "西南", en: "southwest" },
+      "North": { th: "เหนือ", zh: "北", en: "north" },
+      "South": { th: "ใต้", zh: "南", en: "south" },
+      "East": { th: "ตะวันออก", zh: "东", en: "east" },
+      "West": { th: "ตะวันตก", zh: "西", en: "west" },
+      "Northeast": { th: "ตะวันออกเฉียงเหนือ", zh: "东北", en: "northeast" },
+      "Southeast": { th: "ตะวันออกเฉียงใต้", zh: "东南", en: "southeast" },
+      "Northwest": { th: "ตะวันตกเฉียงเหนือ", zh: "西北", en: "northwest" },
+      "Southwest": { th: "ตะวันตกเฉียงใต้", zh: "西南", en: "southwest" }
+    };
+
+    const matched = facingMap[cleanValue];
+    if (matched) {
+      return `${matched.th}/${matched.zh}/${matched.en}`;
+    }
+    return facingValue;
+  };
+
+  const handleDownloadImage = () => {
+    const node = document.getElementById("share-property-card");
+    if (!node) return;
+
+    htmlToImage.toPng(node, {
+      cacheBust: true,
+      backgroundColor: "#ffffff",
+      style: {
+        transform: 'scale(1)',
+        transformOrigin: 'top left',
+        width: '100%'
+      }
+    })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = `property-${property.id_string || "detail"}.png`;
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((error) => {
+        console.error("Error generating image:", error);
+      });
+  };
 
   // Agent Form state
   const [activeTab, setActiveTab] = useState<"email" | "message">("email");
@@ -176,10 +265,10 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
           </span>
         </div>
         <div className="w-full md:w-80 relative z-50">
-          <SearchBox 
-            currentLang={currentLang} 
-            placeholder={currentLang === "th" ? "รหัสทรัพย์, ทำเล, ชื่อโครงการ..." : "ID, Location, Project..."} 
-            buttonText={currentLang === "en" ? "Search" : currentLang === "zh" ? "搜索" : "ค้นหา"} 
+          <SearchBox
+            currentLang={currentLang}
+            placeholder={currentLang === "th" ? "รหัสทรัพย์, ทำเล, ชื่อโครงการ..." : "ID, Location, Project..."}
+            buttonText={currentLang === "en" ? "Search" : currentLang === "zh" ? "搜索" : "ค้นหา"}
           />
         </div>
       </div>
@@ -223,6 +312,19 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               </svg>
               ID: {property.id_string}
             </div>
+
+            <span className="w-1 h-1 rounded-full bg-white/20"></span>
+
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary-dark uppercase tracking-wider transition-all duration-300 bg-accent hover:bg-accent-dark px-3 py-1.5 rounded-md shadow-md hover:shadow-accent/20 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer animate-fade-in"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3-3m0 0 3 3m-3-3V1.5" />
+              </svg>
+              {currentLang === "th" ? "แชร์การ์ดข้อมูล" : currentLang === "zh" ? "分享卡片" : "Share Card"}
+            </button>
             {session && (
               <>
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
@@ -306,6 +408,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 </div>
               </div>
             )}
+
           </div>
         </div>
       </div>
@@ -472,7 +575,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.facing")}</span>
-                        <span className="text-sm font-black text-accent truncate">{property.facing}</span>
+                        <span className="text-sm font-black text-accent truncate">{translateFacing(property.facing)}</span>
                       </div>
                     </div>
                   ) : null}
@@ -548,16 +651,16 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                         <div className="text-right">
                           {place.distance && (
                             <span className="block text-xs md:text-sm font-black tracking-wider text-accent uppercase">
-                              {currentLang === "en" ? place.distance.replace("กิโลเมตร", "km").replace("เมตร", "m") : 
-                               currentLang === "zh" ? place.distance.replace("กิโลเมตร", "公里").replace("km", "公里").replace("เมตร", "米").replace("m", "米") : 
-                               place.distance.replace("km", "กิโลเมตร").replace("m", "เมตร")}
+                              {currentLang === "en" ? place.distance.replace("กิโลเมตร", "km").replace("เมตร", "m") :
+                                currentLang === "zh" ? place.distance.replace("กิโลเมตร", "公里").replace("km", "公里").replace("เมตร", "米").replace("m", "米") :
+                                  place.distance.replace("km", "กิโลเมตร").replace("m", "เมตร")}
                             </span>
                           )}
                           {place.travelTime && (
                             <span className="block text-xs md:text-sm font-black tracking-wider text-accent uppercase mt-1">
-                              {currentLang === "en" ? place.travelTime.replace("ชั่วโมง", "hrs").replace("นาที", "mins") : 
-                               currentLang === "zh" ? place.travelTime.replace("ชั่วโมง", "小时").replace("hrs", "小时").replace("นาที", "分钟").replace("mins", "分钟") : 
-                               place.travelTime.replace("hrs", "ชั่วโมง").replace("mins", "นาที")}
+                              {currentLang === "en" ? place.travelTime.replace("ชั่วโมง", "hrs").replace("นาที", "mins") :
+                                currentLang === "zh" ? place.travelTime.replace("ชั่วโมง", "小时").replace("hrs", "小时").replace("นาที", "分钟").replace("mins", "分钟") :
+                                  place.travelTime.replace("hrs", "ชั่วโมง").replace("mins", "นาที")}
                             </span>
                           )}
                         </div>
@@ -958,6 +1061,139 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
         )}
 
       </div>
+
+      {/* Share Property Modal */}
+      {showShareModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 p-4 overflow-y-auto backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-[420px] bg-[#112240] border border-white/10 rounded-2xl p-5 shadow-2xl relative my-8 animate-scale-up">
+            {/* Modal Header */}
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xs font-bold text-accent uppercase tracking-widest">
+                {currentLang === "th" ? "พรีวิวการ์ดส่งต่อ" : currentLang === "zh" ? "房源卡片预览" : "Share Card Preview"}
+              </h3>
+              <button
+                onClick={() => setShowShareModal(false)}
+                className="p-1.5 text-white/60 hover:text-white hover:bg-white/5 rounded-lg transition-colors cursor-pointer"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* The Card for Screenshot */}
+            <div
+              id="share-property-card"
+              className="bg-white text-gray-900 rounded-xl overflow-hidden shadow-lg p-5 font-sans"
+            >
+              {/* Card Brand Header */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center text-slate-900 font-bold text-sm shrink-0 shadow-sm">
+                  AK
+                </div>
+                <div className="flex flex-col">
+                  <span className="font-bold text-sm tracking-wide text-gray-950">AKThaiProperty.com</span>
+                  <span className="text-[10px] text-gray-500 font-medium">
+                    {new Date().toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' })}, {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false })} น.
+                  </span>
+                </div>
+              </div>
+
+              {/* Feature Image */}
+              <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-gray-100 mb-2 border border-gray-100">
+                <img
+                  src={property.image}
+                  alt={property.title}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+
+              {/* Gallery Row (up to 4 small images) */}
+              {property.gallery && property.gallery.length > 0 && (
+                <div className="grid grid-cols-4 gap-1.5 mb-4">
+                  {property.gallery.slice(0, 4).map((img, idx) => (
+                    <div key={idx} className="relative aspect-4/3 rounded overflow-hidden bg-gray-50 border border-gray-100">
+                      <img
+                        src={img}
+                        alt={`gallery-${idx}`}
+                        className="object-cover w-full h-full"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Property Summary Section */}
+              <div className="space-y-3.5 text-sm text-gray-800 leading-normal pl-1">
+                {/* Project / Title */}
+                <div className="flex items-start gap-2 text-[15px] font-bold text-gray-950">
+                  <span className="shrink-0 mt-0.5">🏡</span>
+                  <span>
+                    {property.projectName ? `${property.projectName}` : property.title}
+                    {property.id_string && ` (${property.id_string})`}
+                  </span>
+                </div>
+
+                {/* Price */}
+                <div className="flex items-baseline gap-2 text-base font-bold text-gray-950">
+                  <span className="shrink-0">💵</span>
+                  <span>
+                    {property.sellPrice && property.rentPrice
+                      ? `${property.sellPrice} / ${property.rentPrice}`
+                      : property.sellPrice
+                        ? `${property.sellPrice}`
+                        : property.rentPrice
+                          ? `${property.rentPrice} / เดือน`
+                          : property.price
+                    }
+                  </span>
+                </div>
+
+                {/* Attributes Detail List */}
+                <div className="space-y-1.5 pt-2 border-t border-gray-100 text-xs md:text-sm font-medium">
+                  <div>
+                    <span className="text-gray-500">bed room/ห้องนอน/卧室 :</span> <span className="font-bold text-gray-950">{property.beds ?? "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">bathroom/ห้องน้ำ/浴室 :</span> <span className="font-bold text-gray-950">{property.baths ?? "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Floor/ชั้น/地面 :</span> <span className="font-bold text-gray-950">{property.noFloor ?? "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Parking/จอดรถ/停車處 :</span> <span className="font-bold text-gray-950">{property.parkingLot ?? "-"} คัน/cars/部</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Land/ที่ดิน/土地 :</span> <span className="font-bold text-gray-950">{property.landSize ? `${property.landSize} ตร.วา/Sq.wah/平米` : "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Area/พื้นที่ใช้สอย/區域 :</span> <span className="font-bold text-gray-950">{property.usableArea ? `${property.usableArea} ตร.ม/sq.m/平米` : "-"}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">View/ทิศ/方向 :</span> <span className="font-bold text-gray-950">{getMultilingualFacing(property.facing)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Action Button: Download Image / Help Tip */}
+            <div className="mt-5 flex flex-col gap-2">
+              <p className="text-[10px] text-white/50 text-center leading-normal">
+                {currentLang === "th" ? "💡 ดาวน์โหลดเพื่อบันทึกและแชร์ต่อได้ทันที" : "💡 Click download to save and share."}
+              </p>
+              <button
+                onClick={() => handleDownloadImage()}
+                className="w-full h-11 bg-accent hover:bg-accent-dark text-primary-dark font-black text-xs tracking-widest uppercase rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg hover:shadow-accent/15"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                </svg>
+                {currentLang === "th" ? "ดาวน์โหลดรูปภาพการ์ด" : currentLang === "zh" ? "下载房源图片" : "Download Card Image"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </main>
   );
