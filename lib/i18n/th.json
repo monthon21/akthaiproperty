@@ -75,6 +75,8 @@
   },
   "property_card": {
     "view_details": "ดูรายละเอียด",
+    "share_link": "แชร์ลิงก์",
+    "copied": "คัดลอกแล้ว!",
     "starts_from": "เริ่มที่",
     "beds": "นอน",
     "baths": "น้ำ",

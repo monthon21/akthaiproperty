@@ -75,6 +75,8 @@
   },
   "property_card": {
     "view_details": "查看详情",
+    "share_link": "分享链接",
+    "copied": "已复制!",
     "starts_from": "起价",
     "beds": "卧",
     "baths": "卫",

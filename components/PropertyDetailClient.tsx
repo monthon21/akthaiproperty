@@ -1152,25 +1152,25 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 {/* Attributes Detail List */}
                 <div className="space-y-1.5 pt-2 border-t border-gray-100 text-xs md:text-sm font-medium">
                   <div>
-                    <span className="text-gray-500">bed room/ห้องนอน/卧室 :</span> <span className="font-bold text-gray-950">{property.beds ?? "-"}</span>
+                    <span className="text-gray-500">ห้องนอน/bed room/卧室 :</span> <span className="font-bold text-gray-950">{property.beds ?? "-"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">bathroom/ห้องน้ำ/浴室 :</span> <span className="font-bold text-gray-950">{property.baths ?? "-"}</span>
+                    <span className="text-gray-500">ห้องน้ำ/bathroom/浴室 :</span> <span className="font-bold text-gray-950">{property.baths ?? "-"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Floor/ชั้น/地面 :</span> <span className="font-bold text-gray-950">{property.noFloor ?? "-"}</span>
+                    <span className="text-gray-500">ชั้น/Floor/地面 :</span> <span className="font-bold text-gray-950">{property.noFloor ?? "-"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Parking/จอดรถ/停車處 :</span> <span className="font-bold text-gray-950">{property.parkingLot ?? "-"} คัน/cars/部</span>
+                    <span className="text-gray-500">ที่จอดรถ/Parking/停車處 :</span> <span className="font-bold text-gray-950">{property.parkingLot ?? "-"} คัน/cars/部</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Land/ที่ดิน/土地 :</span> <span className="font-bold text-gray-950">{property.landSize ? `${property.landSize} ตร.วา/Sq.wah/平米` : "-"}</span>
+                    <span className="text-gray-500">ที่ดิน/Land/土地 :</span> <span className="font-bold text-gray-950">{property.landSize ? `${property.landSize} ตร.วา/Sq.wah/平方哇` : "-"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">Area/พื้นที่ใช้สอย/區域 :</span> <span className="font-bold text-gray-950">{property.usableArea ? `${property.usableArea} ตร.ม/sq.m/平米` : "-"}</span>
+                    <span className="text-gray-500">พื้นที่ใช้สอย/Area/區域 :</span> <span className="font-bold text-gray-950">{property.usableArea ? `${property.usableArea} ตร.ม/sq.m/平米` : "-"}</span>
                   </div>
                   <div>
-                    <span className="text-gray-500">View/ทิศ/方向 :</span> <span className="font-bold text-gray-950">{getMultilingualFacing(property.facing)}</span>
+                    <span className="text-gray-500">ทิศ/View/方向 :</span> <span className="font-bold text-gray-950">{getMultilingualFacing(property.facing)}</span>
                   </div>
                 </div>
               </div>

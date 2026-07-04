@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import AnimatedLink from "./AnimatedLink";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
+import ShareButton from "./ShareButton";
 
 interface PropertyProps {
   id: number | string;
@@ -64,6 +65,14 @@ export default async function PropertyCard({ property, lang = "th" }: { property
           >
             <span className="font-alt font-black text-[9px] group-hover/line:scale-110 transition-transform">LINE</span>
           </a>
+          <ShareButton 
+            href={`/${lang}/property/list/${property.id}`} 
+            title={property.title} 
+            translations={{
+              shareLink: dict.property_card.share_link,
+              copied: dict.property_card.copied
+            }}
+          />
         </div>
       </div>
       

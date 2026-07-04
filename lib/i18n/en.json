@@ -75,6 +75,8 @@
   },
   "property_card": {
     "view_details": "View Details",
+    "share_link": "Share link",
+    "copied": "Copied!",
     "starts_from": "Starts at",
     "beds": "Beds",
     "baths": "Baths",
