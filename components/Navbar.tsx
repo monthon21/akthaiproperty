@@ -37,7 +37,7 @@ export default function Navbar() {
       setScrolled(window.scrollY > 20);
     };
     window.addEventListener("scroll", handleScroll);
-    
+
     // Fetch session on mount
     async function fetchSession() {
       try {
@@ -57,7 +57,7 @@ export default function Navbar() {
   const handleLanguageChange = (lang: string) => {
     // Save to cookie so middleware remembers it
     document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
-    
+
     // Construct new pathname with updated locale prefix
     const segments = pathname.split("/");
     if (segments[1] && ["th", "en", "zh"].includes(segments[1])) {
@@ -71,11 +71,10 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-primary-dark/95 backdrop-blur-md border-b border-accent/10 py-3.5 shadow-2xl"
-          : "bg-transparent py-6"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+        ? "bg-primary-dark/95 backdrop-blur-md border-b border-accent/10 py-3.5 shadow-2xl"
+        : "bg-transparent py-6"
+        }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
         <Link href={`/${currentLang}`} className="flex items-center gap-3 group">
@@ -144,88 +143,115 @@ export default function Navbar() {
           <div className="flex items-center gap-1.5 border-l border-white/10 pl-6 h-5">
             <button
               onClick={() => handleLanguageChange("th")}
-              className={`text-[10px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${
-                currentLang === "th" ? "text-accent" : "text-white/40"
-              }`}
+              className={`text-md font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "th" ? "text-accent" : "text-white/40"
+                }`}
             >
               TH
             </button>
             <span className="text-[10px] text-white/15">|</span>
             <button
               onClick={() => handleLanguageChange("en")}
-              className={`text-[10px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${
-                currentLang === "en" ? "text-accent" : "text-white/40"
-              }`}
+              className={`text-md font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "en" ? "text-accent" : "text-white/40"
+                }`}
             >
               EN
             </button>
             <span className="text-[10px] text-white/15">|</span>
             <button
               onClick={() => handleLanguageChange("zh")}
-              className={`text-[10px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${
-                currentLang === "zh" ? "text-accent" : "text-white/40"
-              }`}
+              className={`text-md font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "zh" ? "text-accent" : "text-white/40"
+                }`}
             >
               ZH
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Button */}
-        <button 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-white/70 hover:text-accent transition-colors z-50 relative"
-          aria-label="Toggle menu"
-        >
-          {mobileMenuOpen ? (
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          ) : (
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
-              />
-            </svg>
+        {/* Mobile Actions Container (Language switcher + Hamburger) */}
+        <div className="flex md:hidden items-center gap-2">
+          {!mobileMenuOpen && (
+            <div className="flex items-center gap-1.5 mr-2">
+              <button
+                onClick={() => handleLanguageChange("th")}
+                className={`text-[12px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "th" ? "text-accent" : "text-white/40"
+                  }`}
+              >
+                TH
+              </button>
+              <span className="text-[10px] text-white/15">|</span>
+              <button
+                onClick={() => handleLanguageChange("en")}
+                className={`text-[12px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "en" ? "text-accent" : "text-white/40"
+                  }`}
+              >
+                EN
+              </button>
+              <span className="text-[10px] text-white/15">|</span>
+              <button
+                onClick={() => handleLanguageChange("zh")}
+                className={`text-[12px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "zh" ? "text-accent" : "text-white/40"
+                  }`}
+              >
+                ZH
+              </button>
+            </div>
           )}
-        </button>
+
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-white/70 hover:text-accent transition-colors z-50 relative"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="w-6 h-6"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
+                />
+              </svg>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 bg-black/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center md:hidden transition-all duration-300 animate-fade-in">
           <div className="flex flex-col items-center gap-8 text-center w-full max-w-xs px-6">
-            <Link 
+            <Link
               href={`/${currentLang}`}
               onClick={() => setMobileMenuOpen(false)}
               className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
             >
               {t("navbar.home")}
             </Link>
-            <Link 
+            <Link
               href={`/${currentLang}/buy`}
               onClick={() => setMobileMenuOpen(false)}
               className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
             >
               {t("navbar.buy")}
             </Link>
-            <Link 
+            <Link
               href={`/${currentLang}/rent`}
               onClick={() => setMobileMenuOpen(false)}
               className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
             >
               {t("navbar.rent")}
             </Link>
-            <Link 
+            <Link
               href={`/${currentLang}/loan`}
               onClick={() => setMobileMenuOpen(false)}
               className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
@@ -235,21 +261,21 @@ export default function Navbar() {
 
             {session && (
               <>
-                <Link 
+                <Link
                   href={`/${currentLang}/addnew`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-alt font-black text-lg tracking-widest text-accent hover:text-white transition-colors"
                 >
                   {t("navbar.addnew")}
                 </Link>
-                <Link 
+                <Link
                   href={`/${currentLang}/manage`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
                 >
                   {currentLang === "th" ? "รายการทรัพย์" : currentLang === "zh" ? "房源管理" : "Manage Properties"}
                 </Link>
-                <Link 
+                <Link
                   href={`/${currentLang}/myprofile`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
@@ -279,11 +305,10 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   handleLanguageChange("th");
                 }}
-                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${
-                  currentLang === "th"
-                    ? "bg-accent/10 border-accent text-accent"
-                    : "border-white/5 text-white/60"
-                }`}
+                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${currentLang === "th"
+                  ? "bg-accent/10 border-accent text-accent"
+                  : "border-white/5 text-white/60"
+                  }`}
               >
                 TH
               </button>
@@ -292,11 +317,10 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   handleLanguageChange("en");
                 }}
-                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${
-                  currentLang === "en"
-                    ? "bg-accent/10 border-accent text-accent"
-                    : "border-white/5 text-white/60"
-                }`}
+                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${currentLang === "en"
+                  ? "bg-accent/10 border-accent text-accent"
+                  : "border-white/5 text-white/60"
+                  }`}
               >
                 EN
               </button>
@@ -305,11 +329,10 @@ export default function Navbar() {
                   setMobileMenuOpen(false);
                   handleLanguageChange("zh");
                 }}
-                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${
-                  currentLang === "zh"
-                    ? "bg-accent/10 border-accent text-accent"
-                    : "border-white/5 text-white/60"
-                }`}
+                className={`px-3 py-1.5 text-xs font-black tracking-widest rounded-lg border uppercase transition-colors ${currentLang === "zh"
+                  ? "bg-accent/10 border-accent text-accent"
+                  : "border-white/5 text-white/60"
+                  }`}
               >
                 ZH
               </button>
