@@ -142,28 +142,57 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     return facingValue;
   };
 
-  const handleDownloadImage = () => {
+  /** Convert an external image URL to a base64 data URI via the server-side proxy. */
+  const toDataUri = async (url: string): Promise<string> => {
+    const proxyUrl = `/api/image-proxy?url=${encodeURIComponent(url)}`;
+    const res = await fetch(proxyUrl);
+    if (!res.ok) throw new Error(`Proxy fetch failed for ${url}: ${res.status}`);
+    const blob = await res.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  };
+
+  const handleDownloadImage = async () => {
     const node = document.getElementById("share-property-card");
     if (!node) return;
 
-    htmlToImage.toPng(node, {
-      cacheBust: true,
-      backgroundColor: "#ffffff",
-      style: {
-        transform: 'scale(1)',
-        transformOrigin: 'top left',
-        width: '100%'
-      }
-    })
-      .then((dataUrl) => {
-        const link = document.createElement("a");
-        link.download = `property-${property.id_string || "detail"}.png`;
-        link.href = dataUrl;
-        link.click();
-      })
-      .catch((error) => {
-        console.error("Error generating image:", error);
+    // Collect all <img> elements inside the card and replace their src with
+    // proxy-fetched base64 data URIs so html-to-image can draw them on canvas
+    // without triggering browser CORS restrictions.
+    const imgEls = Array.from(node.querySelectorAll<HTMLImageElement>("img"));
+    const originalSrcs: string[] = imgEls.map((img) => img.src);
+
+    try {
+      // Pre-resolve all images in parallel
+      const dataUris = await Promise.all(
+        imgEls.map((img) => toDataUri(img.src).catch(() => img.src))
+      );
+      imgEls.forEach((img, i) => { img.src = dataUris[i]; });
+
+      const dataUrl = await htmlToImage.toPng(node, {
+        cacheBust: false,
+        backgroundColor: "#ffffff",
+        style: {
+          transform: 'scale(1)',
+          transformOrigin: 'top left',
+          width: '100%'
+        }
       });
+
+      const link = document.createElement("a");
+      link.download = `property-${property.id_string || "detail"}.png`;
+      link.href = dataUrl;
+      link.click();
+    } catch (error) {
+      console.error("Error generating image:", error);
+    } finally {
+      // Restore original src values
+      imgEls.forEach((img, i) => { img.src = originalSrcs[i]; });
+    }
   };
 
   // Agent Form state
