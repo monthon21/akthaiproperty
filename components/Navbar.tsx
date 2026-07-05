@@ -162,7 +162,7 @@ export default function Navbar() {
               className={`text-md font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "zh" ? "text-accent" : "text-white/40"
                 }`}
             >
-              中国
+              中文
             </button>
           </div>
         </div>
@@ -192,7 +192,7 @@ export default function Navbar() {
                 className={`text-[12px] font-black tracking-wider uppercase transition-colors hover:text-accent cursor-pointer ${currentLang === "zh" ? "text-accent" : "text-white/40"
                   }`}
               >
-                中国
+                中文
               </button>
             </div>
           )}

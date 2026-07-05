@@ -30,7 +30,13 @@ export default async function PropertyCard({ property, lang = "th" }: { property
       <div className="relative aspect-4/3 overflow-hidden">
         <div className="absolute top-4 left-4 z-10">
           <span className="px-2.5 py-1 bg-accent text-primary-dark text-[8px] font-alt font-black uppercase tracking-widest rounded-sm shadow-lg">
-            {property.type}
+            {property.sellPrice && property.rentPrice
+              ? dict.property_card.for_sale_rent || property.type
+              : property.sellPrice
+                ? dict.property_card.for_sale || property.type
+                : property.rentPrice
+                  ? dict.property_card.for_rent || property.type
+                  : property.type}
           </span>
         </div>
         

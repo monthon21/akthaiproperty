@@ -308,7 +308,13 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
         <div className="w-full">
           <div className="flex items-center gap-2.5 mb-4 flex-wrap">
             <span className="px-3 py-1 bg-accent/10 text-accent border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.1)]">
-              {property.type === "เช่า" ? "For Rent" : "For Sale"}
+              {property.sellPrice && property.rentPrice
+                ? t("property_card.for_sale_rent")
+                : property.sellPrice
+                  ? t("property_card.for_sale")
+                  : property.rentPrice
+                    ? t("property_card.for_rent")
+                    : property.type}
             </span>
             <span className="px-3 py-1 bg-white/5 text-white/70 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">
               {property.category}
