@@ -55,7 +55,7 @@ export default function Navbar() {
   }, []);
 
   const handleLanguageChange = (lang: string) => {
-    // Save to cookie so middleware remembers it
+    // Save to cookie so proxy remembers it
     document.cookie = `NEXT_LOCALE=${lang}; path=/; max-age=31536000; SameSite=Lax`;
 
     // Construct new pathname with updated locale prefix

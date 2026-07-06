@@ -14,6 +14,59 @@ interface ImageUploaderProps {
   folder?: string;
 }
 
+const resizeImage = (file: File, maxWidth: number = 2048): Promise<File> => {
+  return new Promise((resolve) => {
+    if (file.type === "image/gif" || !file.type.startsWith("image/")) {
+      resolve(file);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        if (img.width <= maxWidth) {
+          resolve(file);
+          return;
+        }
+
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+
+        const scaleFactor = maxWidth / img.width;
+        canvas.width = maxWidth;
+        canvas.height = img.height * scaleFactor;
+
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const resizedFile = new File([blob], file.name, {
+                type: file.type,
+                lastModified: Date.now(),
+              });
+              resolve(resizedFile);
+            } else {
+              resolve(file);
+            }
+          },
+          file.type,
+          0.85
+        );
+      };
+      img.onerror = () => resolve(file);
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = () => resolve(file);
+    reader.readAsDataURL(file);
+  });
+};
+
 export default function ImageUploader({ images, onChange, folder }: ImageUploaderProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [uploadingCount, setUploadingCount] = useState(0);
@@ -45,20 +98,26 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
       const arr = Array.from(files);
       setUploadingCount((n) => n + arr.length);
 
-      const results = await Promise.all(arr.map(uploadFile));
-      const newImages: ImageItem[] = [];
+      try {
+        const resizedFiles = await Promise.all(arr.map((file) => resizeImage(file, 2048)));
+        const results = await Promise.all(resizedFiles.map(uploadFile));
+        const newImages: ImageItem[] = [];
 
-      results.forEach((url) => {
-        if (url) {
-          const isFirst = images.length === 0 && newImages.length === 0;
-          newImages.push({ imageUrl: url, isFeature: isFirst });
+        results.forEach((url) => {
+          if (url) {
+            const isFirst = images.length === 0 && newImages.length === 0;
+            newImages.push({ imageUrl: url, isFeature: isFirst });
+          }
+        });
+
+        if (newImages.length > 0) {
+          onChange([...images, ...newImages]);
         }
-      });
-
-      setUploadingCount((n) => n - arr.length);
-
-      if (newImages.length > 0) {
-        onChange([...images, ...newImages]);
+      } catch (err) {
+        console.error("Error processing files:", err);
+        setUploadError("เกิดข้อผิดพลาดในการประมวลผลไฟล์ภาพ");
+      } finally {
+        setUploadingCount((n) => n - arr.length);
       }
     },
     [images, onChange]

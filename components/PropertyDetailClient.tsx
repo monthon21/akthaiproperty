@@ -111,6 +111,32 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
   // Share Card Modal state
   const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleShareLink = async () => {
+    if (typeof window === "undefined") return;
+    const shareUrl = window.location.href;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: property.title,
+          url: shareUrl,
+        });
+        return;
+      } catch (err) {
+        console.log("Web Share API failed, falling back to copy to clipboard:", err);
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
+  };
 
   const getMultilingualFacing = (facingValue: string | undefined | null) => {
     if (!facingValue) return "-";
@@ -1212,7 +1238,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
             </div>
 
             {/* Action Button: Download Image / Help Tip */}
-            <div className="mt-5 flex flex-col gap-2">
+            <div className="mt-5 flex flex-col gap-2.5">
               <p className="text-[10px] text-white/50 text-center leading-normal">
                 {currentLang === "th" ? "💡 ดาวน์โหลดเพื่อบันทึกและแชร์ต่อได้ทันที" : "💡 Click download to save and share."}
               </p>
@@ -1224,6 +1250,31 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
                 </svg>
                 {currentLang === "th" ? "ดาวน์โหลดรูปภาพการ์ด" : currentLang === "zh" ? "下载房源图片" : "Download Card Image"}
+              </button>
+              
+              <button
+                onClick={handleShareLink}
+                className={`w-full h-11 border transition-all font-black text-xs tracking-widest uppercase rounded-lg flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
+                  copied 
+                    ? "bg-emerald-600 border-emerald-600 text-white" 
+                    : "border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white"
+                }`}
+              >
+                {copied ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                    </svg>
+                    {currentLang === "th" ? "คัดลอกลิงก์สำเร็จ!" : currentLang === "zh" ? "已复制链接!" : "Copied Link!"}
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4.5 h-4.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z" />
+                    </svg>
+                    {currentLang === "th" ? "แชร์ลิงก์ / คัดลอกลิงก์" : currentLang === "zh" ? "分享/复制链接" : "Share / Copy Link"}
+                  </>
+                )}
               </button>
             </div>
           </div>

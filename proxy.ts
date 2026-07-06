@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt";
 
 const locales = ["th", "en", "zh"];
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { nextUrl } = req;
   const { pathname } = nextUrl;
 
