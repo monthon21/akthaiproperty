@@ -42,7 +42,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         
         {/* Real Property Image */}
         <AnimatedLink 
-          href={`/${lang}/property/list/${property.id}`}
+          href={`/${lang}/property/list/${property.id_string}`}
           className="w-full h-full relative block group-hover:scale-105 transition-transform duration-700 bg-black/20"
         >
           <Image 
@@ -58,7 +58,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         {/* Hover overlay details drawer */}
         <div className="absolute inset-0 bg-black/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center p-6 gap-3 z-20 pointer-events-none">
           <AnimatedLink 
-            href={`/${lang}/property/list/${property.id}`}
+            href={`/${lang}/property/list/${property.id_string}`}
             className="flex-1 py-2.5 bg-accent text-primary-dark font-alt font-extrabold rounded-sm text-xs transform translate-y-3 group-hover:translate-y-0 transition-transform duration-500 hover:bg-accent-dark cursor-pointer text-center pointer-events-auto relative overflow-hidden"
           >
             {dict.property_card.view_details}
@@ -72,7 +72,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             <span className="font-alt font-black text-[9px] group-hover/line:scale-110 transition-transform">LINE</span>
           </a>
           <ShareButton 
-            href={`/${lang}/property/list/${property.id}`} 
+            href={`/${lang}/property/list/${property.id_string}`} 
             title={property.title} 
             translations={{
               shareLink: dict.property_card.share_link,
@@ -89,7 +89,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
         </div>
         
         <h4 className="font-display font-bold text-base text-white mb-2 line-clamp-1 group-hover:text-accent transition-colors duration-300">
-          <AnimatedLink href={`/${lang}/property/list/${property.id}`}>
+          <AnimatedLink href={`/${lang}/property/list/${property.id_string}`}>
             {property.title}
           </AnimatedLink>
         </h4>

@@ -1050,7 +1050,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               {similarProperties.map((simProp) => (
                 <Link
                   key={simProp.id}
-                  href={`/property/list/${simProp.id}`}
+                  href={`/${currentLang}/property/list/${simProp.id_string}`}
                   className="group relative rounded-xl overflow-hidden aspect-4/3 border border-white/10 shadow-2xl flex flex-col justify-end p-6 bg-black/40"
                 >
                   {/* Badge */}

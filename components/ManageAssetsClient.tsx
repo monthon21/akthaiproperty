@@ -218,8 +218,14 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex gap-1.5 flex-wrap">
-                      {asset.isSell && <span className="bg-green-500/10 text-green-400 border border-green-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ขาย</span>}
-                      {asset.isRent && <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">เช่า</span>}
+                      {asset.isDraft && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">แบบร่าง</span>}
+                      {!asset.isAvailable && <span className="bg-white/5 text-white/50 border border-white/10 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ปิดประกาศ</span>}
+                      {asset.isAvailable && !asset.isDraft && (
+                        <>
+                          {asset.isSell && <span className="bg-green-500/10 text-green-400 border border-green-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ขาย</span>}
+                          {asset.isRent && <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">เช่า</span>}
+                        </>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.sellPrice)}</td>

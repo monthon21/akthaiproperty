@@ -62,7 +62,7 @@ export default function Hero({ featuredAsset }: HeroProps) {
     const featureImg = featuredAsset.images?.find((img: any) => img.isFeature)?.imageUrl || featuredAsset.images?.[0]?.imageUrl;
     if (featureImg) displayImage = featureImg;
     
-    assetLink = `/${currentLang}/property/list/${featuredAsset.id}`;
+    assetLink = `/${currentLang}/property/list/${featuredAsset.code || featuredAsset.id}`;
   }
 
   return (

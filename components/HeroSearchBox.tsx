@@ -136,7 +136,7 @@ export default function HeroSearchBox({ currentLang, defaultTab = 'all', classNa
                   {suggestions.map((item) => (
                     <li 
                       key={item.id}
-                      onClick={() => handleSuggestionClick(item.id)}
+                      onClick={() => handleSuggestionClick(item.code || item.id)}
                       className="px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors flex flex-col gap-1 text-left"
                     >
                       <div className="flex justify-between items-center">

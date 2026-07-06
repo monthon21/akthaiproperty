@@ -13,8 +13,13 @@ export default async function EditAssetPage({ params }: PageProps) {
   const assetId = resolvedParams.id;
 
   // Fetch the asset along with images and history logs from database
-  const asset = await prisma.asset.findUnique({
-    where: { id: assetId },
+  const asset = await prisma.asset.findFirst({
+    where: {
+      OR: [
+        { id: assetId },
+        { code: assetId }
+      ]
+    },
     include: {
       images: true,
       prices: {
