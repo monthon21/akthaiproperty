@@ -24,6 +24,13 @@ export async function getAllCustomersAction() {
       orderBy: { createdAt: "desc" },
       include: {
         details: true,
+        assets: {
+          select: {
+            id: true,
+            code: true,
+            title: true
+          }
+        },
         _count: {
           select: { assets: true }
         }

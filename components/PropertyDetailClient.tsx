@@ -116,28 +116,28 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     if (!facingValue) return "-";
     const cleanValue = facingValue.trim();
 
-    const facingMap: Record<string, { th: string; zh: string; en: string }> = {
-      "เหนือ": { th: "เหนือ", zh: "北", en: "north" },
-      "ใต้": { th: "ใต้", zh: "南", en: "south" },
-      "ตะวันออก": { th: "ตะวันออก", zh: "东", en: "east" },
-      "ตะวันตก": { th: "ตะวันตก", zh: "西", en: "west" },
-      "ตะวันออกเฉียงเหนือ": { th: "ตะวันออกเฉียงเหนือ", zh: "东北", en: "northeast" },
-      "ตะวันออกเฉียงใต้": { th: "ตะวันออกเฉียงใต้", zh: "东南", en: "southeast" },
-      "ตะวันตกเฉียงเหนือ": { th: "ตะวันตกเฉียงเหนือ", zh: "西北", en: "northwest" },
-      "ตะวันตกเฉียงใต้": { th: "ตะวันตกเฉียงใต้", zh: "西南", en: "southwest" },
-      "North": { th: "เหนือ", zh: "北", en: "north" },
-      "South": { th: "ใต้", zh: "南", en: "south" },
-      "East": { th: "ตะวันออก", zh: "东", en: "east" },
-      "West": { th: "ตะวันตก", zh: "西", en: "west" },
-      "Northeast": { th: "ตะวันออกเฉียงเหนือ", zh: "东北", en: "northeast" },
-      "Southeast": { th: "ตะวันออกเฉียงใต้", zh: "东南", en: "southeast" },
-      "Northwest": { th: "ตะวันตกเฉียงเหนือ", zh: "西北", en: "northwest" },
-      "Southwest": { th: "ตะวันตกเฉียงใต้", zh: "西南", en: "southwest" }
+    const facingMap: Record<string, { th: string; en: string; zh: string }> = {
+      "เหนือ": { th: "เหนือ", en: "North", zh: "北" },
+      "ใต้": { th: "ใต้", en: "South", zh: "南" },
+      "ตะวันออก": { th: "ตะวันออก", en: "East", zh: "东" },
+      "ตะวันตก": { th: "ตะวันตก", en: "West", zh: "西" },
+      "ตะวันออกเฉียงเหนือ": { th: "ตะวันออกเฉียงเหนือ", en: "Northeast", zh: "东北" },
+      "ตะวันออกเฉียงใต้": { th: "ตะวันออกเฉียงใต้", en: "Southeast", zh: "东南" },
+      "ตะวันตกเฉียงเหนือ": { th: "ตะวันตกเฉียงเหนือ", en: "Northwest", zh: "西北" },
+      "ตะวันตกเฉียงใต้": { th: "ตะวันตกเฉียงใต้", en: "Southwest", zh: "西南" },
+      "North": { th: "เหนือ", en: "North", zh: "北" },
+      "South": { th: "ใต้", en: "South", zh: "南" },
+      "East": { th: "ตะวันออก", en: "East", zh: "东" },
+      "West": { th: "ตะวันตก", en: "West", zh: "西" },
+      "Northeast": { th: "ตะวันออกเฉียงเหนือ", en: "Northeast", zh: "东北" },
+      "Southeast": { th: "ตะวันออกเฉียงใต้", en: "Southeast", zh: "东南" },
+      "Northwest": { th: "ตะวันตกเฉียงเหนือ", en: "Northwest", zh: "西北" },
+      "Southwest": { th: "ตะวันตกเฉียงใต้", en: "Southwest", zh: "西南" }
     };
 
     const matched = facingMap[cleanValue];
     if (matched) {
-      return `${matched.th}/${matched.zh}/${matched.en}`;
+      return `${matched.th}/${matched.en}/${matched.zh}`;
     }
     return facingValue;
   };
@@ -1165,7 +1165,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <span className="shrink-0 mt-0.5">🏡</span>
                   <span>
                     {property.projectName ? `${property.projectName}` : property.title}
-                    {property.id_string && ` (${property.id_string})`}
+                    {property.id_string && ` (ID: ${property.id_string})`}
                   </span>
                 </div>
 

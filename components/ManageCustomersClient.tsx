@@ -263,7 +263,7 @@ export default function ManageCustomersClient({
                 <th className="px-6 py-4">เบอร์โทรศัพท์ (Phone)</th>
                 <th className="px-6 py-4">Line ID</th>
                 <th className="px-6 py-4">ชื่อจริง/นามสกุล (Fullname)</th>
-                <th className="px-6 py-4 text-center">ทรัพย์สินทั้งหมด</th>
+                <th className="px-6 py-4">รายการทรัพย์สิน</th>
                 <th className="px-6 py-4 text-center">การจัดการ (Actions)</th>
               </tr>
             </thead>
@@ -281,8 +281,24 @@ export default function ManageCustomersClient({
                     <td className="px-6 py-4 text-white/70">{c.phone || "-"}</td>
                     <td className="px-6 py-4 text-white/70">{c.line || "-"}</td>
                     <td className="px-6 py-4 text-white/70">{c.details?.fullname || "-"}</td>
-                    <td className="px-6 py-4 text-center font-bold text-accent">
-                      {c._count?.assets ?? 0} รายการ
+                    <td className="px-6 py-4">
+                      {c.assets && c.assets.length > 0 ? (
+                        <ul className="list-disc pl-4 space-y-1 text-white/70">
+                          {c.assets.map((asset: any) => (
+                            <li key={asset.id} className="truncate max-w-md">
+                              <Link
+                                href={`/${currentLang}/property/list/${asset.id}`}
+                                target="_blank"
+                                className="hover:text-accent font-semibold transition-colors"
+                              >
+                                {asset.code} - {asset.title}
+                              </Link>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-white/40 italic">ไม่มีทรัพย์สิน</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-2">
