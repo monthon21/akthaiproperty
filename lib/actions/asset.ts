@@ -461,26 +461,39 @@ export async function getAssetAction(id: string) {
   }
 }
 
-// 4. Get next sequential 4-digit code starting from 1001
 export async function getNextAssetCodeAction() {
   try {
+    const currentYear = new Date().getFullYear();
+    const yy = currentYear.toString().slice(-2);
+    
     const assets = await prisma.asset.findMany({
+      where: {
+        code: {
+          startsWith: yy
+        }
+      },
       select: { code: true }
     });
 
-    let maxCode = 1000;
+    let maxSequence = 0;
     for (const asset of assets) {
-      const codeNum = parseInt(asset.code, 10);
-      if (!isNaN(codeNum) && codeNum > maxCode) {
-        maxCode = codeNum;
+      if (asset.code.length === 5) {
+        const sequenceStr = asset.code.substring(2);
+        const sequenceNum = parseInt(sequenceStr, 10);
+        if (!isNaN(sequenceNum) && sequenceNum > maxSequence) {
+          maxSequence = sequenceNum;
+        }
       }
     }
 
-    const nextCode = (maxCode + 1).toString();
+    const nextSequence = maxSequence + 1;
+    const nextCode = `${yy}${nextSequence.toString().padStart(3, "0")}`;
+    
     return { success: true, code: nextCode };
   } catch (error: any) {
     console.error("Error generating next asset code:", error);
-    return { success: false, code: "1001" };
+    const yy = new Date().getFullYear().toString().slice(-2);
+    return { success: false, code: `${yy}001` };
   }
 }
 
