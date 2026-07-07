@@ -96,7 +96,7 @@ export async function createAssetAction(input: AssetInput) {
     ownerPhone,
     ownerLine,
     images,
-    assetPlaces
+    assetPlaces,
   } = input;
 
   if (!title || !type) {
@@ -112,10 +112,13 @@ export async function createAssetAction(input: AssetInput) {
 
     // Check if code is unique
     const existingAsset = await prisma.asset.findUnique({
-      where: { code: finalCode }
+      where: { code: finalCode },
     });
     if (existingAsset) {
-      return { success: false, error: `รหัสทรัพย์ "${finalCode}" มีในระบบแล้ว กรุณาใช้รหัสอื่น` };
+      return {
+        success: false,
+        error: `รหัสทรัพย์ "${finalCode}" มีในระบบแล้ว กรุณาใช้รหัสอื่น`,
+      };
     }
 
     // Handle customer info (find or create)
@@ -130,14 +133,14 @@ export async function createAssetAction(input: AssetInput) {
         existingCustomer = await prisma.customer.findFirst({
           where: {
             name: oName,
-            phone: oPhone
-          }
+            phone: oPhone,
+          },
         });
       } else {
         existingCustomer = await prisma.customer.findFirst({
           where: {
-            name: oName
-          }
+            name: oName,
+          },
         });
       }
 
@@ -146,7 +149,7 @@ export async function createAssetAction(input: AssetInput) {
         if (oLine && !existingCustomer.line) {
           await prisma.customer.update({
             where: { id: customerId },
-            data: { line: oLine }
+            data: { line: oLine },
           });
         }
       } else {
@@ -154,8 +157,8 @@ export async function createAssetAction(input: AssetInput) {
           data: {
             name: oName,
             phone: oPhone,
-            line: oLine
-          }
+            line: oLine,
+          },
         });
         customerId = newCustomer.id;
       }
@@ -187,7 +190,8 @@ export async function createAssetAction(input: AssetInput) {
         parkingLot: parkingLot ? Number(parkingLot) : null,
         facing: facing || null,
         otherFeatures: otherFeatures || null,
-        amenities: amenities && amenities.length > 0 ? JSON.stringify(amenities) : null,
+        amenities:
+          amenities && amenities.length > 0 ? JSON.stringify(amenities) : null,
         address,
         soi: soi || null,
         road: road || null,
@@ -198,26 +202,32 @@ export async function createAssetAction(input: AssetInput) {
         googleMap: googleMap || null,
         customerId: customerId,
         images: {
-          create: images.map(img => ({
+          create: images.map((img) => ({
             imageUrl: img.imageUrl,
-            isFeature: img.isFeature
-          }))
+            isFeature: img.isFeature,
+          })),
         },
-        assetPlaces: assetPlaces && assetPlaces.length > 0 ? {
-          create: assetPlaces.map(place => ({
-            placeName: place.placeName,
-            distance: place.distance || null,
-            travelTime: place.travelTime || null
-          }))
-        } : undefined
-      }
+        assetPlaces:
+          assetPlaces && assetPlaces.length > 0
+            ? {
+                create: assetPlaces.map((place) => ({
+                  placeName: place.placeName,
+                  distance: place.distance || null,
+                  travelTime: place.travelTime || null,
+                })),
+              }
+            : undefined,
+      },
     });
 
     revalidatePath("/", "layout");
     return { success: true, id: asset.id, code: asset.code };
   } catch (error: any) {
     console.error("Error creating asset:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการสร้างทรัพย์สิน" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการสร้างทรัพย์สิน",
+    };
   }
 }
 
@@ -260,17 +270,20 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     ownerPhone,
     ownerLine,
     images,
-    assetPlaces
+    assetPlaces,
   } = input;
 
   try {
-    require('fs').writeFileSync('scratch/debug_input_images.json', JSON.stringify(images || [], null, 2));
+    require("fs").writeFileSync(
+      "scratch/debug_input_images.json",
+      JSON.stringify(images || [], null, 2),
+    );
   } catch (e) {}
 
   try {
     // Fetch current asset to check if price has changed
     const currentAsset = await prisma.asset.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!currentAsset) {
@@ -279,14 +292,21 @@ export async function updateAssetAction(id: string, input: AssetInput) {
 
     // Check code uniqueness excluding this asset
     const codeOwner = await prisma.asset.findUnique({
-      where: { code }
+      where: { code },
     });
     if (codeOwner && codeOwner.id !== id) {
-      return { success: false, error: `รหัสทรัพย์ "${code}" มีในระบบแล้ว กรุณาใช้รหัสอื่น` };
+      return {
+        success: false,
+        error: `รหัสทรัพย์ "${code}" มีในระบบแล้ว กรุณาใช้รหัสอื่น`,
+      };
     }
 
-    const currentSellPriceNum = currentAsset.sellPrice ? Number(currentAsset.sellPrice) : null;
-    const currentLoanPriceNum = currentAsset.loanPrice ? Number(currentAsset.loanPrice) : null;
+    const currentSellPriceNum = currentAsset.sellPrice
+      ? Number(currentAsset.sellPrice)
+      : null;
+    const currentLoanPriceNum = currentAsset.loanPrice
+      ? Number(currentAsset.loanPrice)
+      : null;
     const newSellPriceNum = sellPrice ? Number(sellPrice) : null;
     const newLoanPriceNum = loanPrice ? Number(loanPrice) : null;
 
@@ -300,8 +320,8 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         data: {
           assetId: id,
           sellPrice: currentAsset.sellPrice,
-          loanPrice: currentAsset.loanPrice
-        }
+          loanPrice: currentAsset.loanPrice,
+        },
       });
     }
 
@@ -317,26 +337,29 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         existingCustomer = await prisma.customer.findFirst({
           where: {
             name: oName,
-            phone: oPhone
-          }
+            phone: oPhone,
+          },
         });
       } else {
         existingCustomer = await prisma.customer.findFirst({
           where: {
-            name: oName
-          }
+            name: oName,
+          },
         });
       }
 
       if (existingCustomer) {
         customerId = existingCustomer.id;
-        if (existingCustomer.line !== oLine || existingCustomer.phone !== oPhone) {
+        if (
+          existingCustomer.line !== oLine ||
+          existingCustomer.phone !== oPhone
+        ) {
           await prisma.customer.update({
             where: { id: customerId },
-            data: { 
+            data: {
               phone: oPhone || existingCustomer.phone,
-              line: oLine || existingCustomer.line 
-            }
+              line: oLine || existingCustomer.line,
+            },
           });
         }
       } else {
@@ -344,8 +367,8 @@ export async function updateAssetAction(id: string, input: AssetInput) {
           data: {
             name: oName,
             phone: oPhone,
-            line: oLine
-          }
+            line: oLine,
+          },
         });
         customerId = newCustomer.id;
       }
@@ -378,7 +401,12 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         parkingLot: parkingLot ? Number(parkingLot) : null,
         facing: facing || null,
         otherFeatures: otherFeatures || null,
-        amenities: amenities !== undefined ? (amenities && amenities.length > 0 ? JSON.stringify(amenities) : null) : undefined,
+        amenities:
+          amenities !== undefined
+            ? amenities && amenities.length > 0
+              ? JSON.stringify(amenities)
+              : null
+            : undefined,
         address,
         soi: soi || null,
         road: road || null,
@@ -387,38 +415,38 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         subdistrict,
         zipCode: zipCode || null,
         googleMap: googleMap || null,
-        customerId: customerId
-      }
+        customerId: customerId,
+      },
     });
 
     // Refresh images: delete existing and recreate
     await prisma.assetImage.deleteMany({
-      where: { assetId: id }
+      where: { assetId: id },
     });
 
     if (images && images.length > 0) {
       await prisma.assetImage.createMany({
-        data: images.map(img => ({
+        data: images.map((img) => ({
           assetId: id,
           imageUrl: img.imageUrl,
-          isFeature: img.isFeature
-        }))
+          isFeature: img.isFeature,
+        })),
       });
     }
 
     // Refresh assetPlaces: delete existing and recreate
     await prisma.assetPlaces.deleteMany({
-      where: { assetId: id }
+      where: { assetId: id },
     });
 
     if (assetPlaces && assetPlaces.length > 0) {
       await prisma.assetPlaces.createMany({
-        data: assetPlaces.map(place => ({
+        data: assetPlaces.map((place) => ({
           assetId: id,
           placeName: place.placeName,
           distance: place.distance || null,
-          travelTime: place.travelTime || null
-        }))
+          travelTime: place.travelTime || null,
+        })),
       });
     }
 
@@ -426,7 +454,10 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     return { success: true, id, code: input.code };
   } catch (error: any) {
     console.error("Error updating asset:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการแก้ไขทรัพย์สิน" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการแก้ไขทรัพย์สิน",
+    };
   }
 }
 
@@ -435,19 +466,16 @@ export async function getAssetAction(id: string) {
   try {
     const asset = await prisma.asset.findFirst({
       where: {
-        OR: [
-          { id },
-          { code: id }
-        ]
+        OR: [{ id }, { code: id }],
       },
       include: {
         images: true,
         assetPlaces: true,
         prices: {
-          orderBy: { createdAt: "desc" }
+          orderBy: { createdAt: "desc" },
         },
-        customer: true
-      }
+        customer: true,
+      },
     });
 
     if (!asset) {
@@ -457,7 +485,10 @@ export async function getAssetAction(id: string) {
     return { success: true, asset };
   } catch (error: any) {
     console.error("Error getting asset:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล",
+    };
   }
 }
 
@@ -465,14 +496,14 @@ export async function getNextAssetCodeAction() {
   try {
     const currentYear = new Date().getFullYear();
     const yy = currentYear.toString().slice(-2);
-    
+
     const assets = await prisma.asset.findMany({
       where: {
         code: {
-          startsWith: yy
-        }
+          startsWith: yy,
+        },
       },
-      select: { code: true }
+      select: { code: true },
     });
 
     let maxSequence = 0;
@@ -488,7 +519,7 @@ export async function getNextAssetCodeAction() {
 
     const nextSequence = maxSequence + 1;
     const nextCode = `${yy}${nextSequence.toString().padStart(3, "0")}`;
-    
+
     return { success: true, code: nextCode };
   } catch (error: any) {
     console.error("Error generating next asset code:", error);
@@ -505,15 +536,18 @@ export async function getAllAssetsAction() {
       include: {
         images: {
           where: { isFeature: true },
-          take: 1
+          take: 1,
         },
-        customer: true
-      }
+        customer: true,
+      },
     });
     return { success: true, assets };
   } catch (error: any) {
     console.error("Error getting all assets:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูล",
+    };
   }
 }
 
@@ -522,8 +556,11 @@ export async function deleteAssetAction(id: string) {
   try {
     const { auth } = await import("@/auth");
     const session = await auth();
-    if ((session?.user as any)?.role !== 'ADMIN') {
-      return { success: false, error: "ไม่มีสิทธิ์ในการลบข้อมูล (เฉพาะ Admin เท่านั้น)" };
+    if ((session?.user as any)?.role !== "ADMIN") {
+      return {
+        success: false,
+        error: "ไม่มีสิทธิ์ในการลบข้อมูล (เฉพาะ Admin เท่านั้น)",
+      };
     }
 
     const asset = await prisma.asset.findUnique({ where: { id } });
@@ -532,19 +569,25 @@ export async function deleteAssetAction(id: string) {
     }
 
     await prisma.asset.delete({
-      where: { id }
+      where: { id },
     });
 
     revalidatePath("/", "layout");
     return { success: true };
   } catch (error: any) {
     console.error("Error deleting asset:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการลบข้อมูล" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการลบข้อมูล",
+    };
   }
 }
 
 // 7. Toggle Asset Availability
-export async function toggleAssetAvailabilityAction(id: string, isAvailable: boolean) {
+export async function toggleAssetAvailabilityAction(
+  id: string,
+  isAvailable: boolean,
+) {
   try {
     const asset = await prisma.asset.findUnique({ where: { id } });
     if (!asset) {
@@ -554,18 +597,24 @@ export async function toggleAssetAvailabilityAction(id: string, isAvailable: boo
     // Explicitly use any to bypass TS error if prisma client generation failed
     await (prisma.asset as any).update({
       where: { id },
-      data: { isAvailable }
+      data: { isAvailable },
     });
 
     return { success: true };
   } catch (error: any) {
     console.error("Error toggling asset availability:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ",
+    };
   }
 }
 
 // 8. Toggle Asset Recommendation (Home Page)
-export async function toggleAssetRecommendationAction(id: string, isRecommended: boolean) {
+export async function toggleAssetRecommendationAction(
+  id: string,
+  isRecommended: boolean,
+) {
   try {
     const asset = await prisma.asset.findUnique({ where: { id } });
     if (!asset) {
@@ -575,34 +624,38 @@ export async function toggleAssetRecommendationAction(id: string, isRecommended:
     // Explicitly use any to bypass TS error if prisma client generation failed
     await (prisma.asset as any).update({
       where: { id },
-      data: { isRecommended }
+      data: { isRecommended },
     });
 
     return { success: true };
   } catch (error: any) {
     console.error("Error toggling asset recommendation:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะแนะนำ" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการเปลี่ยนสถานะแนะนำ",
+    };
   }
 }
 
 // 9. Search Autocomplete Suggestions
 export async function searchAssetSuggestionsAction(query: string) {
   if (!query || query.length < 2) return { success: true, suggestions: [] };
-  
+
   try {
     const assets = await prisma.asset.findMany({
       where: {
         isAvailable: true,
         OR: [
           { code: { contains: query } },
+          { address: { contains: query } },
           { district: { contains: query } },
           { province: { contains: query } },
           { projectName: { contains: query } },
           { zipCode: { contains: query } },
           { title: { contains: query } },
           { titleEn: { contains: query } },
-          { titleZh: { contains: query } }
-        ]
+          { titleZh: { contains: query } },
+        ],
       },
       take: 5,
       select: {
@@ -610,11 +663,12 @@ export async function searchAssetSuggestionsAction(query: string) {
         code: true,
         title: true,
         projectName: true,
+        address: true,
         district: true,
         province: true,
-      }
+      },
     });
-    
+
     return { success: true, suggestions: assets };
   } catch (error: any) {
     console.error("Error fetching search suggestions:", error);
@@ -625,25 +679,27 @@ export async function searchAssetSuggestionsAction(query: string) {
 // 10. Search Customers for Owner autocomplete suggestions
 export async function searchCustomersAction(query: string) {
   if (!query || query.length < 2) return { success: true, customers: [] };
-  
+
   try {
     const customers = await prisma.customer.findMany({
       where: {
-        name: { contains: query }
+        name: { contains: query },
       },
       take: 10,
       select: {
         id: true,
         name: true,
         phone: true,
-        line: true
-      }
+        line: true,
+      },
     });
-    
+
     return { success: true, customers };
   } catch (error: any) {
     console.error("Error searching customers:", error);
-    return { success: false, error: error.message || "เกิดข้อผิดพลาดในการค้นหาลูกค้า" };
+    return {
+      success: false,
+      error: error.message || "เกิดข้อผิดพลาดในการค้นหาลูกค้า",
+    };
   }
 }
-

@@ -158,6 +158,7 @@ export default async function ListingGrid({
   if (searchQuery && searchQuery.trim()) {
     whereConditions.OR = [
       { code: { contains: searchQuery.trim() } },
+      { address: { contains: searchQuery.trim() } },
       { district: { contains: searchQuery.trim() } },
       { province: { contains: searchQuery.trim() } },
       { projectName: { contains: searchQuery.trim() } },

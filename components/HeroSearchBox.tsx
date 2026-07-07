@@ -145,7 +145,10 @@ export default function HeroSearchBox({ currentLang, defaultTab = 'all', classNa
                       </div>
                       <div className="text-[10px] text-white/50 flex gap-2">
                         {item.projectName && <span className="text-white/70">[{item.projectName}]</span>}
-                        <span>{item.district} {item.province}</span>
+                        <span>
+                          {item.address ? `${item.address} ` : ""}
+                          {item.district} {item.province}
+                        </span>
                       </div>
                     </li>
                   ))}
