@@ -1148,16 +1148,23 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               className="bg-white text-gray-900 rounded-xl overflow-hidden shadow-lg p-5 font-sans"
             >
               {/* Card Brand Header */}
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center text-slate-900 font-bold text-sm shrink-0 shadow-sm">
-                  AK
+              <div className="flex justify-between items-center mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center text-slate-900 font-bold text-sm shrink-0 shadow-sm">
+                    AK
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-bold text-sm tracking-wide text-gray-950">AKThaiProperty.com</span>
+                    <span className="text-[10px] text-gray-500 font-medium">
+                      {new Date().toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' })}, {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false })} น.
+                    </span>
+                  </div>
                 </div>
-                <div className="flex flex-col">
-                  <span className="font-bold text-sm tracking-wide text-gray-950">AKThaiProperty.com</span>
-                  <span className="text-[10px] text-gray-500 font-medium">
-                    {new Date().toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' })}, {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false })} น.
+                {property.id_string && (
+                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider bg-[#D4AF37] px-2.5 py-1 rounded-md shadow-sm">
+                    ID: {property.id_string}
                   </span>
-                </div>
+                )}
               </div>
 
               {/* Feature Image */}
@@ -1191,7 +1198,6 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <span className="shrink-0 mt-0.5">🏡</span>
                   <span>
                     {property.projectName ? `${property.projectName}` : property.title}
-                    {property.id_string && ` (ID: ${property.id_string})`}
                   </span>
                 </div>
 
