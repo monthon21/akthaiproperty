@@ -84,8 +84,8 @@ const translations = {
     rentMonth: "Rent / Month",
     buy: "Buy",
     buyOrRent: "Buy or Rent",
-    minPrice: "Min Price",
-    maxPrice: "Max Price",
+    minPrice: "Min",
+    maxPrice: "Max",
     bedrooms: "Bedrooms",
     allBedrooms: "All Bedrooms",
     bed1: "1+ Bed",
@@ -107,9 +107,9 @@ const translations = {
     parking3: "3+ Parking",
     parking4: "4+ Parking",
     usableArea: "Usable Area (Sq.M.)",
-    minArea: "Min Area",
-    maxArea: "Max Area",
-    ownerName: "Owner Name (Admin/User Only)",
+    minArea: "Min",
+    maxArea: "Max",
+    ownerName: "Owner Name",
     ownerPlaceholder: "Enter owner name",
     clear: "Clear",
     search: "Search",
@@ -148,8 +148,8 @@ const translations = {
     rentMonth: "租金/月",
     buy: "购买",
     buyOrRent: "购买或租用",
-    minPrice: "最低价格",
-    maxPrice: "最高价格",
+    minPrice: "最低",
+    maxPrice: "最高",
     bedrooms: "卧室数量",
     allBedrooms: "全部卧室",
     bed1: "1个或以上卧室",
@@ -171,9 +171,9 @@ const translations = {
     parking3: "3个或以上车位",
     parking4: "4个或以上车位",
     usableArea: "使用面积 (平方米)",
-    minArea: "最小面积",
-    maxArea: "最大面积",
-    ownerName: "业主姓名 (仅限管理员/用户)",
+    minArea: "最小",
+    maxArea: "最大",
+    ownerName: "业主姓名",
     ownerPlaceholder: "输入业主姓名",
     clear: "清除",
     search: "搜索",
@@ -196,6 +196,12 @@ const translations = {
     sellDeal: "出售",
     rentDeal: "出租",
   }
+};
+
+const formatNumberWithCommas = (value: string) => {
+  const clean = value.replace(/[^0-9]/g, "");
+  if (!clean) return "";
+  return parseInt(clean, 10).toLocaleString();
 };
 
 interface SearchFilterControlsProps {
@@ -225,11 +231,6 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
   const [minArea, setMinArea] = useState("");
   const [maxArea, setMaxArea] = useState("");
 
-  const [minPriceFocus, setMinPriceFocus] = useState(false);
-  const [maxPriceFocus, setMaxPriceFocus] = useState(false);
-  const [minAreaFocus, setMinAreaFocus] = useState(false);
-  const [maxAreaFocus, setMaxAreaFocus] = useState(false);
-
   const [isExpanded, setIsExpanded] = useState(true);
 
   // Sync state with URL params on load/change
@@ -241,14 +242,21 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
     setProjectName(searchParams.get("projectName") || "");
     setPropertyType(searchParams.get("propertyType") || "ALL");
     setDeal(searchParams.get("deal") || mode || "all");
-    setMinPrice(searchParams.get("minPrice") || "");
-    setMaxPrice(searchParams.get("maxPrice") || "");
+    
+    const urlMinPrice = searchParams.get("minPrice") || "";
+    setMinPrice(urlMinPrice ? formatNumberWithCommas(urlMinPrice) : "");
+    const urlMaxPrice = searchParams.get("maxPrice") || "";
+    setMaxPrice(urlMaxPrice ? formatNumberWithCommas(urlMaxPrice) : "");
+    
     setOwnerName(searchParams.get("ownerName") || "");
     setBedrooms(searchParams.get("bedrooms") || "");
     setBathrooms(searchParams.get("bathrooms") || "");
     setParking(searchParams.get("parking") || "");
-    setMinArea(searchParams.get("minArea") || "");
-    setMaxArea(searchParams.get("maxArea") || "");
+    
+    const urlMinArea = searchParams.get("minArea") || "";
+    setMinArea(urlMinArea ? formatNumberWithCommas(urlMinArea) : "");
+    const urlMaxArea = searchParams.get("maxArea") || "";
+    setMaxArea(urlMaxArea ? formatNumberWithCommas(urlMaxArea) : "");
   }, [searchParams, mode]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -265,14 +273,19 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
     const activeDeal = mode === "sell" ? "sell" : mode === "rent" ? "rent" : deal;
     if (activeDeal !== "all") params.set("deal", activeDeal);
 
-    if (minPrice.trim()) params.set("minPrice", minPrice.trim());
-    if (maxPrice.trim()) params.set("maxPrice", maxPrice.trim());
+    const cleanMinPrice = minPrice.replace(/,/g, "").trim();
+    const cleanMaxPrice = maxPrice.replace(/,/g, "").trim();
+    const cleanMinArea = minArea.replace(/,/g, "").trim();
+    const cleanMaxArea = maxArea.replace(/,/g, "").trim();
+
+    if (cleanMinPrice) params.set("minPrice", cleanMinPrice);
+    if (cleanMaxPrice) params.set("maxPrice", cleanMaxPrice);
     if (ownerName.trim() && canSearchOwner) params.set("ownerName", ownerName.trim());
     if (bedrooms) params.set("bedrooms", bedrooms);
     if (bathrooms) params.set("bathrooms", bathrooms);
     if (parking) params.set("parking", parking);
-    if (minArea.trim()) params.set("minArea", minArea.trim());
-    if (maxArea.trim()) params.set("maxArea", maxArea.trim());
+    if (cleanMinArea) params.set("minArea", cleanMinArea);
+    if (cleanMaxArea) params.set("maxArea", cleanMaxArea);
 
     const targetPath = mode === "sell" ? `/${currentLang}/buy` : mode === "rent" ? `/${currentLang}/rent` : `/${currentLang}/search`;
     router.push(`${targetPath}?${params.toString()}`);
@@ -425,12 +438,9 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={minPriceFocus ? minPrice : (minPrice ? Number(minPrice).toLocaleString() : "")}
-                      onFocus={() => setMinPriceFocus(true)}
-                      onBlur={() => setMinPriceFocus(false)}
+                      value={minPrice}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        setMinPrice(val);
+                        setMinPrice(formatNumberWithCommas(e.target.value));
                       }}
                       placeholder={t.minPrice}
                       className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"
@@ -441,12 +451,9 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={maxPriceFocus ? maxPrice : (maxPrice ? Number(maxPrice).toLocaleString() : "")}
-                      onFocus={() => setMaxPriceFocus(true)}
-                      onBlur={() => setMaxPriceFocus(false)}
+                      value={maxPrice}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        setMaxPrice(val);
+                        setMaxPrice(formatNumberWithCommas(e.target.value));
                       }}
                       placeholder={t.maxPrice}
                       className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"
@@ -515,12 +522,9 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={minAreaFocus ? minArea : (minArea ? Number(minArea).toLocaleString() : "")}
-                      onFocus={() => setMinAreaFocus(true)}
-                      onBlur={() => setMinAreaFocus(false)}
+                      value={minArea}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        setMinArea(val);
+                        setMinArea(formatNumberWithCommas(e.target.value));
                       }}
                       placeholder={t.minArea}
                       className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"
@@ -531,12 +535,9 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
                     <input
                       type="text"
                       inputMode="numeric"
-                      value={maxAreaFocus ? maxArea : (maxArea ? Number(maxArea).toLocaleString() : "")}
-                      onFocus={() => setMaxAreaFocus(true)}
-                      onBlur={() => setMaxAreaFocus(false)}
+                      value={maxArea}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "");
-                        setMaxArea(val);
+                        setMaxArea(formatNumberWithCommas(e.target.value));
                       }}
                       placeholder={t.maxArea}
                       className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"

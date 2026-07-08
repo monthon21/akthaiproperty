@@ -6,6 +6,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteAssetAction, toggleAssetAvailabilityAction, toggleAssetRecommendationAction } from "@/lib/actions/asset";
 
+const formatNumberWithCommas = (value: string) => {
+  const clean = value.replace(/[^0-9]/g, "");
+  if (!clean) return "";
+  return parseInt(clean, 10).toLocaleString();
+};
+
 export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin = false }: { initialAssets: any[], currentLang: string, isAdmin?: boolean }) {
   const router = useRouter();
   const [assets, setAssets] = useState(initialAssets);
@@ -41,14 +47,14 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
     const sellPrice = asset.sellPrice ? Number(asset.sellPrice) : null;
 
     if (minPrice.trim()) {
-      const min = parseFloat(minPrice);
+      const min = parseFloat(minPrice.replace(/,/g, ""));
       if (sellPrice === null || sellPrice < min) {
         return false;
       }
     }
 
     if (maxPrice.trim()) {
-      const max = parseFloat(maxPrice);
+      const max = parseFloat(maxPrice.replace(/,/g, ""));
       if (sellPrice === null || sellPrice > max) {
         return false;
       }
@@ -116,18 +122,20 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
             <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ช่วงราคาขาย (Sell Price Range)</label>
             <div className="flex items-center gap-2">
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="ราคาต่ำสุด"
                 value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
+                onChange={(e) => setMinPrice(formatNumberWithCommas(e.target.value))}
                 className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
               <span className="text-white/20 text-xs shrink-0">-</span>
               <input
-                type="number"
+                type="text"
+                inputMode="numeric"
                 placeholder="ราคาสูงสุด"
                 value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
+                onChange={(e) => setMaxPrice(formatNumberWithCommas(e.target.value))}
                 className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
             </div>
