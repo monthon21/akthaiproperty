@@ -20,6 +20,11 @@ export default async function SearchPage(props: {
     minPrice?: string;
     maxPrice?: string;
     ownerName?: string;
+    bedrooms?: string;
+    bathrooms?: string;
+    parking?: string;
+    minArea?: string;
+    maxArea?: string;
   }> | { 
     q?: string; 
     type?: string; 
@@ -32,6 +37,11 @@ export default async function SearchPage(props: {
     minPrice?: string;
     maxPrice?: string;
     ownerName?: string;
+    bedrooms?: string;
+    bathrooms?: string;
+    parking?: string;
+    minArea?: string;
+    maxArea?: string;
   };
 }) {
   const resolvedParams = await props.params;
@@ -66,6 +76,18 @@ export default async function SearchPage(props: {
   const minPrice = minPriceStr ? parseFloat(minPriceStr) : undefined;
   const maxPrice = maxPriceStr ? parseFloat(maxPriceStr) : undefined;
 
+  const bedroomsStr = resolvedSearchParams?.bedrooms || "";
+  const bathroomsStr = resolvedSearchParams?.bathrooms || "";
+  const parkingStr = resolvedSearchParams?.parking || "";
+  const minAreaStr = resolvedSearchParams?.minArea || "";
+  const maxAreaStr = resolvedSearchParams?.maxArea || "";
+
+  const bedrooms = bedroomsStr ? parseInt(bedroomsStr) : undefined;
+  const bathrooms = bathroomsStr ? parseInt(bathroomsStr) : undefined;
+  const parking = parkingStr ? parseInt(parkingStr) : undefined;
+  const minArea = minAreaStr ? parseFloat(minAreaStr) : undefined;
+  const maxArea = maxAreaStr ? parseFloat(maxAreaStr) : undefined;
+
   return (
     <>
       <Navbar />
@@ -94,6 +116,11 @@ export default async function SearchPage(props: {
           minPrice={minPrice}
           maxPrice={maxPrice}
           ownerName={ownerName}
+          bedrooms={bedrooms}
+          bathrooms={bathrooms}
+          parking={parking}
+          minArea={minArea}
+          maxArea={maxArea}
         />
       </main>
       <Footer />

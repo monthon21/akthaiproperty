@@ -19,6 +19,11 @@ interface ListingGridProps {
   maxPrice?: number;
   bgColor?: string;
   ownerName?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  parking?: number;
+  minArea?: number;
+  maxArea?: number;
 }
 
 function mapAssetToProperty(asset: any, lang: string): Property {
@@ -123,7 +128,12 @@ export default async function ListingGrid({
   minPrice,
   maxPrice,
   bgColor = "bg-primary-dark",
-  ownerName = ""
+  ownerName = "",
+  bedrooms,
+  bathrooms,
+  parking,
+  minArea,
+  maxArea
 }: ListingGridProps) {
   const dict = await getDictionary(lang as Locale);
 
@@ -247,6 +257,24 @@ export default async function ListingGrid({
         ]
       });
     }
+  }
+
+  if (bedrooms !== undefined) {
+    whereConditions.noBedroom = { gte: bedrooms };
+  }
+  if (bathrooms !== undefined) {
+    whereConditions.noBathroom = { gte: bathrooms };
+  }
+  if (parking !== undefined) {
+    whereConditions.parkingLot = { gte: parking };
+  }
+  if (minArea !== undefined || maxArea !== undefined) {
+    const minAreaVal = minArea ?? 0;
+    const maxAreaVal = maxArea ?? Number.MAX_SAFE_INTEGER;
+    whereConditions.usableArea = {
+      gte: minAreaVal,
+      lte: maxAreaVal
+    };
   }
 
   // Query database assets

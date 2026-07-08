@@ -506,7 +506,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     value={formData.sellPrice}
                     onChange={handleInputChange}
                     disabled={!formData.isSell}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -518,7 +518,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     value={formData.loanPrice}
                     onChange={handleInputChange}
                     disabled={!formData.isRent}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                   />
                 </div>
               </div>

@@ -120,7 +120,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 placeholder="ราคาต่ำสุด"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
               <span className="text-white/20 text-xs shrink-0">-</span>
               <input
@@ -128,7 +128,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 placeholder="ราคาสูงสุด"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
               />
             </div>
           </div>
