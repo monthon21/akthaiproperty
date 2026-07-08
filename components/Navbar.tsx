@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { getSessionAction, logoutAction } from "@/lib/actions/auth";
@@ -77,14 +78,15 @@ export default function Navbar() {
         }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link href={`/${currentLang}`} className="flex items-center gap-3 group">
-          <div className="w-10 h-10 bg-accent rounded flex items-center justify-center shadow-lg group-hover:rotate-6 transition-all duration-500">
-            <span className="text-primary-dark font-display font-black text-lg tracking-wider">AK</span>
-          </div>
-          <div className="flex flex-col">
-            <span className="font-display font-bold text-lg tracking-widest text-white leading-none group-hover:text-accent transition-colors">AK THAI</span>
-            <span className="text-[8px] tracking-[0.4em] font-alt font-extrabold text-accent uppercase mt-0.5">PROPERTY</span>
-          </div>
+        <Link href={`/${currentLang}`} className="flex items-center group">
+          <Image
+            src="/logo.png"
+            alt="AK Thai Property"
+            width={140}
+            height={48}
+            className="object-contain transition-opacity duration-300 group-hover:opacity-80"
+            priority
+          />
         </Link>
 
         {/* Desktop Menu */}

@@ -11,6 +11,11 @@ const sarabun = Sarabun({
 export const metadata: Metadata = {
   title: "AK Thai Property | บ้านสวย สินเชื่อดี เพื่อคนไทย",
   description: "บริการรับฝากขาย เช่า บ้าน คอนโด ที่ดิน และบริการสินเชื่อบ้านสำหรับคนไทยในต่างประเทศ",
+  icons: {
+    icon: "/favicon.png",
+    shortcut: "/favicon.png",
+    apple: "/favicon.png",
+  },
 };
 
 import StickyContact from "@/components/StickyContact";
