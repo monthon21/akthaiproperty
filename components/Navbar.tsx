@@ -78,15 +78,19 @@ export default function Navbar() {
         }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
-        <Link href={`/${currentLang}`} className="flex items-center group">
+        <Link href={`/${currentLang}`} className="flex items-center gap-2.5 group">
           <Image
             src="/logo.png"
             alt="AK Thai Property"
-            width={140}
-            height={48}
-            className="object-contain transition-opacity duration-300 group-hover:opacity-80"
+            width={64}
+            height={64}
+            className="object-contain transition-opacity duration-300 group-hover:opacity-80 flex-shrink-0"
             priority
           />
+          <div className="flex flex-col leading-none">
+            <span className="font-display font-bold text-2xl tracking-widest text-white group-hover:text-accent transition-colors duration-300">AK THAI</span>
+            <span className="text-[10px] tracking-[0.4em] font-alt font-extrabold text-accent uppercase mt-1">PROPERTY</span>
+          </div>
         </Link>
 
         {/* Desktop Menu */}
