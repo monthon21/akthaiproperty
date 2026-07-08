@@ -3,6 +3,7 @@ import { Property } from "@/lib/properties";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import Link from "next/link";
+import { auth } from "@/auth";
 
 interface ListingGridProps {
   type?: "sell" | "rent";
@@ -17,6 +18,7 @@ interface ListingGridProps {
   minPrice?: number;
   maxPrice?: number;
   bgColor?: string;
+  ownerName?: string;
 }
 
 function mapAssetToProperty(asset: any, lang: string): Property {
@@ -120,9 +122,16 @@ export default async function ListingGrid({
   propertyType,
   minPrice,
   maxPrice,
-  bgColor = "bg-primary-dark"
+  bgColor = "bg-primary-dark",
+  ownerName = ""
 }: ListingGridProps) {
   const dict = await getDictionary(lang as Locale);
+
+  // Check role authorization for owner search
+  const session = await auth();
+  const userRole = (session?.user as any)?.role;
+  const canSearchOwner = userRole === "ADMIN" || userRole === "USER";
+  console.log("[ListingGrid Debug] session:", session, "userRole:", userRole, "canSearchOwner:", canSearchOwner, "searchQuery:", searchQuery);
 
   // Construct dynamic database query
   const whereConditions: any = {
@@ -156,17 +165,51 @@ export default async function ListingGrid({
   }
 
   if (searchQuery && searchQuery.trim()) {
-    whereConditions.OR = [
-      { code: { contains: searchQuery.trim() } },
-      { address: { contains: searchQuery.trim() } },
-      { district: { contains: searchQuery.trim() } },
-      { province: { contains: searchQuery.trim() } },
-      { projectName: { contains: searchQuery.trim() } },
-      { zipCode: { contains: searchQuery.trim() } },
-      { title: { contains: searchQuery.trim() } },
-      { titleEn: { contains: searchQuery.trim() } },
-      { titleZh: { contains: searchQuery.trim() } }
+    const queryTerm = searchQuery.trim();
+    const orConditions: any[] = [
+      { code: { contains: queryTerm } },
+      { address: { contains: queryTerm } },
+      { district: { contains: queryTerm } },
+      { province: { contains: queryTerm } },
+      { projectName: { contains: queryTerm } },
+      { zipCode: { contains: queryTerm } },
+      { title: { contains: queryTerm } },
+      { titleEn: { contains: queryTerm } },
+      { titleZh: { contains: queryTerm } }
     ];
+
+    if (canSearchOwner) {
+      orConditions.push(
+        {
+          customer: {
+            name: { contains: queryTerm }
+          }
+        },
+        {
+          customer: {
+            details: {
+              fullname: { contains: queryTerm }
+            }
+          }
+        }
+      );
+    }
+
+    whereConditions.OR = orConditions;
+  }
+
+  if (ownerName && ownerName.trim() && canSearchOwner) {
+    const ownerTerm = ownerName.trim();
+    whereConditions.customer = {
+      OR: [
+        { name: { contains: ownerTerm } },
+        {
+          details: {
+            fullname: { contains: ownerTerm }
+          }
+        }
+      ]
+    };
   }
 
   if (minPrice !== undefined || maxPrice !== undefined) {

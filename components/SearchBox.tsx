@@ -102,12 +102,17 @@ export default function SearchBox({ currentLang, placeholder = "ค้นหา.
                     <span className="text-xs font-bold text-white truncate pr-2">{item.title}</span>
                     <span className="text-[10px] font-mono text-accent bg-accent/10 px-1.5 py-0.5 rounded">{item.code}</span>
                   </div>
-                  <div className="text-[10px] text-white/50 flex gap-2">
+                  <div className="text-[10px] text-white/50 flex flex-wrap gap-2 items-center">
                     {item.projectName && <span className="text-white/70">[{item.projectName}]</span>}
                     <span>
                       {item.address ? `${item.address} ` : ""}
                       {item.district} {item.province}
                     </span>
+                    {item.customer?.name && (
+                      <span className="text-[9px] text-accent font-bold bg-accent/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                        👤 เจ้าของ: {item.customer.name}
+                      </span>
+                    )}
                   </div>
                 </li>
               ))}

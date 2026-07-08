@@ -139,6 +139,9 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
     }
   };
 
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+
   const handleSetFeature = (idx: number) => {
     onChange(images.map((img, i) => ({ ...img, isFeature: i === idx })));
   };
@@ -149,6 +152,36 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
       updated[0] = { ...updated[0], isFeature: true };
     }
     onChange(updated);
+  };
+
+  const handleDragStartImage = (e: React.DragEvent, index: number) => {
+    setDraggedIdx(index);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragOverImage = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    if (draggedIdx !== index) {
+      setDragOverIdx(index);
+    }
+  };
+
+  const handleDropImage = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    setDragOverIdx(null);
+    if (draggedIdx === null || draggedIdx === targetIndex) return;
+
+    const reordered = [...images];
+    const [draggedItem] = reordered.splice(draggedIdx, 1);
+    reordered.splice(targetIndex, 0, draggedItem);
+    
+    onChange(reordered);
+    setDraggedIdx(null);
+  };
+
+  const handleDragEndImage = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
   };
 
   const isUploading = uploadingCount > 0;
@@ -218,13 +251,20 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
 
       {/* Image Grid */}
       {images.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
           {images.map((img, idx) => (
             <div
               key={img.imageUrl + idx}
+              draggable
+              onDragStart={(e) => handleDragStartImage(e, idx)}
+              onDragOver={(e) => handleDragOverImage(e, idx)}
+              onDrop={(e) => handleDropImage(e, idx)}
+              onDragEnd={handleDragEndImage}
               className={`
-                relative group rounded-xl overflow-hidden border-2 transition-all duration-200
+                relative group rounded-xl overflow-hidden border-2 transition-all duration-200 cursor-grab active:cursor-grabbing select-none
                 ${img.isFeature ? "border-accent shadow-lg shadow-accent/20" : "border-white/10 hover:border-white/25"}
+                ${draggedIdx === idx ? "opacity-30 scale-95 border-dashed bg-accent/5" : ""}
+                ${dragOverIdx === idx ? "border-accent scale-[1.03] shadow-md shadow-accent/10" : ""}
               `}
             >
               {/* Thumbnail */}
@@ -233,7 +273,7 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
                   src={img.imageUrl}
                   alt={`Image ${idx + 1}`}
                   fill
-                  className="object-cover"
+                  className="object-cover pointer-events-none"
                   sizes="200px"
                   unoptimized={img.imageUrl.startsWith("/")}
                 />
@@ -243,12 +283,19 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
                     ⭐ Featured
                   </div>
                 )}
+                {/* Drag Handle Indicator */}
+                <div className="absolute top-1.5 right-1.5 p-1 bg-black/60 rounded-md text-white/50 group-hover:text-accent transition-colors shadow">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                    <path d="M7 6a1 1 0 100-2 1 1 0 000 2zM7 11a1 1 0 100-2 1 1 0 000 2zM7 16a1 1 0 100-2 1 1 0 000 2zM13 6a1 1 0 100-2 1 1 0 000 2zM13 11a1 1 0 100-2 1 1 0 000 2zM13 16a1 1 0 100-2 1 1 0 000 2z" />
+                  </svg>
+                </div>
                 {/* Overlay buttons */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col gap-1.5 items-center justify-center p-2">
                   {!img.isFeature && (
                     <button
                       type="button"
-                      onClick={() => handleSetFeature(idx)}
+                      onDragStart={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); handleSetFeature(idx); }}
                       className="w-full text-[9px] font-bold uppercase tracking-wider bg-accent text-primary-dark rounded-lg py-1.5 hover:bg-accent/90 transition-colors cursor-pointer"
                     >
                       ⭐ Set as Feature
@@ -256,7 +303,8 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
                   )}
                   <button
                     type="button"
-                    onClick={() => handleRemove(idx)}
+                    onDragStart={(e) => e.stopPropagation()}
+                    onClick={(e) => { e.stopPropagation(); handleRemove(idx); }}
                     className="w-full text-[9px] font-bold uppercase tracking-wider bg-red-500/80 text-white rounded-lg py-1.5 hover:bg-red-500 transition-colors cursor-pointer"
                   >
                     🗑 ลบรูป
@@ -283,7 +331,7 @@ export default function ImageUploader({ images, onChange, folder }: ImageUploade
       )}
       {images.length > 0 && images.some(i => i.isFeature) && (
         <p className="text-[10px] text-accent/70 bg-accent/5 border border-accent/15 rounded-xl px-4 py-2.5">
-          ✓ มีรูปภาพ {images.length} รูป — กำหนด Feature Image แล้ว
+          ✓ มีรูปภาพ {images.length} รูป — กำหนด Feature Image แล้ว (คุณสามารถลากสลับตำแหน่งเพื่อเรียงลำดับภาพได้)
         </p>
       )}
     </div>

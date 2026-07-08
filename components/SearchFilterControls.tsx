@@ -5,9 +5,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 interface SearchFilterControlsProps {
   currentLang: string;
+  canSearchOwner?: boolean;
 }
 
-export default function SearchFilterControls({ currentLang }: SearchFilterControlsProps) {
+export default function SearchFilterControls({ currentLang, canSearchOwner = false }: SearchFilterControlsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -21,6 +22,7 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
   const [deal, setDeal] = useState("all");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
+  const [ownerName, setOwnerName] = useState("");
 
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -35,6 +37,7 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
     setDeal(searchParams.get("deal") || "all");
     setMinPrice(searchParams.get("minPrice") || "");
     setMaxPrice(searchParams.get("maxPrice") || "");
+    setOwnerName(searchParams.get("ownerName") || "");
   }, [searchParams]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -50,6 +53,7 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
     if (deal !== "all") params.set("deal", deal);
     if (minPrice.trim()) params.set("minPrice", minPrice.trim());
     if (maxPrice.trim()) params.set("maxPrice", maxPrice.trim());
+    if (ownerName.trim() && canSearchOwner) params.set("ownerName", ownerName.trim());
 
     router.push(`/${currentLang}/search?${params.toString()}`);
   };
@@ -64,6 +68,7 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
     setDeal("all");
     setMinPrice("");
     setMaxPrice("");
+    setOwnerName("");
     router.push(`/${currentLang}/search`);
   };
 
@@ -207,15 +212,34 @@ export default function SearchFilterControls({ currentLang }: SearchFilterContro
 
             {/* Grid 3: Zip code & actions */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 pt-2">
-              <div className="w-full md:max-w-xs space-y-1">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">รหัสไปรษณีย์</label>
-                <input 
-                  type="text" 
-                  value={zipCode}
-                  onChange={(e) => setZipCode(e.target.value)}
-                  placeholder="เช่น 10110" 
-                  className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"
-                />
+              <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
+                <div className="w-full md:w-48 space-y-1">
+                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">รหัสไปรษณีย์</label>
+                  <input 
+                    type="text" 
+                    value={zipCode}
+                    onChange={(e) => setZipCode(e.target.value)}
+                    placeholder="เช่น 10110" 
+                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white placeholder-white/20 transition-all font-mono"
+                  />
+                </div>
+                {canSearchOwner && (
+                  <div className="w-full md:w-64 space-y-1">
+                    <label className="text-[10px] font-bold text-accent uppercase tracking-widest block flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-3.5 h-3.5">
+                        <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.29-.22.41-.58.41-.952a1.721 1.721 0 00-1.472-1.706L13.12 12.82c-.17-.038-.347.01-.47.13L11.3 14.3a.5.5 0 01-.6.08 7.043 7.043 0 01-2.6-2.6.5.5 0 01.08-.6l1.35-1.35a.172.172 0 00.13-.47l-.42-1.948a1.721 1.721 0 00-1.706-1.472H3.465z" />
+                      </svg>
+                      ชื่อเจ้าของทรัพย์ (Admin/User Only)
+                    </label>
+                    <input 
+                      type="text" 
+                      value={ownerName}
+                      onChange={(e) => setOwnerName(e.target.value)}
+                      placeholder="ระบุชื่อเจ้าของทรัพย์" 
+                      className="w-full h-11 bg-black/45 border border-accent/30 text-accent focus:border-accent rounded-xl px-4 text-xs focus:outline-none placeholder-accent/40 transition-all"
+                    />
+                  </div>
+                )}
               </div>
               
               <div className="flex gap-3 justify-end mt-4 md:mt-0">

@@ -21,7 +21,11 @@ export default async function EditAssetPage({ params }: PageProps) {
       ]
     },
     include: {
-      images: true,
+      images: {
+        orderBy: {
+          sortOrder: "asc"
+        }
+      },
       prices: {
         orderBy: { createdAt: "desc" }
       },

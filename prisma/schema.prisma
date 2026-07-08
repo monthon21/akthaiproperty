@@ -176,6 +176,7 @@ model AssetImage {
   asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
   imageUrl  String
   isFeature Boolean  @default(false) // รูปภาพหลัก
+  sortOrder Int      @default(0)     // ลำดับรูปภาพ
   createdAt DateTime @default(now())
 }
 

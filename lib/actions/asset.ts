@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma";
 import { AssetType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
+import { auth } from "@/auth";
 
 export interface AssetImageInput {
   imageUrl: string;
@@ -202,9 +203,10 @@ export async function createAssetAction(input: AssetInput) {
         googleMap: googleMap || null,
         customerId: customerId,
         images: {
-          create: images.map((img) => ({
+          create: images.map((img, idx) => ({
             imageUrl: img.imageUrl,
             isFeature: img.isFeature,
+            sortOrder: idx,
           })),
         },
         assetPlaces:
@@ -426,10 +428,11 @@ export async function updateAssetAction(id: string, input: AssetInput) {
 
     if (images && images.length > 0) {
       await prisma.assetImage.createMany({
-        data: images.map((img) => ({
+        data: images.map((img, idx) => ({
           assetId: id,
           imageUrl: img.imageUrl,
           isFeature: img.isFeature,
+          sortOrder: idx,
         })),
       });
     }
@@ -469,7 +472,11 @@ export async function getAssetAction(id: string) {
         OR: [{ id }, { code: id }],
       },
       include: {
-        images: true,
+        images: {
+          orderBy: {
+            sortOrder: "asc",
+          },
+        },
         assetPlaces: true,
         prices: {
           orderBy: { createdAt: "desc" },
@@ -642,20 +649,44 @@ export async function searchAssetSuggestionsAction(query: string) {
   if (!query || query.length < 2) return { success: true, suggestions: [] };
 
   try {
+    const session = await auth();
+    const userRole = (session?.user as any)?.role;
+    const canSearchOwner = userRole === "ADMIN" || userRole === "USER";
+    console.log("[searchAssetSuggestionsAction Debug] query:", query, "session user:", session?.user, "userRole:", userRole, "canSearchOwner:", canSearchOwner);
+
+    const orConditions: any[] = [
+      { code: { contains: query } },
+      { address: { contains: query } },
+      { district: { contains: query } },
+      { province: { contains: query } },
+      { projectName: { contains: query } },
+      { zipCode: { contains: query } },
+      { title: { contains: query } },
+      { titleEn: { contains: query } },
+      { titleZh: { contains: query } },
+    ];
+
+    if (canSearchOwner) {
+      orConditions.push(
+        {
+          customer: {
+            name: { contains: query }
+          }
+        },
+        {
+          customer: {
+            details: {
+              fullname: { contains: query }
+            }
+          }
+        }
+      );
+    }
+
     const assets = await prisma.asset.findMany({
       where: {
         isAvailable: true,
-        OR: [
-          { code: { contains: query } },
-          { address: { contains: query } },
-          { district: { contains: query } },
-          { province: { contains: query } },
-          { projectName: { contains: query } },
-          { zipCode: { contains: query } },
-          { title: { contains: query } },
-          { titleEn: { contains: query } },
-          { titleZh: { contains: query } },
-        ],
+        OR: orConditions,
       },
       take: 5,
       select: {
@@ -666,6 +697,11 @@ export async function searchAssetSuggestionsAction(query: string) {
         address: true,
         district: true,
         province: true,
+        customer: {
+          select: {
+            name: true,
+          },
+        },
       },
     });
 

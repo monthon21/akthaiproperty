@@ -174,7 +174,11 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         ]
       },
       include: {
-        images: true,
+        images: {
+          orderBy: {
+            sortOrder: "asc"
+          }
+        },
         assetPlaces: true
       }
     });
@@ -185,7 +189,13 @@ export default async function PropertyDetailPage({ params }: PageProps) {
       const dbSimilar = await prisma.asset.findMany({
         where: { id: { not: dbAsset.id } },
         take: 3,
-        include: { images: true }
+        include: {
+          images: {
+            orderBy: {
+              sortOrder: "asc"
+            }
+          }
+        }
       });
 
       similarProperties = dbSimilar.map(asset => mapAssetToProperty(asset, resolvedParams.lang));

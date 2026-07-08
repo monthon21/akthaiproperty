@@ -2,6 +2,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ListingGrid from "@/components/ListingGrid";
 import SearchFilterControls from "@/components/SearchFilterControls";
+import { auth } from "@/auth";
+
+export const dynamic = "force-dynamic";
 
 export default async function SearchPage(props: {
   params: Promise<{ lang: string }> | { lang: string };
@@ -16,6 +19,7 @@ export default async function SearchPage(props: {
     propertyType?: string;
     minPrice?: string;
     maxPrice?: string;
+    ownerName?: string;
   }> | { 
     q?: string; 
     type?: string; 
@@ -27,6 +31,7 @@ export default async function SearchPage(props: {
     propertyType?: string;
     minPrice?: string;
     maxPrice?: string;
+    ownerName?: string;
   };
 }) {
   const resolvedParams = await props.params;
@@ -39,6 +44,12 @@ export default async function SearchPage(props: {
   const zipCode = resolvedSearchParams?.zipCode || "";
   const projectName = resolvedSearchParams?.projectName || "";
   const propertyType = resolvedSearchParams?.propertyType || "";
+  const ownerName = resolvedSearchParams?.ownerName || "";
+
+  // Get session role
+  const session = await auth();
+  const userRole = (session?.user as any)?.role;
+  const canSearchOwner = userRole === "ADMIN" || userRole === "USER";
 
   // Handle both 'deal' and legacy 'type' query parameters from HeroSearchBox
   const dealParam = resolvedSearchParams?.deal || resolvedSearchParams?.type || "all";
@@ -69,7 +80,7 @@ export default async function SearchPage(props: {
         </div>
 
         {/* Advanced Search & Filter Controls */}
-        <SearchFilterControls currentLang={lang} />
+        <SearchFilterControls currentLang={lang} canSearchOwner={canSearchOwner} />
 
         <ListingGrid 
           lang={lang} 
@@ -82,6 +93,7 @@ export default async function SearchPage(props: {
           propertyType={propertyType}
           minPrice={minPrice}
           maxPrice={maxPrice}
+          ownerName={ownerName}
         />
       </main>
       <Footer />
