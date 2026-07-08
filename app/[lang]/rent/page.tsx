@@ -4,8 +4,35 @@ import ListingGrid from "@/components/ListingGrid";
 import SearchFilterControls from "@/components/SearchFilterControls";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import { auth } from "@/auth";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+const SEO: Record<string, { title: string; description: string }> = {
+  th: {
+    title: "เช่าบ้าน คอนโด ที่พัก | AK Thai Property",
+    description: "ค้นหาบ้าน คอนโด และที่พักให้เช่าทั่วไทย ราคาถูก ทำเลดี พร้อมเข้าอยู่ บริการโดย AK Thai Property",
+  },
+  en: {
+    title: "Rent House & Condo in Thailand | AK Thai Property",
+    description: "Find houses and condos for rent across Thailand. Affordable prices, great locations, move-in ready. By AK Thai Property.",
+  },
+  zh: {
+    title: "泰国租房 | AK Thai Property",
+    description: "在泰国各地寻找出租的房屋和公寓。价格实惠，地段优越，可即时入住。由AK Thai Property提供服务。",
+  },
+};
+
+export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await props.params;
+  const seo = SEO[lang] || SEO["th"];
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: { title: seo.title, description: seo.description },
+  };
+}
+
 
 export default async function RentPage(props: {
   params: Promise<{ lang: string }>;

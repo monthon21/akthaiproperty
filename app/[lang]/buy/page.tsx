@@ -4,8 +4,35 @@ import ListingGrid from "@/components/ListingGrid";
 import SearchFilterControls from "@/components/SearchFilterControls";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import { auth } from "@/auth";
+import type { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
+
+const SEO: Record<string, { title: string; description: string }> = {
+  th: {
+    title: "ซื้อบ้าน คอนโด ที่ดิน | AK Thai Property",
+    description: "ค้นหาบ้าน คอนโด ที่ดิน และอสังหาริมทรัพย์เพื่อการซื้อในทุกจังหวัดทั่วไทย ราคาดี คัดสรรโดยผู้เชี่ยวชาญ AK Thai Property",
+  },
+  en: {
+    title: "Buy House, Condo & Land in Thailand | AK Thai Property",
+    description: "Browse houses, condos, and land for sale across Thailand. Trusted listings curated by AK Thai Property experts.",
+  },
+  zh: {
+    title: "购买泰国房产 | AK Thai Property",
+    description: "浏览泰国各地出售的房屋、公寓和土地。由AK Thai Property专家精选的优质房源。",
+  },
+};
+
+export async function generateMetadata(props: { params: Promise<{ lang: string }> }): Promise<Metadata> {
+  const { lang } = await props.params;
+  const seo = SEO[lang] || SEO["th"];
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: { title: seo.title, description: seo.description },
+  };
+}
+
 
 export default async function BuyPage(props: {
   params: Promise<{ lang: string }>;

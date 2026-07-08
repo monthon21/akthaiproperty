@@ -5,12 +5,79 @@ import { notFound } from "next/navigation";
 import PropertyDetailClient from "@/components/PropertyDetailClient";
 import { prisma } from "@/lib/prisma";
 import { parseAmenities, AMENITY_MAP } from "@/lib/amenities";
+import type { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{ id: string; lang: string }>;
 }
 
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { id, lang } = await params;
+
+  // Try static properties first
+  const propertyId = parseInt(id);
+  if (!isNaN(propertyId)) {
+    const staticProp = featuredProperties.find((p) => p.id === propertyId);
+    if (staticProp) {
+      const desc = staticProp.description
+        ? staticProp.description.slice(0, 160)
+        : "รายละเอียดอสังหาริมทรัพย์ที่ AK Thai Property";
+      return {
+        title: `${staticProp.title} | AK Thai Property`,
+        description: desc,
+        openGraph: {
+          title: `${staticProp.title} | AK Thai Property`,
+          description: desc,
+          images: staticProp.image ? [staticProp.image] : [],
+        },
+      };
+    }
+  }
+
+  // Try DB
+  const asset = await prisma.asset.findFirst({
+    where: { OR: [{ id }, { code: id }] },
+    select: {
+      title: true,
+      titleEn: true,
+      titleZh: true,
+      description: true,
+      descriptionEn: true,
+      descriptionZh: true,
+      images: { where: { isFeature: true }, take: 1, select: { imageUrl: true } },
+    },
+  });
+
+  if (!asset) {
+    return { title: "Property Not Found | AK Thai Property" };
+  }
+
+  const title =
+    (lang === "en" && asset.titleEn) ? asset.titleEn :
+    (lang === "zh" && asset.titleZh) ? asset.titleZh :
+    asset.title;
+
+  const rawDesc =
+    (lang === "en" && asset.descriptionEn) ? asset.descriptionEn :
+    (lang === "zh" && asset.descriptionZh) ? asset.descriptionZh :
+    asset.description || "";
+
+  const description = rawDesc.slice(0, 160) || "รายละเอียดอสังหาริมทรัพย์ที่ AK Thai Property";
+  const ogImage = asset.images[0]?.imageUrl;
+
+  return {
+    title: `${title} | AK Thai Property`,
+    description,
+    openGraph: {
+      title: `${title} | AK Thai Property`,
+      description,
+      images: ogImage ? [ogImage] : [],
+    },
+  };
+}
+
 
 export async function generateStaticParams() {
   return featuredProperties.map((property) => ({

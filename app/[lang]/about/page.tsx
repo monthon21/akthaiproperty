@@ -1,5 +1,15 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "เกี่ยวกับเรา | AK Thai Property",
+  description: "AK Thai Property ผู้เชี่ยวชาญด้านอสังหาริมทรัพย์สำหรับคนไทยในต่างประเทศ บริการรับฝากขาย เช่า และสินเชื่อบ้านด้วยทีมงานมืออาชีพ",
+  openGraph: {
+    title: "เกี่ยวกับเรา | AK Thai Property",
+    description: "AK Thai Property ผู้เชี่ยวชาญด้านอสังหาริมทรัพย์สำหรับคนไทยในต่างประเทศ",
+  },
+};
 
 export default function AboutPage() {
   return (

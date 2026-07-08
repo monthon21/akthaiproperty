@@ -7,12 +7,41 @@ import Footer from "@/components/Footer";
 import Link from "next/link";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import { prisma } from "@/lib/prisma";
+import type { Metadata } from "next";
 
 interface PageProps {
   params: Promise<{ lang: string }>;
 }
 
 export const dynamic = "force-dynamic";
+
+const SEO: Record<string, { title: string; description: string }> = {
+  th: {
+    title: "AK Thai Property | บ้านสวย สินเชื่อดี เพื่อคนไทย",
+    description: "บริการรับฝากขาย เช่า บ้าน คอนโด ที่ดิน และบริการสินเชื่อบ้านสำหรับคนไทยในต่างประเทศ ค้นหาบ้านในฝันของคุณกับ AK Thai Property",
+  },
+  en: {
+    title: "AK Thai Property | Thai Real Estate for Expats",
+    description: "Buy, sell, or rent houses, condos, and land in Thailand. Mortgage services for Thai expats. Find your dream home with AK Thai Property.",
+  },
+  zh: {
+    title: "AK Thai Property | 泰国华人房产服务",
+    description: "在泰国购买、出售或租赁房屋、公寓和土地。为海外泰国人提供房贷服务。与AK Thai Property一起找到您的理想家园。",
+  },
+};
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { lang } = await params;
+  const seo = SEO[lang] || SEO["th"];
+  return {
+    title: seo.title,
+    description: seo.description,
+    openGraph: {
+      title: seo.title,
+      description: seo.description,
+    },
+  };
+}
 
 export default async function Home({ params }: PageProps) {
   const { lang } = await params;
