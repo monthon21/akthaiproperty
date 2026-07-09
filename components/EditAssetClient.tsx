@@ -8,6 +8,7 @@ import { AssetType } from "@prisma/client";
 import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
 import { AMENITY_GROUPS, parseAmenities } from "@/lib/amenities";
+import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
 
 // Define TypeScript interfaces matching database models
 interface DBAssetPrice {
@@ -194,6 +195,13 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const customerContainerRef = useRef<HTMLDivElement>(null);
 
+  const postcodeLookup = usePostcodeLookup({
+    zipCode: formData.zipCode,
+    province: formData.province,
+    district: formData.district,
+    subdistrict: formData.subdistrict,
+  });
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (customerContainerRef.current && !customerContainerRef.current.contains(event.target as Node)) {
@@ -263,6 +271,19 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
       }
       if (name === "isRent" && !checked) {
         nextState.loanPrice = "";
+      }
+      // Postcode cascade resets
+      if (name === "zipCode") {
+        const patch = postcodeLookup.handleZipCodeChange(finalValue);
+        return { ...nextState, ...patch };
+      }
+      if (name === "province") {
+        const patch = postcodeLookup.handleProvinceChange(finalValue);
+        return { ...nextState, ...patch };
+      }
+      if (name === "district") {
+        const patch = postcodeLookup.handleDistrictChange(finalValue);
+        return { ...nextState, ...patch };
       }
       return nextState;
     });
@@ -721,46 +742,115 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ตำบล/แขวง</label>
-                  <input
-                    type="text"
-                    name="subdistrict"
-                    value={formData.subdistrict}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">อำเภอ/เขต</label>
-                  <input
-                    type="text"
-                    name="district"
-                    value={formData.district}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จังหวัด</label>
-                  <input
-                    type="text"
-                    name="province"
-                    value={formData.province}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                  />
-                </div>
+
+                {/* ── รหัสไปรษณีย์ — กรอกก่อน แล้วจะ auto-fill หรือ dropdown ── */}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">รหัสไปรษณีย์ (Zip Code)</label>
-                  <input
-                    type="text"
-                    name="zipCode"
-                    value={formData.zipCode}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                  />
+                  <div className="relative">
+                    <input
+                      type="text"
+                      name="zipCode"
+                      maxLength={5}
+                      value={formData.zipCode}
+                      onChange={handleInputChange}
+                      placeholder="e.g. 10330"
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
+                    />
+                    {formData.zipCode.length === 5 && !postcodeLookup.hasMatches && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-red-400 font-bold">ไม่พบ</span>
+                    )}
+                    {formData.zipCode.length === 5 && postcodeLookup.hasMatches && (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-accent font-bold">✓</span>
+                    )}
+                  </div>
                 </div>
+
+                {/* ── จังหวัด (Province) ── */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จังหวัด (Province)</label>
+                  {postcodeLookup.provinceOptions.length > 1 ? (
+                    <select
+                      name="province"
+                      value={formData.province}
+                      onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer"
+                    >
+                      <option className="bg-[#112240]" value="">-- เลือกจังหวัด --</option>
+                      {postcodeLookup.provinceOptions.map(p => (
+                        <option key={p} value={p} className="bg-[#112240]">{p}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name="province"
+                      value={formData.province}
+                      onChange={handleInputChange}
+                      readOnly={postcodeLookup.provinceOptions.length === 1}
+                      placeholder={postcodeLookup.hasMatches && !formData.province ? "(กรอกรหัสไปรษณีย์ก่อน)" : ""}
+                      className={`w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white ${postcodeLookup.provinceOptions.length === 1 ? "opacity-70 cursor-default" : ""}`}
+                    />
+                  )}
+                </div>
+
+                {/* ── อำเภอ/เขต (District) ── */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">อำเภอ/เขต (District)</label>
+                  {postcodeLookup.districtOptions.length > 0 ? (
+                    <select
+                      name="district"
+                      value={formData.district}
+                      onChange={handleInputChange}
+                      disabled={!formData.province}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <option className="bg-[#112240]" value="">-- เลือกอำเภอ/เขต --</option>
+                      {postcodeLookup.districtOptions.map(d => (
+                        <option key={d} value={d} className="bg-[#112240]">{d}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name="district"
+                      value={formData.district}
+                      onChange={handleInputChange}
+                      readOnly={postcodeLookup.hasMatches && !!formData.province}
+                      placeholder="(กรอกรหัสไปรษณีย์และเลือกจังหวัดก่อน)"
+                      className={`w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white ${postcodeLookup.hasMatches && !!formData.province ? "opacity-50 cursor-default" : ""}`}
+                    />
+                  )}
+                </div>
+
+                {/* ── ตำบล/แขวง (Subdistrict) ── */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ตำบล/แขวง (Subdistrict)</label>
+                  {postcodeLookup.subdistrictOptions.length > 0 ? (
+                    <select
+                      name="subdistrict"
+                      value={formData.subdistrict}
+                      onChange={handleInputChange}
+                      disabled={!formData.district}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      <option className="bg-[#112240]" value="">-- เลือกตำบล/แขวง --</option>
+                      {postcodeLookup.subdistrictOptions.map(s => (
+                        <option key={s} value={s} className="bg-[#112240]">{s}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name="subdistrict"
+                      value={formData.subdistrict}
+                      onChange={handleInputChange}
+                      readOnly={postcodeLookup.hasMatches && !!formData.district}
+                      placeholder="(เลือกอำเภอ/เขตก่อน)"
+                      className={`w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white ${postcodeLookup.hasMatches && !!formData.district ? "opacity-50 cursor-default" : ""}`}
+                    />
+                  )}
+                </div>
+
                 <div className="space-y-1.5 md:col-span-2">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พิกัด Google Map (Google Map Coordinates / Share Link / Iframe Code)</label>
                   <input
