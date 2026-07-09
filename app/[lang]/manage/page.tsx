@@ -40,7 +40,7 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
                 กลับหน้า Profile
               </Link>
               <Link
-                href={`/${lang}/manage/customers`}
+                href={`/${lang}/manage/landlord`}
                 className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
               >
                 ข้อมูลเจ้าของทรัพย์

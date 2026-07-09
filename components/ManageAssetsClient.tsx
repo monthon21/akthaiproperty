@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteAssetAction, toggleAssetAvailabilityAction, toggleAssetRecommendationAction } from "@/lib/actions/asset";
+import { Eye, Edit, Trash2 } from "lucide-react";
 
 const formatNumberWithCommas = (value: string) => {
   const clean = value.replace(/[^0-9]/g, "");
@@ -281,22 +282,41 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-[#0A192F] transition-transform ${asset.isRecommended ? 'translate-x-4' : 'translate-x-1'}`} />
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-right space-x-4 whitespace-nowrap opacity-70 group-hover:opacity-100 transition-opacity">
-                    <Link href={`/${currentLang}/property/list/${asset.code || asset.id}`} target="_blank" className="text-xs font-bold text-white/50 hover:text-white transition-colors uppercase tracking-widest">
-                      View
-                    </Link>
-                    <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} className="text-xs font-bold text-accent hover:text-accent-dark transition-colors uppercase tracking-widest">
-                      Edit
-                    </Link>
-                    {isAdmin && (
-                      <button
-                        onClick={() => handleDelete(asset.id, asset.code)}
-                        disabled={isDeleting === asset.id}
-                        className="text-xs font-bold text-red-400 hover:text-red-300 transition-colors disabled:opacity-50 uppercase tracking-widest cursor-pointer"
+                  <td className="px-6 py-4 text-right opacity-70 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-center justify-end gap-2">
+                      <Link 
+                        href={`/${currentLang}/property/list/${asset.code || asset.id}`} 
+                        target="_blank" 
+                        title="View"
+                        className="p-1.5 text-white/30 hover:text-white transition-colors"
                       >
-                        {isDeleting === asset.id ? "Deleting..." : "Delete"}
-                      </button>
-                    )}
+                        <Eye size={16} />
+                      </Link>
+                      <Link 
+                        href={`/${currentLang}/edit/${asset.code || asset.id}`} 
+                        title="Edit"
+                        className="p-1.5 text-white/30 hover:text-blue-400 transition-colors"
+                      >
+                        <Edit size={16} />
+                      </Link>
+                      {isAdmin && (
+                        <button
+                          onClick={() => handleDelete(asset.id, asset.code)}
+                          disabled={isDeleting === asset.id}
+                          title="Delete"
+                          className="p-1.5 text-white/30 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
+                        >
+                          {isDeleting === asset.id ? (
+                            <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))

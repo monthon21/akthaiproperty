@@ -9,6 +9,7 @@ import {
   createCustomerAction,
   deleteCustomerAction
 } from "@/lib/actions/customer";
+import { Eye, Edit, Trash2 } from "lucide-react";
 
 export default function ManageCustomersClient({
   initialCustomers,
@@ -287,11 +288,10 @@ export default function ManageCustomersClient({
                           {c.assets.map((asset: any) => (
                             <li key={asset.id} className="truncate max-w-md">
                               <Link
-                                href={`/${currentLang}/property/list/${asset.id}`}
+                                href={`/${currentLang}/property/list/${asset.code}`}
                                 target="_blank"
-                                className="hover:text-accent font-semibold transition-colors"
                               >
-                                {asset.code} - {asset.title}
+                                {asset.code}
                               </Link>
                             </li>
                           ))}
@@ -301,19 +301,35 @@ export default function ManageCustomersClient({
                       )}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center justify-center gap-2">
+                      <div className="flex items-center justify-center gap-1.5">
                         <button
                           onClick={() => handleOpenEdit(c.id)}
-                          className="px-3.5 py-1.5 border border-accent/30 text-accent hover:bg-accent hover:text-primary-dark rounded transition-all cursor-pointer font-semibold"
+                          title="ดูรายละเอียด"
+                          className="p-1.5 text-white/30 hover:text-white transition-colors cursor-pointer"
                         >
-                          ดูรายละเอียด/แก้ไข
+                          <Eye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleOpenEdit(c.id)}
+                          title="แก้ไข"
+                          className="p-1.5 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
+                        >
+                          <Edit size={16} />
                         </button>
                         <button
                           onClick={() => handleDelete(c.id, c.name)}
                           disabled={isDeleting === c.id}
-                          className="px-3.5 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 rounded transition-all cursor-pointer font-semibold disabled:opacity-40"
+                          title="ลบ"
+                          className="p-1.5 text-white/30 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-40"
                         >
-                          {isDeleting === c.id ? "กำลังลบ..." : "ลบ"}
+                          {isDeleting === c.id ? (
+                            <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                            </svg>
+                          ) : (
+                            <Trash2 size={16} />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -492,13 +508,12 @@ export default function ManageCustomersClient({
                             className="flex justify-between items-center bg-black/20 border border-white/5 p-3 rounded-xl hover:border-accent/30 transition-all text-xs"
                           >
                             <div className="flex flex-col gap-0.5">
-                              <span className="font-bold text-white truncate max-w-md">{asset.title}</span>
-                              <span className="text-[10px] text-white/40 font-mono">
-                                ID: {asset.code} | {asset.type === "DETACHED_HOUSE" ? "บ้านเดี่ยว" : asset.type}
+                              <span className="font-bold text-white font-mono">
+                                รหัสทรัพย์ (ID): {asset.code}
                               </span>
                             </div>
                             <Link
-                              href={`/${currentLang}/property/list/${asset.id}`}
+                              href={`/${currentLang}/property/list/${asset.code}`}
                               target="_blank"
                               className="text-accent hover:underline font-semibold"
                             >
