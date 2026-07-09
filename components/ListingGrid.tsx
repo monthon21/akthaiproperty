@@ -1,4 +1,5 @@
 import PropertyCard from "./PropertyCard";
+import ListingCarousel from "./ListingCarousel";
 import { Property } from "@/lib/properties";
 import { prisma } from "@/lib/prisma";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
@@ -293,9 +294,9 @@ export default async function ListingGrid({
   const allProperties = mappedDbAssets;
 
   return (
-    <section className={`py-24 px-6 ${bgColor}`}>
+    <section className={`py-12 px-6 ${bgColor}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
+        <div className="flex flex-col md:flex-row justify-between items-end mb-8 gap-8">
           <div>
             <h2 className="text-[10px] font-alt font-extrabold text-accent uppercase tracking-[0.35em] mb-4">{dict.listing_grid.subtitle}</h2>
             <h3 className="text-3xl md:text-5xl font-display font-bold text-white tracking-wide">
@@ -311,6 +312,12 @@ export default async function ListingGrid({
           <div className="text-center py-16 border border-white/5 rounded-2xl bg-black/25">
             <p className="text-sm text-white/40">{dict.listing_grid.not_found}</p>
           </div>
+        ) : isRecommendedOnly ? (
+          <ListingCarousel>
+            {allProperties.map((property) => (
+              <PropertyCard key={property.id} property={property} lang={lang} />
+            ))}
+          </ListingCarousel>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {allProperties.map((property) => (

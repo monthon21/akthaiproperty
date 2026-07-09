@@ -4,6 +4,9 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { updateAssetAction } from "@/lib/actions/asset";
+import { deleteAssetAction } from "@/lib/actions/asset";
+import { useProjectTemplateAutocomplete, templatePlacesToAssetPlaces, ProjectTemplateOption } from "@/lib/useProjectTemplateAutocomplete";
+import { getProjectTemplatesListAction } from "@/lib/actions/project-template";
 import { AssetType } from "@prisma/client";
 import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
@@ -196,6 +199,25 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const customerContainerRef = useRef<HTMLDivElement>(null);
   const [showMapPicker, setShowMapPicker] = useState(false);
+
+  // ── Load project templates ──
+  const [projectTemplates, setProjectTemplates] = useState<ProjectTemplateOption[]>([]);
+  useEffect(() => {
+    getProjectTemplatesListAction().then(res => {
+      if (res.success) setProjectTemplates(res.templates as ProjectTemplateOption[]);
+    });
+  }, []);
+
+  const projectAC = useProjectTemplateAutocomplete(projectTemplates, (tpl) => {
+    setFormData(prev => ({
+      ...prev,
+      projectName: tpl.name,
+      ...(tpl.googleMap ? { googleMap: tpl.googleMap } : {}),
+    }));
+    if (tpl.places.length > 0) {
+      setAssetPlaces(templatePlacesToAssetPlaces(tpl.places));
+    }
+  });
 
   const postcodeLookup = usePostcodeLookup({
     zipCode: formData.zipCode,
@@ -442,10 +464,87 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   />
                 </div>
                 <div className="md:col-span-3">
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อโครงการ (Project Name)</label>
-                    <input type="text" name="projectName" placeholder="e.g. โครงการลุมพินี วิลล์" value={formData.projectName} onChange={handleInputChange}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  <div className="space-y-1.5" ref={projectAC.containerRef}>
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อโครงการ (Project Name)</label>
+                      {formData.projectName && projectTemplates.some(t => t.name === formData.projectName) && (
+                        <span className="text-[10px] font-bold text-accent flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                          ใช้เทมเพลตโครงการ
+                        </span>
+                      )}
+                    </div>
+                    <div className="relative">
+                      <input
+                        type="text"
+                        name="projectName"
+                        placeholder="e.g. โครงการลุมพินี วิลล์ — พิมพ์เพื่อค้นหาหรือสร้างใหม่"
+                        value={formData.projectName}
+                        autoComplete="off"
+                        onChange={(e) => {
+                          handleInputChange(e);
+                          projectAC.handleNameInput(e.target.value);
+                        }}
+                        onFocus={() => projectAC.handleNameInput(formData.projectName)}
+                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white pr-10"
+                      />
+                      {formData.projectName && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, projectName: "" }));
+                            projectAC.clearDropdown();
+                          }}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                        </button>
+                      )}
+
+                      {/* Autocomplete Dropdown */}
+                      {projectAC.showDropdown && projectAC.filteredOptions.length > 0 && (
+                        <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                          <div className="px-3 py-2 border-b border-white/5">
+                            <p className="text-[9px] font-bold text-accent uppercase tracking-widest">เทมเพลตโครงการที่ตรงกัน</p>
+                          </div>
+                          <ul className="max-h-52 overflow-y-auto">
+                            {projectAC.filteredOptions.map((tpl) => (
+                              <li
+                                key={tpl.id}
+                                onMouseDown={(e) => { e.preventDefault(); projectAC.selectTemplate(tpl); }}
+                                className="px-4 py-3 hover:bg-accent/10 cursor-pointer transition-colors group"
+                              >
+                                <div className="flex items-center justify-between">
+                                  <p className="text-xs font-bold text-white group-hover:text-accent transition-colors">{tpl.name}</p>
+                                  <span className="text-[9px] font-bold text-accent/60 uppercase tracking-widest ml-2">เลือก</span>
+                                </div>
+                                <div className="flex items-center gap-3 mt-1">
+                                  {tpl.googleMap && (
+                                    <span className="text-[9px] text-white/40 flex items-center gap-1">
+                                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-2.5 h-2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                      มีพิกัด
+                                    </span>
+                                  )}
+                                  {tpl.places.length > 0 && (
+                                    <span className="text-[9px] text-white/40">{tpl.places.length} สถานที่ใกล้เคียง</span>
+                                  )}
+                                </div>
+                              </li>
+                            ))}
+                          </ul>
+                          <div className="px-4 py-2 border-t border-white/5 bg-black/20">
+                            <p className="text-[9px] text-white/25">เลือกเพื่อ auto-fill พิกัดและสถานที่ใกล้เคียง หรือพิมพ์ต่อเพื่อสร้างโครงการใหม่</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* No matches hint */}
+                      {projectAC.showDropdown && formData.projectName.trim().length > 0 && projectAC.filteredOptions.length === 0 && projectTemplates.length > 0 && (
+                        <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-xl z-50 px-4 py-3">
+                          <p className="text-[10px] text-white/40">ไม่พบโครงการนี้ในเทมเพลต — จะบันทึกเป็นชื่อโครงการใหม่</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

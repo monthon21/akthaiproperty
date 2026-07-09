@@ -74,7 +74,16 @@ export async function getCustomerDetailsAction(customerId: number) {
       return { success: false, error: "ไม่พบข้อมูลเจ้าของทรัพย์สินนี้" };
     }
 
-    return { success: true, customer };
+    const plainCustomer = {
+      ...customer,
+      assets: customer.assets.map((a: any) => ({
+        ...a,
+        sellPrice: a.sellPrice ? Number(a.sellPrice) : null,
+        loanPrice: a.loanPrice ? Number(a.loanPrice) : null,
+      }))
+    };
+
+    return { success: true, customer: plainCustomer };
   } catch (error: any) {
     console.error("Error getting customer details:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการดึงรายละเอียด" };

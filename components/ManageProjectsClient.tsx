@@ -6,6 +6,7 @@ import {
   updateProjectTemplateAction,
   deleteProjectTemplateAction,
 } from "@/lib/actions/project-template";
+import { Eye, EyeOff, Edit, Trash2 } from "lucide-react";
 import MapPickerModal from "@/components/MapPickerModal";
 
 interface TemplatePlace {
@@ -228,33 +229,34 @@ export default function ManageProjectsClient({ initialTemplates }: Props) {
                     </span>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 pr-2">
                   <button
                     onClick={() => setExpandedId(expandedId === t.id ? null : t.id)}
-                    className="h-8 px-3 text-[10px] font-bold text-white/40 hover:text-white bg-white/5 hover:bg-white/10 rounded-lg transition-all uppercase tracking-widest"
+                    title={expandedId === t.id ? "ซ่อน" : "ดูรายละเอียด"}
+                    className="p-1.5 text-white/30 hover:text-white transition-colors cursor-pointer"
                   >
-                    {expandedId === t.id ? "ซ่อน" : "ดูรายละเอียด"}
+                    {expandedId === t.id ? <EyeOff size={16} /> : <Eye size={16} />}
                   </button>
                   <button
                     onClick={() => openEdit(t)}
-                    className="h-8 px-3 text-[10px] font-bold text-accent hover:text-accent/80 bg-accent/10 hover:bg-accent/15 rounded-lg transition-all uppercase tracking-widest"
+                    title="แก้ไข"
+                    className="p-1.5 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
                   >
-                    แก้ไข
+                    <Edit size={16} />
                   </button>
                   <button
                     onClick={() => handleDelete(t.id)}
                     disabled={deletingId === t.id}
-                    className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-all disabled:opacity-40"
+                    title="ลบ"
+                    className="p-1.5 text-white/30 hover:text-red-400 transition-colors disabled:opacity-40 cursor-pointer"
                   >
                     {deletingId === t.id ? (
-                      <svg className="animate-spin w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                       </svg>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                      </svg>
+                      <Trash2 size={16} />
                     )}
                   </button>
                 </div>

@@ -489,7 +489,20 @@ export async function getAssetAction(id: string) {
       return { success: false, error: "ไม่พบข้อมูลทรัพย์สิน" };
     }
 
-    return { success: true, asset };
+    const plainAsset = {
+      ...asset,
+      sellPrice: asset.sellPrice ? Number(asset.sellPrice) : null,
+      loanPrice: asset.loanPrice ? Number(asset.loanPrice) : null,
+      landSize: asset.landSize ? Number(asset.landSize) : null,
+      usableArea: asset.usableArea ? Number(asset.usableArea) : null,
+      prices: asset.prices.map((p: any) => ({
+        ...p,
+        sellPrice: p.sellPrice ? Number(p.sellPrice) : null,
+        loanPrice: p.loanPrice ? Number(p.loanPrice) : null,
+      }))
+    };
+
+    return { success: true, asset: plainAsset };
   } catch (error: any) {
     console.error("Error getting asset:", error);
     return {
@@ -548,7 +561,14 @@ export async function getAllAssetsAction() {
         customer: true,
       },
     });
-    return { success: true, assets };
+    const plainAssets = assets.map((a: any) => ({
+      ...a,
+      sellPrice: a.sellPrice ? Number(a.sellPrice) : null,
+      loanPrice: a.loanPrice ? Number(a.loanPrice) : null,
+      landSize: a.landSize ? Number(a.landSize) : null,
+      usableArea: a.usableArea ? Number(a.usableArea) : null,
+    }));
+    return { success: true, assets: plainAssets };
   } catch (error: any) {
     console.error("Error getting all assets:", error);
     return {

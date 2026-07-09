@@ -60,6 +60,7 @@ export default async function Home({ params }: PageProps) {
   if (dbAsset) {
     featuredAsset = {
       id: dbAsset.id,
+      code: dbAsset.code,
       title: dbAsset.title,
       titleEn: dbAsset.titleEn,
       titleZh: dbAsset.titleZh,
