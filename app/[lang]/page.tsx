@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import ServiceCards from "@/components/ServiceCards";
 import ListingGrid from "@/components/ListingGrid";
 import LoanSection from "@/components/LoanSection";
+import GreetingPhotos from "@/components/GreetingPhotos";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
@@ -94,6 +95,9 @@ export default async function Home({ params }: PageProps) {
         {/* Specialized Mortgage Section */}
         <LoanSection lang={lang} />
         
+        {/* Client Impressions */}
+        <GreetingPhotos />
+
         {/* Final CTA Section */}
         <section className="py-32 px-6 bg-primary relative overflow-hidden group">
           {/* Animated decorative shapes */}

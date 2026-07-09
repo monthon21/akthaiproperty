@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import GreetingPhotos from "@/components/GreetingPhotos";
 import th from "@/lib/i18n/th.json";
 import en from "@/lib/i18n/en.json";
 import zh from "@/lib/i18n/zh.json";
@@ -42,6 +44,16 @@ export default function LoanPage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-start mb-32">
             <div>
               <h1 className="text-4xl md:text-7xl font-black mb-8 leading-[1.1] tracking-tight">{t("loan_page.title_part1")} <br /><span className="text-gradient">{t("loan_page.title_part2")}</span></h1>
+              
+              <div className="relative w-full aspect-video rounded-2xl overflow-hidden shadow-2xl shadow-accent/10 mb-8 border border-white/5">
+                <Image 
+                  src="/greeting/ak-greeting-03.jpg"
+                  alt="Loan for Thai Expats"
+                  fill
+                  className="object-cover object-top hover:scale-105 transition-transform duration-700"
+                />
+              </div>
+
               <p className="text-xl text-foreground/60 leading-relaxed mb-12">
                 {t("loan_page.desc")}
               </p>
@@ -161,6 +173,7 @@ export default function LoanPage() {
             </div>
           </div>
         </div>
+        <GreetingPhotos />
       </main>
       <Footer />
     </>
