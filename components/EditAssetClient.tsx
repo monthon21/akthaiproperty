@@ -9,6 +9,7 @@ import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
 import { AMENITY_GROUPS, parseAmenities } from "@/lib/amenities";
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
+import MapPickerModal from "@/components/MapPickerModal";
 
 // Define TypeScript interfaces matching database models
 interface DBAssetPrice {
@@ -194,6 +195,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
   const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const customerContainerRef = useRef<HTMLDivElement>(null);
+  const [showMapPicker, setShowMapPicker] = useState(false);
 
   const postcodeLookup = usePostcodeLookup({
     zipCode: formData.zipCode,
@@ -369,7 +371,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const mapUrl = getGoogleMapsEmbedUrl(formData.googleMap, fullLocation);
 
   return (
-    <div className="max-w-4xl mx-auto px-6">
+    <>
+      <div className="max-w-4xl mx-auto px-6">
       <div className="flex justify-between items-center mb-8">
         <div>
           <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">
@@ -851,16 +854,77 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   )}
                 </div>
 
-                <div className="space-y-1.5 md:col-span-2">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พิกัด Google Map (Google Map Coordinates / Share Link / Iframe Code)</label>
-                  <input
-                    type="text"
-                    name="googleMap"
-                    placeholder="e.g. 13.7563, 100.5018 หรือวางลิงก์ / โค้ดฝังแผนที่ iframe"
-                    value={formData.googleMap}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
-                  />
+                {/* ── พิกัดโครงการ (Project Coordinates) ── */}
+                <div className="space-y-2 md:col-span-2">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พิกัดโครงการ (Project Coordinates)</label>
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPicker(true)}
+                      className="flex items-center gap-1.5 text-[10px] font-bold text-accent hover:text-accent/80 bg-accent/10 hover:bg-accent/15 border border-accent/20 hover:border-accent/40 px-3 py-1.5 rounded-lg transition-all uppercase tracking-widest"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                      </svg>
+                      ตั้งค่าพิกัดโครงการ
+                    </button>
+                  </div>
+
+                  {/* Preview / Status */}
+                  {formData.googleMap ? (
+                    <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/30">
+                      <div className="h-36 w-full">
+                        <iframe
+                          src={formData.googleMap.includes("output=embed") || formData.googleMap.includes("openstreetmap") ? formData.googleMap : `https://maps.google.com/maps?q=${encodeURIComponent(formData.googleMap)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          width="100%" height="100%" className="border-0 grayscale opacity-80" loading="lazy" title="Map Preview"
+                        />
+                      </div>
+                      <div className="absolute bottom-0 inset-x-0 flex items-center justify-between bg-black/70 px-3 py-1.5">
+                        <span className="text-[10px] text-accent font-bold flex items-center gap-1">
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                          ตั้งค่าพิกัดแล้ว
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setShowMapPicker(true)}
+                          className="text-[9px] text-white/50 hover:text-accent transition-colors uppercase tracking-widest font-bold"
+                        >
+                          แก้ไข
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPicker(true)}
+                      className="w-full h-24 border-2 border-dashed border-white/10 hover:border-accent/30 rounded-xl bg-black/20 hover:bg-accent/5 flex flex-col items-center justify-center gap-2 transition-all group"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white/20 group-hover:text-accent/50 transition-colors">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                      </svg>
+                      <span className="text-[10px] text-white/30 group-hover:text-accent/60 font-semibold transition-colors">คลิกเพื่อตั้งค่าพิกัดโครงการ</span>
+                    </button>
+                  )}
+
+                  {/* Raw input for advanced users */}
+                  <details className="group">
+                    <summary className="text-[10px] text-white/25 hover:text-white/50 cursor-pointer transition-colors select-none list-none flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 transition-transform group-open:rotate-90"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                      กรอก URL / iframe code โดยตรง
+                    </summary>
+                    <div className="mt-2">
+                      <input
+                        type="text"
+                        name="googleMap"
+                        placeholder="e.g. 13.7563, 100.5018 หรือ iframe embed code"
+                        value={formData.googleMap}
+                        onChange={handleInputChange}
+                        className="w-full h-10 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
+                      />
+                    </div>
+                  </details>
                 </div>
               </div>
             </div>
@@ -1356,5 +1420,16 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         </div>
       )}
     </div>
+
+      {/* ── Map Picker Modal ── */}
+      <MapPickerModal
+        isOpen={showMapPicker}
+        onClose={() => setShowMapPicker(false)}
+        initialValue={formData.googleMap}
+        onConfirm={(coords, embedUrl) => {
+          setFormData(prev => ({ ...prev, googleMap: embedUrl }));
+        }}
+      />
+    </>
   );
 }

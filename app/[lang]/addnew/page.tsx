@@ -11,6 +11,9 @@ import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
 import { AMENITY_GROUPS } from "@/lib/amenities";
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
+import MapPickerModal from "@/components/MapPickerModal";
+import { useProjectTemplateAutocomplete, templatePlacesToAssetPlaces, ProjectTemplateOption } from "@/lib/useProjectTemplateAutocomplete";
+import { getProjectTemplatesListAction } from "@/lib/actions/project-template";
 
 export default function AddNewAssetPage() {
   const router = useRouter();
@@ -59,6 +62,7 @@ export default function AddNewAssetPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
 
   const postcodeLookup = usePostcodeLookup({
     zipCode: formData.zipCode,
@@ -80,6 +84,25 @@ export default function AddNewAssetPage() {
     }
     initPage();
   }, []);
+
+  // ── Load project templates ──
+  const [projectTemplates, setProjectTemplates] = useState<ProjectTemplateOption[]>([]);
+  useEffect(() => {
+    getProjectTemplatesListAction().then(res => {
+      if (res.success) setProjectTemplates(res.templates as ProjectTemplateOption[]);
+    });
+  }, []);
+
+  const projectAC = useProjectTemplateAutocomplete(projectTemplates, (tpl) => {
+    setFormData(prev => ({
+      ...prev,
+      projectName: tpl.name,
+      ...(tpl.googleMap ? { googleMap: tpl.googleMap } : {}),
+    }));
+    if (tpl.places.length > 0) {
+      setAssetPlaces(templatePlacesToAssetPlaces(tpl.places));
+    }
+  });
 
   const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
   const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
@@ -321,10 +344,87 @@ export default function AddNewAssetPage() {
                     />
                   </div>
                   <div className="md:col-span-3">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อโครงการ (Project Name)</label>
-                      <input type="text" name="projectName" placeholder="e.g. The Grand Rama 2" value={formData.projectName} onChange={handleInputChange}
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                    <div className="space-y-1.5" ref={projectAC.containerRef}>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อโครงการ (Project Name)</label>
+                        {formData.projectName && projectTemplates.some(t => t.name === formData.projectName) && (
+                          <span className="text-[10px] font-bold text-accent flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            ใช้เทมเพลตโครงการ
+                          </span>
+                        )}
+                      </div>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          name="projectName"
+                          placeholder="e.g. The Grand Rama 2 — พิมพ์เพื่อค้นหาหรือสร้างใหม่"
+                          value={formData.projectName}
+                          autoComplete="off"
+                          onChange={(e) => {
+                            handleInputChange(e);
+                            projectAC.handleNameInput(e.target.value);
+                          }}
+                          onFocus={() => projectAC.handleNameInput(formData.projectName)}
+                          className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white pr-10"
+                        />
+                        {formData.projectName && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, projectName: "" }));
+                              projectAC.clearDropdown();
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>
+                          </button>
+                        )}
+
+                        {/* Autocomplete Dropdown */}
+                        {projectAC.showDropdown && projectAC.filteredOptions.length > 0 && (
+                          <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
+                            <div className="px-3 py-2 border-b border-white/5">
+                              <p className="text-[9px] font-bold text-accent uppercase tracking-widest">เทมเพลตโครงการที่ตรงกัน</p>
+                            </div>
+                            <ul className="max-h-52 overflow-y-auto">
+                              {projectAC.filteredOptions.map((tpl) => (
+                                <li
+                                  key={tpl.id}
+                                  onMouseDown={(e) => { e.preventDefault(); projectAC.selectTemplate(tpl); }}
+                                  className="px-4 py-3 hover:bg-accent/10 cursor-pointer transition-colors group"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <p className="text-xs font-bold text-white group-hover:text-accent transition-colors">{tpl.name}</p>
+                                    <span className="text-[9px] font-bold text-accent/60 uppercase tracking-widest ml-2">เลือก</span>
+                                  </div>
+                                  <div className="flex items-center gap-3 mt-1">
+                                    {tpl.googleMap && (
+                                      <span className="text-[9px] text-white/40 flex items-center gap-1">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-2.5 h-2.5"><path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /><path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" /></svg>
+                                        มีพิกัด
+                                      </span>
+                                    )}
+                                    {tpl.places.length > 0 && (
+                                      <span className="text-[9px] text-white/40">{tpl.places.length} สถานที่ใกล้เคียง</span>
+                                    )}
+                                  </div>
+                                </li>
+                              ))}
+                            </ul>
+                            <div className="px-4 py-2 border-t border-white/5 bg-black/20">
+                              <p className="text-[9px] text-white/25">เลือกเพื่อ auto-fill พิกัดและสถานที่ใกล้เคียง หรือพิมพ์ต่อเพื่อสร้างโครงการใหม่</p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* No matches hint */}
+                        {projectAC.showDropdown && formData.projectName.trim().length > 0 && projectAC.filteredOptions.length === 0 && projectTemplates.length > 0 && (
+                          <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-xl z-50 px-4 py-3">
+                            <p className="text-[10px] text-white/40">ไม่พบโครงการนี้ในเทมเพลต — จะบันทึกเป็นชื่อโครงการใหม่</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -381,26 +481,26 @@ export default function AddNewAssetPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ราคาขาย (Sell Price / บาท)</label>
-                    <input 
-                      type="text" 
-                      name="sellPrice" 
-                      placeholder={formData.isSell ? "e.g. 12,500,000" : "กรุณาเลือก สำหรับขาย (Sell) ก่อน"} 
-                      value={formData.sellPrice} 
+                    <input
+                      type="text"
+                      name="sellPrice"
+                      placeholder={formData.isSell ? "e.g. 12,500,000" : "กรุณาเลือก สำหรับขาย (Sell) ก่อน"}
+                      value={formData.sellPrice}
                       onChange={handleInputChange}
                       disabled={!formData.isSell}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20" 
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                     />
                   </div>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ค่าเช่า / เดือน (Rent Price / Month)</label>
-                    <input 
-                      type="text" 
-                      name="loanPrice" 
-                      placeholder={formData.isRent ? "e.g. 10,000,000" : "กรุณาเลือก สำหรับเช่า (Rent) ก่อน"} 
-                      value={formData.loanPrice} 
+                    <input
+                      type="text"
+                      name="loanPrice"
+                      placeholder={formData.isRent ? "e.g. 10,000,000" : "กรุณาเลือก สำหรับเช่า (Rent) ก่อน"}
+                      value={formData.loanPrice}
                       onChange={handleInputChange}
                       disabled={!formData.isRent}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20" 
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
                     />
                   </div>
                 </div>
@@ -492,8 +592,8 @@ export default function AddNewAssetPage() {
                             <label
                               key={item.key}
                               className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl border cursor-pointer transition-all duration-200 ${checked
-                                  ? "bg-accent/10 border-accent/40 text-accent"
-                                  : "bg-black/20 border-white/5 text-white/50 hover:border-white/20 hover:text-white/70"
+                                ? "bg-accent/10 border-accent/40 text-accent"
+                                : "bg-black/20 border-white/5 text-white/50 hover:border-white/20 hover:text-white/70"
                                 }`}
                             >
                               <input type="checkbox" className="sr-only" checked={checked} onChange={() => toggleAmenity(item.key)} />
@@ -646,10 +746,77 @@ export default function AddNewAssetPage() {
                     )}
                   </div>
 
-                  <div className="space-y-1.5 md:col-span-2">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พิกัด Google Map (Google Map Coordinates / Share Link / Iframe Code)</label>
-                    <input type="text" name="googleMap" placeholder="e.g. 13.7563, 100.5018 หรือวางลิงก์ / โค้ดฝังแผนที่ iframe" value={formData.googleMap} onChange={handleInputChange}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                  {/* ── พิกัด Google Map ── */}
+                  <div className="space-y-2 md:col-span-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พิกัดโครงการ (Project Coordinates)</label>
+                      <button
+                        type="button"
+                        onClick={() => setShowMapPicker(true)}
+                        className="flex items-center gap-1.5 text-[10px] font-bold text-accent hover:text-accent/80 bg-accent/10 hover:bg-accent/15 border border-accent/20 hover:border-accent/40 px-3 py-1.5 rounded-lg transition-all uppercase tracking-widest"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                        </svg>
+                        ตั้งค่าพิกัดโครงการ
+                      </button>
+                    </div>
+
+                    {/* Preview / Status */}
+                    {formData.googleMap ? (
+                      <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/30">
+                        <div className="h-36 w-full">
+                          <iframe
+                            src={formData.googleMap.includes("output=embed") || formData.googleMap.includes("openstreetmap") ? formData.googleMap : `https://maps.google.com/maps?q=${encodeURIComponent(formData.googleMap)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                            width="100%" height="100%" className="border-0 grayscale opacity-80" loading="lazy" title="Map Preview"
+                          />
+                        </div>
+                        <div className="absolute bottom-0 inset-x-0 flex items-center justify-between bg-black/70 px-3 py-1.5">
+                          <span className="text-[10px] text-accent font-bold flex items-center gap-1">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3"><path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                            ตั้งค่าพิกัดแล้ว
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setShowMapPicker(true)}
+                            className="text-[9px] text-white/50 hover:text-accent transition-colors uppercase tracking-widest font-bold"
+                          >
+                            แก้ไข
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setShowMapPicker(true)}
+                        className="w-full h-24 border-2 border-dashed border-white/10 hover:border-accent/30 rounded-xl bg-black/20 hover:bg-accent/5 flex flex-col items-center justify-center gap-2 transition-all group"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-7 h-7 text-white/20 group-hover:text-accent/50 transition-colors">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                        </svg>
+                        <span className="text-[10px] text-white/30 group-hover:text-accent/60 font-semibold transition-colors">คลิกเพื่อตั้งค่าพิกัดโครงการ</span>
+                      </button>
+                    )}
+
+                    {/* Raw input for advanced users */}
+                    <details className="group">
+                      <summary className="text-[10px] text-white/25 hover:text-white/50 cursor-pointer transition-colors select-none list-none flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 transition-transform group-open:rotate-90"><path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" /></svg>
+                        กรอก URL / iframe code โดยตรง
+                      </summary>
+                      <div className="mt-2">
+                        <input
+                          type="text"
+                          name="googleMap"
+                          placeholder="e.g. 13.7563, 100.5018 หรือ iframe embed code"
+                          value={formData.googleMap}
+                          onChange={handleInputChange}
+                          className="w-full h-10 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
+                        />
+                      </div>
+                    </details>
                   </div>
                 </div>
               </div>
@@ -662,20 +829,20 @@ export default function AddNewAssetPage() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   <div className="space-y-1.5 md:col-span-1 relative" ref={customerContainerRef}>
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
-                    <input 
-                      type="text" 
-                      name="ownerName" 
-                      placeholder="e.g. คุณสมชาย" 
-                      value={formData.ownerName || ""} 
+                    <input
+                      type="text"
+                      name="ownerName"
+                      placeholder="e.g. คุณสมชาย"
+                      value={formData.ownerName || ""}
                       onChange={(e) => {
                         handleInputChange(e);
                         setShowCustomerSuggestions(true);
                       }}
                       onFocus={() => setShowCustomerSuggestions(true)}
                       autoComplete="off"
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" 
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
                     />
-                    
+
                     {/* Customer Autocomplete Dropdown */}
                     {showCustomerSuggestions && (formData.ownerName || "").trim().length >= 2 && (
                       <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
@@ -686,7 +853,7 @@ export default function AddNewAssetPage() {
                         ) : customerSuggestions.length > 0 ? (
                           <ul className="max-h-48 overflow-y-auto divide-y divide-white/5">
                             {customerSuggestions.map((item) => (
-                              <li 
+                              <li
                                 key={item.id}
                                 onClick={() => {
                                   setFormData((prev) => ({
@@ -742,7 +909,7 @@ export default function AddNewAssetPage() {
                     เพิ่มรายการ
                   </button>
                 </div>
-                
+
                 {assetPlaces.length === 0 ? (
                   <p className="text-xs text-white/40 italic">ยังไม่มีข้อมูลสถานที่ใกล้เคียง กด "เพิ่มรายการ" เพื่อระบุสถานที่ ระยะทาง และเวลาเดินทาง</p>
                 ) : (
@@ -752,10 +919,10 @@ export default function AddNewAssetPage() {
                         <div className="md:col-span-2 space-y-1.5">
                           <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ระบุด้วย (Type)</label>
                           <select value={place.type} onChange={(e) => {
-                              const newType = e.target.value as "distance" | "time";
-                              const newUnit = newType === "distance" ? "km" : "นาที";
-                              setAssetPlaces(assetPlaces.map(p => p.id === place.id ? { ...p, type: newType, unit: newUnit, value: "" } : p));
-                            }}
+                            const newType = e.target.value as "distance" | "time";
+                            const newUnit = newType === "distance" ? "km" : "นาที";
+                            setAssetPlaces(assetPlaces.map(p => p.id === place.id ? { ...p, type: newType, unit: newUnit, value: "" } : p));
+                          }}
                             className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer"
                           >
                             <option className="bg-[#112240]" value="distance">ระยะทาง</option>
@@ -810,7 +977,7 @@ export default function AddNewAssetPage() {
                   รูปภาพประกอบ (Images List)
                 </h3>
                 <p className="text-[10px] text-white/30 -mt-2">
-                  อัพโหลดรูปได้หลายไฟล์ — ต้องเลือก Feature Image 1 รูปก่อนบันทึก
+                  อัพโหลดรูปได้สูงสุดครั้งละ 20 ไฟล์ โดยที่ขนาดไฟล์สูงสุดคือ 10MB และ ต้องเลือก Feature Image 1 รูป ก่อนบันทึก
                 </p>
                 {formData.code ? (
                   <ImageUploader images={images} onChange={setImages} folder={formData.code || "temp"} />
@@ -1023,6 +1190,16 @@ export default function AddNewAssetPage() {
           </div>
         </div>
       )}
+
+      {/* ── Map Picker Modal ── */}
+      <MapPickerModal
+        isOpen={showMapPicker}
+        onClose={() => setShowMapPicker(false)}
+        initialValue={formData.googleMap}
+        onConfirm={(coords, embedUrl) => {
+          setFormData(prev => ({ ...prev, googleMap: embedUrl }));
+        }}
+      />
     </>
   );
 }

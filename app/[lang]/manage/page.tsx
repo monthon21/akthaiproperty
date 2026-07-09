@@ -8,7 +8,7 @@ import { getAllAssetsAction } from "@/lib/actions/asset";
 
 export default async function ManageAssetsPage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
-  
+
   // Handle both Next.js 14 (sync params) and 15 (async params)
   const resolvedParams = await params;
   const lang = resolvedParams?.lang || "th";
@@ -19,7 +19,7 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
 
   // Fetch all assets from DB
   const { success, assets } = await getAllAssetsAction();
-  
+
   return (
     <>
       <Navbar />
@@ -30,9 +30,9 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
               <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">
                 Admin Panel
               </span>
-              <h1 className="text-3xl font-black tracking-tight">จัดการรายการทรัพย์สิน (Asset Management)</h1>
+              <h1 className="text-3xl font-black tracking-tight">Asset Management</h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
               <Link
                 href={`/${lang}/myprofile`}
                 className="text-xs font-bold text-white/50 hover:text-white tracking-widest uppercase transition-colors"
@@ -41,9 +41,15 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
               </Link>
               <Link
                 href={`/${lang}/manage/customers`}
-                className="border border-accent/40 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent text-xs font-bold px-6 py-3 rounded-xl tracking-widest uppercase transition-all shadow-md active:scale-95"
+                className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
               >
                 ข้อมูลเจ้าของทรัพย์
+              </Link>
+              <Link
+                href={`/${lang}/manage/projects`}
+                className="border border-accent/40 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all shadow-md active:scale-95"
+              >
+                🏢 จัดการโครงการ
               </Link>
               <Link
                 href={`/${lang}/addnew`}
@@ -54,12 +60,12 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
             </div>
           </div>
 
-          <ManageAssetsClient 
-            initialAssets={success ? JSON.parse(JSON.stringify(assets || [])) : []} 
-            currentLang={lang} 
+          <ManageAssetsClient
+            initialAssets={success ? JSON.parse(JSON.stringify(assets || [])) : []}
+            currentLang={lang}
             isAdmin={(session.user as any)?.role === 'ADMIN'}
           />
-          
+
         </div>
       </main>
       <Footer />

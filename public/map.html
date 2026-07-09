@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Map Picker</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <style>
+        body { padding: 0; margin: 0; }
+        html, body, #map { height: 100%; width: 100%; }
+        /* Style for the crosshair cursor to indicate it's clickable */
+        #map { cursor: crosshair; }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script>
+        // Default to Bangkok
+        var defaultLat = 13.7563;
+        var defaultLng = 100.5018;
+        var defaultZoom = 13;
+
+        var map = L.map('map').setView([defaultLat, defaultLng], defaultZoom);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker = null;
+
+        function updateMarker(lat, lng, flyTo = false) {
+            if (marker) {
+                marker.setLatLng([lat, lng]);
+            } else {
+                marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+                
+                // When marker is dragged
+                marker.on('dragend', function(e) {
+                    var position = marker.getLatLng();
+                    sendPositionToParent(position.lat, position.lng);
+                });
+            }
+            if (flyTo) {
+                map.flyTo([lat, lng], 16);
+            }
+        }
+
+        function sendPositionToParent(lat, lng) {
+            // Post message to the parent window
+            window.parent.postMessage({
+                type: 'MAP_CLICK',
+                lat: lat,
+                lng: lng
+            }, '*');
+        }
+
+        // Click on map to place/move marker
+        map.on('click', function(e) {
+            updateMarker(e.latlng.lat, e.latlng.lng);
+            sendPositionToParent(e.latlng.lat, e.latlng.lng);
+        });
+
+        // Listen for messages from parent (e.g. initial coordinates or search results)
+        window.addEventListener('message', function(event) {
+            var data = event.data;
+            if (data && data.type === 'SET_LOCATION') {
+                if (data.lat !== undefined && data.lng !== undefined) {
+                    updateMarker(data.lat, data.lng, true);
+                }
+            }
+        });
+
+        // Tell parent we are ready
+        window.parent.postMessage({ type: 'MAP_READY' }, '*');
+    </script>
+</body>
+</html>
