@@ -4,6 +4,7 @@ import ServiceCards from "@/components/ServiceCards";
 import ListingGrid from "@/components/ListingGrid";
 import LoanSection from "@/components/LoanSection";
 import GreetingPhotos from "@/components/GreetingPhotos";
+import Testimonials from "@/components/Testimonials";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
@@ -97,6 +98,9 @@ export default async function Home({ params }: PageProps) {
         
         {/* Client Impressions */}
         <GreetingPhotos />
+
+        {/* Testimonials */}
+        <Testimonials lang={lang} />
 
         {/* Final CTA Section */}
         <section className="py-32 px-6 bg-primary relative overflow-hidden group">
