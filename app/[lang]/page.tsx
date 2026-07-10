@@ -126,7 +126,7 @@ export default async function Home({ params }: PageProps) {
               </Link>
               <div className="flex flex-col text-left">
                 <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">{dict.cta.call_now}</span>
-                <a href="tel:0824448989" className="text-2xl font-black text-white hover:text-white/80 transition-colors">082-444-8989</a>
+                <a href="tel:+66824448989" className="text-2xl font-black text-white hover:text-white/80 transition-colors">+66 82-444-8989</a>
               </div>
             </div>
           </div>

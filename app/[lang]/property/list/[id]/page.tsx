@@ -202,8 +202,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     })(),
     gallery: galleryUrls,
     agent: {
-      name: "AK Thai Property Office",
-      phone: "082-444-8989",
+      name: "AK Thai Property",
+      phone: "+66 82-444-8989",
       email: "[EMAIL_ADDRESS]",
       line: "@akproperty"
     },

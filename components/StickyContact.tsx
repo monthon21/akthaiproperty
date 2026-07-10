@@ -35,7 +35,7 @@ export default function StickyContact() {
 
       {/* Phone Button */}
       <a 
-        href="tel:0824448989" 
+        href="tel:+66824448989" 
         className="w-12 h-12 bg-accent text-primary-dark rounded shadow-2xl border border-accent/20 flex items-center justify-center hover:scale-105 hover:-translate-y-0.5 hover:bg-accent-dark transition-all duration-300 group"
         title="โทรหาเรา"
       >

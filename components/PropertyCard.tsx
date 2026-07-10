@@ -3,6 +3,7 @@ import Link from "next/link";
 import AnimatedLink from "./AnimatedLink";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import ShareButton from "./ShareButton";
+import { Bed, Bath, Maximize } from "lucide-react";
 
 interface PropertyProps {
   id: number | string;
@@ -26,7 +27,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
   const dict = await getDictionary(lang as Locale);
 
   return (
-    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border border-white/5 rounded flex flex-col h-full">
+    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border border-white/5 rounded flex flex-col h-full w-full">
       <div className="relative aspect-4/3 overflow-hidden">
         <div className="absolute top-4 left-4 z-10">
           <span className="px-2.5 py-1 bg-accent text-primary-dark text-[8px] font-alt font-black uppercase tracking-widest rounded-sm shadow-lg">
@@ -131,19 +132,19 @@ export default async function PropertyCard({ property, lang = "th" }: { property
             )}
           </div>
           
-          <div className="flex justify-between items-center text-[10px] font-alt font-bold text-white/50 tracking-wider">
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
-              <span>{property.beds} {dict.property_card.beds}</span>
+          <div className="flex justify-between items-center text-xs font-alt font-bold text-white/50 tracking-wider">
+            <div className="flex items-center gap-1.5" title={dict.property_card.beds}>
+              <Bed className="w-4 h-4 text-accent" />
+              <span>{property.beds}</span>
             </div>
-            <div className="w-[1px] h-3 bg-white/10"></div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
-              <span>{property.baths} {dict.property_card.baths}</span>
+            <div className="w-[1px] h-3.5 bg-white/10"></div>
+            <div className="flex items-center gap-1.5" title={dict.property_card.baths}>
+              <Bath className="w-4 h-4 text-accent" />
+              <span>{property.baths}</span>
             </div>
-            <div className="w-[1px] h-3 bg-white/10"></div>
-            <div className="flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 bg-accent rounded-full"></span>
+            <div className="w-[1px] h-3.5 bg-white/10"></div>
+            <div className="flex items-center gap-1.5" title="Area">
+              <Maximize className="w-4 h-4 text-accent" />
               <span>
                 {property.category === "Land"
                   ? `${property.landSize || property.sqft} ${lang === "th" ? "ตร.วา" : "Sq.wah"}`

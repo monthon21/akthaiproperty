@@ -13,6 +13,7 @@ import * as htmlToImage from "html-to-image";
 import th from "@/lib/i18n/th.json";
 import en from "@/lib/i18n/en.json";
 import zh from "@/lib/i18n/zh.json";
+import { Bed, Bath, Maximize } from "lucide-react";
 
 const dictionaries = { th, en, zh };
 
@@ -434,19 +435,19 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
           <div className="relative z-10 flex flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.beds_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Bed className="w-3.5 h-3.5" />{t("property_detail.beds_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.beds}</span>
               </div>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.baths_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Bath className="w-3.5 h-3.5" />{t("property_detail.baths_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.baths}</span>
               </div>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Maximize className="w-3.5 h-3.5" />{t("property_detail.area_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.sqft}</span>
                 <span className="text-xs font-medium text-white/50">{t("property_detail.sqm")}</span>
@@ -517,9 +518,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {property.beds !== undefined && property.beds !== null ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 5.25v13.5M2.25 12h19.5M21.75 12v6.75M2.25 7.5h7.5V12M12 7.5h7.5V12M6.75 18v1.5M17.25 18v1.5" />
-                        </svg>
+                        <Bed className="w-5 h-5" />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.beds_label")}</span>
@@ -533,9 +532,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {property.baths !== undefined && property.baths !== null ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12h19.5M3.75 12v3c0 1.657 1.343 3 3 3h10.5c1.657 0 3-1.343 3-3v-3M9 6v6m6-6v6M6 18v1.5m12-1.5v1.5" />
-                        </svg>
+                        <Bath className="w-5 h-5" />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.baths_label")}</span>
@@ -565,9 +562,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {property.usableArea ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3.75v16.5h16.5M8.25 12h7.5m-7.5 3h7.5m-7.5-6h3.75M20.25 9h-3.75" />
-                        </svg>
+                        <Maximize className="w-5 h-5" />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.area_label")}</span>
@@ -1038,8 +1033,8 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
               {/* Call/Line Buttons */}
               <div className="flex gap-3 pt-2">
-                <a
-                  href="tel:0824448989"
+                <a 
+                  href="tel:+66824448989"
                   className="flex-1 h-10 border border-accent/40 text-accent font-black text-[10px] tracking-wider uppercase rounded-lg flex items-center justify-center gap-1.5 hover:bg-accent hover:text-primary-dark hover:border-accent transition-all duration-300"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">

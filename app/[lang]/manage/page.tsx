@@ -46,6 +46,12 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
                 ข้อมูลเจ้าของทรัพย์
               </Link>
               <Link
+                href={`/${lang}/manage/inbox`}
+                className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
+              >
+                ✉️ ข้อความคิดต่อ
+              </Link>
+              <Link
                 href={`/${lang}/manage/projects`}
                 className="border border-accent/40 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all shadow-md active:scale-95"
               >
