@@ -105,35 +105,31 @@ export default async function BuyPage(props: {
     <>
       <Navbar />
       <main className="pt-32 pb-20 flex-1 bg-[#0A192F]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="mb-12">
-            <h1 className="text-4xl md:text-6xl font-black mb-4 text-white">{dict.listing_grid.sell_page_title}</h1>
-            <p className="text-white/60 text-lg">{dict.listing_grid.sell_page_desc}</p>
-          </div>
-          
-          <div className="mb-16">
-            <SearchFilterControls currentLang={lang} canSearchOwner={canSearchOwner} mode="sell" />
-          </div>
-          
-          <ListingGrid 
-            type="sell" 
-            lang={lang} 
-            searchQuery={query}
-            code={code}
-            province={province}
-            zipCode={zipCode}
-            projectName={projectName}
-            propertyType={propertyType}
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            ownerName={ownerName}
-            bedrooms={bedrooms}
-            bathrooms={bathrooms}
-            parking={parking}
-            minArea={minArea}
-            maxArea={maxArea}
-          />
+        <div className="max-w-7xl mx-auto px-6 mb-12">
+          <h1 className="text-4xl md:text-6xl font-black mb-4 text-white">{dict.listing_grid.sell_page_title}</h1>
+          <p className="text-white/60 text-lg">{dict.listing_grid.sell_page_desc}</p>
         </div>
+        
+        <SearchFilterControls currentLang={lang} canSearchOwner={canSearchOwner} mode="sell" />
+        
+        <ListingGrid 
+          type="sell" 
+          lang={lang} 
+          searchQuery={query}
+          code={code}
+          province={province}
+          zipCode={zipCode}
+          projectName={projectName}
+          propertyType={propertyType}
+          minPrice={minPrice}
+          maxPrice={maxPrice}
+          ownerName={ownerName}
+          bedrooms={bedrooms}
+          bathrooms={bathrooms}
+          parking={parking}
+          minArea={minArea}
+          maxArea={maxArea}
+        />
       </main>
       <Footer />
     </>

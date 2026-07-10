@@ -319,9 +319,9 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
   const t = translations[lang];
 
   return (
-    <div className="max-w-7xl mx-auto px-6 mb-8">
-      <div className="bg-[#112240] border border-white/10 rounded-2xl p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/5 pb-4 mb-4">
+    <div className="sticky top-24 z-40 max-w-7xl mx-auto px-4 sm:px-6 mb-6">
+      <div className="bg-[#112240]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl overflow-y-auto max-h-[calc(100vh-120px)] custom-scrollbar">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
           <div className="flex items-center gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 text-accent">
               <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
