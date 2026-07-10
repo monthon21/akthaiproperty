@@ -310,6 +310,82 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     ? `${Math.round(priceNum / property.sqft).toLocaleString()} / Sq.M.`
     : `${Math.round((priceNum / property.sqft) / 1000)}k / Sq.M.`;
 
+  const quickMetricsContent = (
+    <>
+      <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+      <div className="relative z-10 flex w-full md:w-auto gap-2 md:gap-4 items-stretch md:items-center">
+        {property.sellPrice && (
+          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
+            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.sell_price")}</span>
+            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
+              {property.sellPrice} <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
+            </div>
+          </div>
+        )}
+        {property.rentPrice && (
+          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
+            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.rent_price")}</span>
+            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
+              {property.rentPrice}
+              <div className="flex items-baseline gap-1">
+                <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
+                <span className="text-[10px] sm:text-xs md:text-base font-normal text-white/60">{t("property_card.month")}</span>
+              </div>
+            </div>
+          </div>
+        )}
+        {!property.sellPrice && !property.rentPrice && (
+          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
+            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.starts_from")}</span>
+            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
+              {property.price} <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className="hidden md:flex relative z-10 flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">
+        <div>
+          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.beds_label")}</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl md:text-2xl font-bold text-white">{property.beds}</span>
+          </div>
+        </div>
+        <div>
+          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.baths_label")}</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl md:text-2xl font-bold text-white">{property.baths}</span>
+          </div>
+        </div>
+        <div>
+          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xl md:text-2xl font-bold text-white">{property.sqft}</span>
+            <span className="text-xs font-medium text-white/50">{t("property_detail.sqm")}</span>
+          </div>
+        </div>
+        {property.landSize && (
+          <div>
+            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.land_size")}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl md:text-2xl font-bold text-white">{property.landSize}</span>
+              <span className="text-xs font-medium text-white/50">{t("property_detail.sqw")}</span>
+            </div>
+          </div>
+        )}
+        {property.parkingLot && (
+          <div>
+            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.parking_lot")}</span>
+            <div className="flex items-baseline gap-1">
+              <span className="text-xl md:text-2xl font-bold text-white">{property.parkingLot}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <main className="pt-32 md:pt-36 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
 
@@ -439,74 +515,9 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
           </div>
         </div>
 
-        {/* Quick Metrics Bar (Full Width Banner) */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
-          <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-          <div className="relative z-10 flex flex-wrap gap-4 items-center">
-            {property.sellPrice && (
-              <div className="bg-accent/[0.04] border border-accent/30 rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
-                <span className="text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1">{t("property_card.sell_price")}</span>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none">
-                  {property.sellPrice}
-                </div>
-              </div>
-            )}
-            {property.rentPrice && (
-              <div className="bg-accent/[0.04] border border-accent/30 rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
-                <span className="text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1">{t("property_card.rent_price")}</span>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none">
-                  {property.rentPrice}<span className="text-sm md:text-base font-normal text-white/60 ml-1">{t("property_card.month")}</span>
-                </div>
-              </div>
-            )}
-            {!property.sellPrice && !property.rentPrice && (
-              <div className="bg-accent/[0.04] border border-accent/30 rounded-xl px-6 py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
-                <span className="text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1">{t("property_card.starts_from")}</span>
-                <div className="text-3xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none">{property.price}</div>
-              </div>
-            )}
-          </div>
-
-          <div className="relative z-10 flex flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">
-            <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.beds_label")}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl md:text-2xl font-bold text-white">{property.beds}</span>
-              </div>
-            </div>
-            <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.baths_label")}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl md:text-2xl font-bold text-white">{property.baths}</span>
-              </div>
-            </div>
-            <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
-              <div className="flex items-baseline gap-1">
-                <span className="text-xl md:text-2xl font-bold text-white">{property.sqft}</span>
-                <span className="text-xs font-medium text-white/50">{t("property_detail.sqm")}</span>
-              </div>
-            </div>
-            {property.landSize && (
-              <div>
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.land_size")}</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl md:text-2xl font-bold text-white">{property.landSize}</span>
-                  <span className="text-xs font-medium text-white/50">{t("property_detail.sqw")}</span>
-                </div>
-              </div>
-            )}
-            {property.parkingLot && (
-              <div>
-                <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.parking_lot")}</span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl md:text-2xl font-bold text-white">{property.parkingLot}</span>
-                </div>
-              </div>
-            )}
-
-          </div>
+        {/* Quick Metrics Bar (Desktop) */}
+        <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
+          {quickMetricsContent}
         </div>
       </div>
 
@@ -540,11 +551,17 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <PropertyGallery 
                 gallery={property.gallery} 
                 title={property.title} 
+                id_string={property.id_string}
                 sellPrice={property.sellPrice}
                 rentPrice={property.rentPrice}
                 type={property.type}
                 lang={currentLang}
               />
+            </div>
+
+            {/* Quick Metrics Bar (Mobile) */}
+            <div className="flex md:hidden flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
+              {quickMetricsContent}
             </div>
 
             {/* About this House */}

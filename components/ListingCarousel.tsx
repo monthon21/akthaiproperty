@@ -71,7 +71,7 @@ export default function ListingCarousel({ children }: ListingCarouselProps) {
       {/* Scroll Area */}
       <div 
         ref={scrollRef}
-        className="flex overflow-x-auto gap-6 lg:gap-8 py-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden items-stretch"
+        className="flex overflow-x-auto gap-6 lg:gap-8 py-8 snap-x snap-mandatory [&::-webkit-scrollbar]:hidden items-stretch w-full touch-pan-x"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {React.Children.map(children, (child) => (

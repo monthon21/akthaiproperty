@@ -63,8 +63,8 @@
     "read_more": "READ MORE"
   },
   "listing_grid": {
-    "subtitle": "LATEST LISTINGS",
-    "title_part1": "INTERESTING",
+    "subtitle": "RECOMMENDED LISTINGS",
+    "title_part1": "RECOMMENDED",
     "title_part2": "PROJECTS",
     "view_all": "VIEW ALL →",
     "not_found": "No properties found at this time.",

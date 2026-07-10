@@ -6,13 +6,14 @@ import Image from "next/image";
 interface PropertyGalleryProps {
   gallery: string[];
   title: string;
+  id_string?: string;
   sellPrice?: string | null;
   rentPrice?: string | null;
   type?: string;
   lang?: string;
 }
 
-export default function PropertyGallery({ gallery, title, sellPrice, rentPrice, type, lang = 'th' }: PropertyGalleryProps) {
+export default function PropertyGallery({ gallery, title, id_string, sellPrice, rentPrice, type, lang = 'th' }: PropertyGalleryProps) {
   const [showLightbox, setShowLightbox] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -131,11 +132,21 @@ export default function PropertyGallery({ gallery, title, sellPrice, rentPrice, 
       {/* Lightbox Modal */}
       {showLightbox && (
         <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center">
+          {/* Header Area */}
+          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-50 max-w-[70vw] md:max-w-[80vw]">
+            <h2 className="text-white text-base md:text-2xl font-bold truncate drop-shadow-md">{title}</h2>
+            {id_string && (
+              <p className="text-[#D4AF37] text-xs md:text-sm font-medium mt-1 uppercase tracking-widest drop-shadow-md">
+                ID: {id_string}
+              </p>
+            )}
+          </div>
+
           <button 
             onClick={() => setShowLightbox(false)}
-            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50 p-2"
+            className="absolute top-6 right-6 text-white/50 hover:text-white transition-colors z-50 p-2 bg-black/20 hover:bg-black/40 rounded-full"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-8 h-8">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6 md:w-8 md:h-8">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
             </svg>
           </button>
@@ -154,28 +165,29 @@ export default function PropertyGallery({ gallery, title, sellPrice, rentPrice, 
                 AK THAI PROPERTY
               </div>
             </div>
-            
-            {gallery.length > 1 && (
-              <>
-                <button 
-                  onClick={handlePrev}
-                  className="absolute left-4 md:left-10 text-white/50 hover:text-white p-2 hover:scale-110 transition-all z-20"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-10 h-10">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-                  </svg>
-                </button>
-                <button 
-                  onClick={handleNext}
-                  className="absolute right-4 md:right-10 text-white/50 hover:text-white p-2 hover:scale-110 transition-all z-20"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-10 h-10">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
-              </>
-            )}
           </div>
+
+          {/* Navigation Buttons (Edge of screen) */}
+          {gallery.length > 1 && (
+            <>
+              <button 
+                onClick={handlePrev}
+                className="absolute left-2 md:left-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-3 md:p-4 rounded-full transition-all z-[110] border border-white/10 shadow-xl backdrop-blur-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6 md:w-8 md:h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
+                </svg>
+              </button>
+              <button 
+                onClick={handleNext}
+                className="absolute right-2 md:right-8 top-1/2 -translate-y-1/2 bg-black/60 hover:bg-black/90 text-white p-3 md:p-4 rounded-full transition-all z-[110] border border-white/10 shadow-xl backdrop-blur-sm"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-6 h-6 md:w-8 md:h-8">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                </svg>
+              </button>
+            </>
+          )}
 
           <div className="absolute bottom-10 left-0 right-0 flex justify-center z-20">
             <div className="bg-black/50 px-4 py-1.5 rounded-full text-white text-xs font-bold tracking-widest border border-white/10">
