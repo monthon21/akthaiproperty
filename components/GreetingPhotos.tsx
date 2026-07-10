@@ -1,6 +1,10 @@
 import Image from "next/image";
 
-export default function GreetingPhotos() {
+interface GreetingPhotosProps {
+  lang?: string;
+}
+
+export default function GreetingPhotos({ lang = 'th' }: GreetingPhotosProps) {
   // Generate array of 20 images from ak-greeting-01.jpg to ak-greeting-20.jpg
   const allImages = Array.from({ length: 20 }, (_, i) => 
     `/greeting/ak-greeting-${(i + 1).toString().padStart(2, '0')}.jpg`
@@ -10,11 +14,18 @@ export default function GreetingPhotos() {
   const row1 = allImages.slice(0, 10);
   const row2 = allImages.slice(10, 20);
 
+  const subtitle = lang === 'zh' ? '满意客户' : 'Our Happy Clients';
+  const title = lang === 'zh' 
+    ? '客户感言' 
+    : lang === 'en' 
+      ? 'Client Impressions' 
+      : 'ความประทับใจจากลูกค้าของเรา';
+
   return (
     <section className="py-24 border-t border-foreground/5 overflow-hidden bg-black/20">
       <div className="max-w-7xl mx-auto px-6 mb-12 text-center">
-        <h2 className="text-sm font-bold text-accent uppercase tracking-[0.3em] mb-4">Our Happy Clients</h2>
-        <h3 className="text-3xl md:text-5xl font-black tracking-tight">ความประทับใจจากลูกค้าของเรา</h3>
+        <h2 className="text-sm font-bold text-accent uppercase tracking-[0.3em] mb-4">{subtitle}</h2>
+        <h3 className="text-3xl md:text-5xl font-black tracking-tight">{title}</h3>
       </div>
 
       <div className="flex flex-col gap-6 relative">

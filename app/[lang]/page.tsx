@@ -97,7 +97,7 @@ export default async function Home({ params }: PageProps) {
         <LoanSection lang={lang} />
         
         {/* Client Impressions */}
-        <GreetingPhotos />
+        <GreetingPhotos lang={lang} />
 
         {/* Testimonials */}
         <Testimonials lang={lang} />

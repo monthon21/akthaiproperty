@@ -12,7 +12,9 @@ import HeroSearchBox from "./HeroSearchBox";
 const dictionaries = { th, en, zh };
 
 function AnimatedNumber({ value, suffix = "", prefix = "", duration = 2000 }: { value: number, suffix?: string, prefix?: string, duration?: number }) {
-  const [count, setCount] = useState(0);
+  // Set initial state to value for SEO and non-JS fallback. 
+  // The useEffect will start the animation from 0 on the client.
+  const [count, setCount] = useState(value);
 
   useEffect(() => {
     let startTimestamp: number | null = null;

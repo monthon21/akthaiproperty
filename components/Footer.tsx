@@ -167,11 +167,6 @@ export default function Footer() {
         <p className="font-alt text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-none">
           © 2026 AK THAI PROPERTY. ALL RIGHTS RESERVED.
         </p>
-        <div className="flex gap-8 font-alt text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-none">
-          <a href="#" className="hover:text-accent transition-colors">Twitter</a>
-          <a href="#" className="hover:text-accent transition-colors">Instagram</a>
-          <a href="#" className="hover:text-accent transition-colors">LinkedIn</a>
-        </div>
       </div>
     </footer>
   );
