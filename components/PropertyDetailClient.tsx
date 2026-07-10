@@ -1197,42 +1197,148 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 </div>
 
                 {/* Price */}
-                <div className="flex items-baseline gap-2 text-base font-bold text-gray-950">
-                  <span className="shrink-0">💵</span>
-                  <span>
-                    {property.sellPrice && property.rentPrice
-                      ? `${property.sellPrice} / ${property.rentPrice}`
-                      : property.sellPrice
-                        ? `${property.sellPrice}`
-                        : property.rentPrice
-                          ? `${property.rentPrice} / เดือน`
-                          : property.price
-                    }
-                  </span>
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {property.sellPrice && (
+                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
+                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.sell_price")}</span>
+                      <div className="text-lg font-black text-[#D4AF37] leading-none">
+                        {property.sellPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB</span>
+                      </div>
+                    </div>
+                  )}
+                  {property.rentPrice && (
+                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
+                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.rent_price")}</span>
+                      <div className="text-lg font-black text-[#D4AF37] leading-none">
+                        {property.rentPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB/{currentLang === "th" ? "เดือน" : currentLang === "zh" ? "月" : "Month"}</span>
+                      </div>
+                    </div>
+                  )}
+                  {!property.sellPrice && !property.rentPrice && (
+                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
+                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.starts_from")}</span>
+                      <div className="text-lg font-black text-[#D4AF37] leading-none">{property.price}</div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Attributes Detail List */}
-                <div className="space-y-1.5 pt-2 border-t border-gray-100 text-xs md:text-sm font-medium">
-                  <div>
-                    <span className="text-gray-500">ห้องนอน/bed room/卧室 :</span> <span className="font-bold text-gray-950">{property.beds ?? "-"}</span>
+                {/* Attributes Detail Grid */}
+                <div className="grid grid-cols-2 gap-3 pt-4 mt-2 border-t border-gray-100">
+                  {property.beds !== undefined && property.beds !== null ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Bed className="w-4 h-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.beds_label")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.beds} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.baths !== undefined && property.baths !== null ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Bath className="w-4 h-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.baths_label")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.baths} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.landSize ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.land_size")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.landSize} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.sqw")}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.usableArea ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Maximize className="w-4 h-4" />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.area_label")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.usableArea} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.sqm")}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.noFloor ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m-15 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 3 12v.878m18-3A2.25 2.25 0 0 1 21 12v.878m-18 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 1.5 15v.878m19.5-3A2.25 2.25 0 0 1 22.5 15v.878m-21 0a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 15" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.no_floor")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.noFloor} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.floor")}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {property.parkingLot ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.parking_lot")}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{property.parkingLot} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "คัน" : "Cars"}</span></span>
+                      </div>
+                    </div>
+                  ) : null}
+                  
+                  {property.facing && property.facing !== "-" ? (
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{currentLang === "th" ? "ทิศ" : currentLang === "zh" ? "方向" : "Facing"}</span>
+                        <span className="text-xs font-black text-gray-900 leading-none">{getMultilingualFacing(property.facing)}</span>
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Contact Footer */}
+                <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                      </svg>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest leading-none mb-1">Contact Us</span>
+                      <span className="text-sm font-black text-gray-950 leading-none">082-444-8989</span>
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-gray-500">ห้องน้ำ/bathroom/浴室 :</span> <span className="font-bold text-gray-950">{property.baths ?? "-"}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">ชั้น/Floor/地面 :</span> <span className="font-bold text-gray-950">{property.noFloor ?? "-"}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">ที่จอดรถ/Parking/停車處 :</span> <span className="font-bold text-gray-950">{property.parkingLot ?? "-"} คัน/cars/部</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">ที่ดิน/Land/土地 :</span> <span className="font-bold text-gray-950">{property.landSize ? `${property.landSize} ตร.วา/Sq.wah/平方哇` : "-"}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">พื้นที่ใช้สอย/Area/區域 :</span> <span className="font-bold text-gray-950">{property.usableArea ? `${property.usableArea} ตร.ม/sq.m/平米` : "-"}</span>
-                  </div>
-                  <div>
-                    <span className="text-gray-500">ทิศ/View/方向 :</span> <span className="font-bold text-gray-950">{getMultilingualFacing(property.facing)}</span>
+                  
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-full bg-[#06C755]/10 flex items-center justify-center text-[#06C755]">
+                      <span className="font-alt font-black text-[10px] tracking-wider">LINE</span>
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[9px] text-gray-500 font-extrabold uppercase tracking-widest leading-none mb-1">Line ID</span>
+                      <span className="text-sm font-black text-gray-950 leading-none">@akthai59</span>
+                    </div>
                   </div>
                 </div>
               </div>
