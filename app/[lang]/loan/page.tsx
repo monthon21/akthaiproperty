@@ -173,7 +173,7 @@ export default function LoanPage() {
             </div>
           </div>
         </div>
-        <GreetingPhotos lang={lang} />
+        <GreetingPhotos lang={currentLang} />
       </main>
       <Footer />
     </>
