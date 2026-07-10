@@ -1134,9 +1134,23 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   className="group relative rounded-xl overflow-hidden aspect-4/3 border border-white/10 shadow-2xl flex flex-col justify-end p-6 bg-black/40"
                 >
                   {/* Badge */}
-                  <span className="absolute top-4 left-4 z-10 bg-black text-white text-[8px] font-black uppercase tracking-widest px-2.5 py-1 rounded shadow-md border border-white/10">
-                    NEW
-                  </span>
+                  <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
+                    {simProp.sellPrice && (
+                      <span className="px-3 py-1 bg-[#D4AF37] text-[#112240] text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-[#8B6508]">
+                        {t("property_card.for_sale") || "ขาย"}
+                      </span>
+                    )}
+                    {simProp.rentPrice && (
+                      <span className="px-3 py-1 bg-gradient-to-r from-gray-200 to-gray-400 text-[#112240] text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-gray-500">
+                        {t("property_card.for_rent") || "เช่า"}
+                      </span>
+                    )}
+                    {!simProp.sellPrice && !simProp.rentPrice && (
+                      <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+                        {simProp.type}
+                      </span>
+                    )}
+                  </div>
 
                   {/* Image */}
                   <Image
@@ -1152,17 +1166,17 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
                   {/* Content */}
                   <div className="relative z-10 flex justify-between items-end w-full">
-                    <div className="space-y-1">
-                      <p className="text-lg font-black text-white group-hover:text-accent transition-colors leading-none">
+                    <div className="space-y-1 min-w-0 flex-1 pr-2">
+                      <p className="text-xs sm:text-sm font-black text-white group-hover:text-accent transition-colors leading-tight">
                         {simProp.price}
                       </p>
-                      <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wide">
+                      <p className="text-[10px] text-white/70 font-semibold uppercase tracking-wide line-clamp-1">
                         {simProp.location}
                       </p>
                     </div>
 
                     {/* Quick Specs */}
-                    <div className="flex gap-3 text-[9px] text-white/50 font-bold uppercase tracking-wider">
+                    <div className="flex gap-3 text-[9px] text-white/50 font-bold uppercase tracking-wider shrink-0">
                       <span>{simProp.beds} Beds</span>
                       <span>{simProp.baths} Baths</span>
                       <span>{simProp.sqft} Sqm</span>

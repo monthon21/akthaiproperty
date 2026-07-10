@@ -90,12 +90,18 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   const isSell = asset.isSell;
 
   let priceStr = "ติดต่อสอบถาม";
+  if (lang === "en") priceStr = "Contact Us";
+  if (lang === "zh") priceStr = "联系我们";
+
   const priceParts: string[] = [];
   if (isSell && asset.sellPrice) {
     priceParts.push(`${Number(asset.sellPrice).toLocaleString()}`);
   }
   if (isRent && asset.loanPrice) {
-    priceParts.push(`${Number(asset.loanPrice).toLocaleString()} / เดือน`);
+    let monthSuffix = " / เดือน";
+    if (lang === "en") monthSuffix = " / month";
+    if (lang === "zh") monthSuffix = " / 月";
+    priceParts.push(`${Number(asset.loanPrice).toLocaleString()}${monthSuffix}`);
   }
   if (priceParts.length > 0) priceStr = priceParts.join(" | ");
 

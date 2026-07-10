@@ -31,8 +31,8 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
   const showRent = cardType === "all" || cardType === "rent";
 
   return (
-    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border-none rounded-[20px] flex flex-col h-full w-full">
-      <div className="relative aspect-4/3 overflow-hidden rounded-t-[20px]">
+    <div className="premium-card group hover:shadow-2xl transition-all duration-500 overflow-hidden bg-[#112240] border-none rounded-[20px] flex flex-col h-full w-full isolate transform-gpu">
+      <div className="relative aspect-4/3 overflow-hidden">
         <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
           {showSell && property.sellPrice && (
             <span className="px-3 py-1 bg-[#D4AF37] text-[#112240] text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-[#8B6508]">
