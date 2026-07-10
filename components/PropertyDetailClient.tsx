@@ -375,18 +375,19 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               ID: {property.id_string}
             </div>
 
+            {/* 
             <span className="w-1 h-1 rounded-full bg-white/20"></span>
-
             <button
               type="button"
               onClick={() => setShowShareModal(true)}
-              className="hidden inline-flex items-center gap-1.5 text-[10px] font-black text-primary-dark uppercase tracking-wider transition-all duration-300 bg-accent hover:bg-accent-dark px-3 py-1.5 rounded-md shadow-md hover:shadow-accent/20 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer animate-fade-in"
+              className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary-dark uppercase tracking-wider transition-all duration-300 bg-accent hover:bg-accent-dark px-3 py-1.5 rounded-md shadow-md hover:shadow-accent/20 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer animate-fade-in"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3-3m0 0 3 3m-3-3V1.5" />
               </svg>
               {currentLang === "th" ? "แชร์การ์ดข้อมูล" : currentLang === "zh" ? "分享卡片" : "Share Card"}
             </button>
+            */}
             {session && (
               <>
                 <span className="w-1 h-1 rounded-full bg-white/20"></span>
