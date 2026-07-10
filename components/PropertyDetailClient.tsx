@@ -13,7 +13,8 @@ import * as htmlToImage from "html-to-image";
 import th from "@/lib/i18n/th.json";
 import en from "@/lib/i18n/en.json";
 import zh from "@/lib/i18n/zh.json";
-import { Bed, Bath, Maximize } from "lucide-react";
+import { Bed, Bath, Maximize, Link as LinkIcon, Check } from "lucide-react";
+import { FacebookShareButton, FacebookIcon, LineShareButton, LineIcon, TwitterShareButton, XIcon, FacebookMessengerShareButton, FacebookMessengerIcon } from "react-share";
 
 const dictionaries = { th, en, zh };
 
@@ -113,6 +114,11 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
   // Share Card Modal state
   const [showShareModal, setShowShareModal] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [shareUrl, setShareUrl] = useState("");
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
 
   const handleShareLink = async () => {
     if (typeof window === "undefined") return;
@@ -374,6 +380,34 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               </svg>
               ID: {property.id_string}
             </div>
+
+            {shareUrl && (
+              <>
+                <span className="w-1 h-1 rounded-full bg-white/20"></span>
+                <div className="flex items-center gap-2">
+                  <FacebookShareButton url={shareUrl} className="hover:scale-110 transition-transform active:scale-95">
+                    <FacebookIcon size={20} round />
+                  </FacebookShareButton>
+                  <FacebookMessengerShareButton url={shareUrl} appId="" className="hover:scale-110 transition-transform active:scale-95">
+                    <FacebookMessengerIcon size={20} round />
+                  </FacebookMessengerShareButton>
+                  <TwitterShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
+                    <XIcon size={20} round />
+                  </TwitterShareButton>
+                  <LineShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
+                    <LineIcon size={20} round />
+                  </LineShareButton>
+                  <button 
+                    onClick={handleShareLink} 
+                    className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 transition-all active:scale-95"
+                    title={copied ? "Copied!" : "Copy Link"}
+                  >
+                    {copied ? <Check size={12} className="text-green-400" /> : <LinkIcon size={12} />}
+                  </button>
+                </div>
+
+              </>
+            )}
 
             {/* 
             <span className="w-1 h-1 rounded-full bg-white/20"></span>
