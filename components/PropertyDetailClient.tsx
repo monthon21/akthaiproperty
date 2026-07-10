@@ -435,19 +435,19 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
           <div className="relative z-10 flex flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Bed className="w-3.5 h-3.5" />{t("property_detail.beds_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.beds_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.beds}</span>
               </div>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Bath className="w-3.5 h-3.5" />{t("property_detail.baths_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.baths_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.baths}</span>
               </div>
             </div>
             <div>
-              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest mb-1 flex items-center gap-1.5"><Maximize className="w-3.5 h-3.5" />{t("property_detail.area_label")}</span>
+              <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
               <div className="flex items-baseline gap-1">
                 <span className="text-xl md:text-2xl font-bold text-white">{property.sqft}</span>
                 <span className="text-xs font-medium text-white/50">{t("property_detail.sqm")}</span>
