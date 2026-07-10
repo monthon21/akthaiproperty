@@ -6,9 +6,13 @@ import Image from "next/image";
 interface PropertyGalleryProps {
   gallery: string[];
   title: string;
+  sellPrice?: string | null;
+  rentPrice?: string | null;
+  type?: string;
+  lang?: string;
 }
 
-export default function PropertyGallery({ gallery, title }: PropertyGalleryProps) {
+export default function PropertyGallery({ gallery, title, sellPrice, rentPrice, type, lang = 'th' }: PropertyGalleryProps) {
   const [showLightbox, setShowLightbox] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -26,6 +30,25 @@ export default function PropertyGallery({ gallery, title }: PropertyGalleryProps
     <>
       <div className="relative w-full rounded-2xl overflow-hidden mb-12 shadow-2xl bg-black/20 border border-white/5 h-[350px] md:h-[450px] lg:h-[550px] group">
         
+        {/* Dynamic Tags */}
+        <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
+          {sellPrice && (
+            <span className="px-3 py-1 bg-[#D4AF37] text-[#112240] text-[10px] md:text-xs font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-[#8B6508]">
+              {lang === 'th' ? 'ขาย' : lang === 'zh' ? '出售' : 'Sale'}
+            </span>
+          )}
+          {rentPrice && (
+            <span className="px-3 py-1 bg-gradient-to-r from-gray-200 to-gray-400 text-[#112240] text-[10px] md:text-xs font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-gray-500">
+              {lang === 'th' ? 'เช่า' : lang === 'zh' ? '出租' : 'Rent'}
+            </span>
+          )}
+          {!sellPrice && !rentPrice && (
+            <span className="px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-[10px] md:text-xs font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-white/20">
+              {type}
+            </span>
+          )}
+        </div>
+
         {/* Slider Container */}
         <div 
           className="flex h-full w-full transition-transform duration-500 ease-in-out"

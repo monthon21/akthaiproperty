@@ -1,4 +1,5 @@
 import PropertyCard from "./PropertyCard";
+import CarouselCard from "./CarouselCard";
 import ListingCarousel from "./ListingCarousel";
 import { Property } from "@/lib/properties";
 import { prisma } from "@/lib/prisma";
@@ -98,6 +99,8 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     sqft,
     landSize: asset.landSize ? Number(asset.landSize) : undefined,
     usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
+    noFloor: asset.noFloor ? Number(asset.noFloor) : undefined,
+    parkingLot: asset.parkingLot ? Number(asset.parkingLot) : undefined,
     image: featureImage,
     description: description,
     facilities: [
@@ -303,9 +306,11 @@ export default async function ListingGrid({
               {dict.listing_grid.title_part1} <span className="text-gradient">{dict.listing_grid.title_part2}</span>
             </h3>
           </div>
-          <Link href={`/${lang}/search`} className="px-6 py-3 border border-accent/30 text-accent font-alt font-bold text-xs tracking-widest rounded hover:bg-accent hover:text-primary-dark transition-all duration-300 shadow-md hover:shadow-accent/10 cursor-pointer text-center inline-block">
-            {dict.listing_grid.view_all}
-          </Link>
+          {isRecommendedOnly && (
+            <Link href={`/${lang}/search`} className="px-6 py-3 border border-accent/30 text-accent font-alt font-bold text-xs tracking-widest rounded hover:bg-accent hover:text-primary-dark transition-all duration-300 shadow-md hover:shadow-accent/10 cursor-pointer text-center inline-block">
+              {dict.listing_grid.view_all}
+            </Link>
+          )}
         </div>
 
         {allProperties.length === 0 ? (
@@ -315,13 +320,13 @@ export default async function ListingGrid({
         ) : isRecommendedOnly ? (
           <ListingCarousel>
             {allProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} lang={lang} />
+              <CarouselCard key={property.id} property={property} lang={lang} />
             ))}
           </ListingCarousel>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
             {allProperties.map((property) => (
-              <PropertyCard key={property.id} property={property} lang={lang} />
+              <CarouselCard key={property.id} property={property} lang={lang} cardType={type || "all"} />
             ))}
           </div>
         )}

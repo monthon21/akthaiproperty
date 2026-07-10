@@ -537,7 +537,14 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
             {/* Gallery slideshow */}
             <div className="w-full">
-              <PropertyGallery gallery={property.gallery} title={property.title} />
+              <PropertyGallery 
+                gallery={property.gallery} 
+                title={property.title} 
+                sellPrice={property.sellPrice}
+                rentPrice={property.rentPrice}
+                type={property.type}
+                lang={currentLang}
+              />
             </div>
 
             {/* About this House */}
