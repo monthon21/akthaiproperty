@@ -16,7 +16,15 @@ export default function Footer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newsletterMsg, setNewsletterMsg] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
+  const [openSections, setOpenSections] = useState({
+    quickLinks: false,
+    support: false
+  });
   const formRef = useRef<HTMLFormElement>(null);
+
+  const toggleSection = (section: 'quickLinks' | 'support') => {
+    setOpenSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
 
   const pathname = usePathname();
 
@@ -77,22 +85,22 @@ export default function Footer() {
   };
 
   return (
-    <footer className="pt-20 pb-10 px-6 border-t border-accent/15 bg-black text-white">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 lg:gap-10 pb-16 border-b border-white/5">
-        <div className="lg:col-span-1">
-          <Link href={`/${currentLang}`} className="inline-flex items-center gap-3 group mb-8">
+    <footer className="pt-14 md:pt-20 pb-8 md:pb-10 px-6 border-t border-accent/15 bg-black text-white">
+      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 md:gap-16 lg:gap-10 pb-12 md:pb-16 border-b border-white/5">
+        <div className="lg:col-span-1 flex flex-col items-center md:items-start text-center md:text-left">
+          <Link href={`/${currentLang}`} className="inline-flex items-center gap-3 group mb-6">
             <div className="w-11 h-11 bg-accent rounded flex items-center justify-center shadow-lg group-hover:rotate-6 transition-transform duration-500">
               <span className="text-primary-dark font-display font-black text-lg tracking-wider">AK</span>
             </div>
-            <div className="flex flex-col">
+            <div className="flex flex-col text-left">
               <span className="font-display font-bold text-lg tracking-widest text-white leading-none group-hover:text-accent transition-colors">AK THAI</span>
               <span className="text-[8px] tracking-[0.4em] font-alt font-extrabold text-accent uppercase mt-0.5">PROPERTY</span>
             </div>
           </Link>
-          <p className="font-alt text-xs text-white/55 leading-relaxed mb-8 max-w-xs font-medium">
+          <p className="font-alt text-xs text-white/55 leading-relaxed mb-6 max-w-xs font-medium">
             {t("footer.about_desc")}
           </p>
-          <div className="flex gap-4">
+          <div className="flex gap-4 justify-center md:justify-start">
             <a href="https://www.facebook.com/profile.php?id=100081747750595" className="w-9 h-9 border border-white/10 rounded flex items-center justify-center hover:bg-accent hover:border-accent hover:text-primary-dark transition-all duration-300 group">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" className="text-white group-hover:text-primary-dark group-hover:scale-105 transition-all duration-300">
                 <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.493v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z" />
@@ -104,9 +112,15 @@ export default function Footer() {
           </div>
         </div>
 
-        <div>
-          <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-8">{t("footer.quick_links")}</h4>
-          <ul className="flex flex-col gap-4">
+        <div className="border-t border-white/5 md:border-none pt-6 md:pt-0">
+          <button 
+            onClick={() => toggleSection('quickLinks')}
+            className="w-full flex items-center justify-between md:cursor-default md:pointer-events-none"
+          >
+            <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-0 md:mb-8">{t("footer.quick_links")}</h4>
+            <span className="text-accent md:hidden text-lg leading-none">{openSections.quickLinks ? '−' : '+'}</span>
+          </button>
+          <ul className={`flex-col gap-4 mt-6 md:mt-0 ${openSections.quickLinks ? 'flex' : 'hidden md:flex'}`}>
             <li><Link href={`/${currentLang}`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">{t("navbar.home")}</Link></li>
             <li><Link href={`/${currentLang}/buy`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">{t("navbar.buy")}</Link></li>
             <li><Link href={`/${currentLang}/rent`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">{t("navbar.rent")}</Link></li>
@@ -114,9 +128,15 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-8">{t("footer.support")}</h4>
-          <ul className="flex flex-col gap-4">
+        <div className="border-t border-white/5 md:border-none pt-6 md:pt-0">
+          <button 
+            onClick={() => toggleSection('support')}
+            className="w-full flex items-center justify-between md:cursor-default md:pointer-events-none"
+          >
+            <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-0 md:mb-8">{t("footer.support")}</h4>
+            <span className="text-accent md:hidden text-lg leading-none">{openSections.support ? '−' : '+'}</span>
+          </button>
+          <ul className={`flex-col gap-4 mt-6 md:mt-0 ${openSections.support ? 'flex' : 'hidden md:flex'}`}>
             <li><Link href={`/${currentLang}/faq`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">FAQ</Link></li>
             <li><Link href={`/${currentLang}/privacy`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">{t("footer.privacy_policy")}</Link></li>
             <li><Link href={`/${currentLang}/terms`} className="font-alt text-xs font-semibold text-white/50 hover:text-accent transition-colors duration-300">{t("footer.terms_conditions")}</Link></li>
@@ -129,8 +149,8 @@ export default function Footer() {
           </ul>
         </div>
 
-        <div>
-          <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-8">{t("newsletter.title")}</h4>
+        <div className="border-t border-white/5 md:border-none pt-6 md:pt-0 text-center md:text-left">
+          <h4 className="text-[10px] font-alt font-extrabold uppercase tracking-[0.25em] text-accent mb-4 md:mb-8">{t("newsletter.title")}</h4>
           <p className="font-alt text-xs text-white/50 mb-6 font-medium">{t("newsletter.desc")}</p>
           <form ref={formRef} onSubmit={handleNewsletterSubmit} className="relative overflow-hidden group rounded-sm flex">
             <input
@@ -163,8 +183,8 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto pt-10 flex flex-col md:flex-row justify-between items-center gap-6">
-        <p className="font-alt text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-none">
+      <div className="max-w-7xl mx-auto pt-8 md:pt-10 flex flex-col md:flex-row justify-center md:justify-between items-center gap-6">
+        <p className="font-alt text-[9px] font-bold text-white/20 uppercase tracking-[0.2em] leading-none text-center">
           © 2026 AK THAI PROPERTY. ALL RIGHTS RESERVED.
         </p>
       </div>

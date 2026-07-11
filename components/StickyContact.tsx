@@ -18,11 +18,24 @@ export default function StickyContact() {
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
 
-  if (!isVisible || isClosed) return null;
 
   return (
     <div className="fixed bottom-8 right-8 z-50 flex flex-col gap-3 animate-fade-in sm:bottom-10 sm:right-10">
-      {/* Close Button */}
+      
+      {/* Scroll to Top Button */}
+      <button 
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        className={`w-12 h-12 bg-white/10 hover:bg-white/20 text-white rounded shadow-2xl border border-white/20 flex items-center justify-center hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer backdrop-blur-sm ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}
+        title="กลับขึ้นด้านบน (Scroll to Top)"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5 group-hover:-translate-y-1 transition-transform duration-300">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+        </svg>
+      </button>
+
+      {!isClosed && (
+        <>
+          {/* Close Button */}
       <button 
         onClick={() => setIsClosed(true)}
         className="w-12 h-12 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded shadow-2xl border border-red-500/20 flex items-center justify-center hover:scale-105 hover:-translate-y-0.5 transition-all duration-300 group cursor-pointer"
@@ -54,6 +67,8 @@ export default function StickyContact() {
       >
         <span className="font-alt font-black text-[9px] tracking-wider">LINE</span>
       </a>
+        </>
+      )}
     </div>
   );
 }
