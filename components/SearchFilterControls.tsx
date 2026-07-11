@@ -231,7 +231,7 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
   const [minArea, setMinArea] = useState("");
   const [maxArea, setMaxArea] = useState("");
 
-  const [isExpanded, setIsExpanded] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Sync state with URL params on load/change
   useEffect(() => {

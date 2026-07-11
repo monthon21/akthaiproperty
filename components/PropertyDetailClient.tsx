@@ -13,7 +13,7 @@ import * as htmlToImage from "html-to-image";
 import th from "@/lib/i18n/th.json";
 import en from "@/lib/i18n/en.json";
 import zh from "@/lib/i18n/zh.json";
-import { Bed, Bath, Maximize, Link as LinkIcon, Check } from "lucide-react";
+import { Bed, Bath, Maximize, Link as LinkIcon, Check, Compass } from "lucide-react";
 import { FacebookShareButton, FacebookIcon, LineShareButton, LineIcon, TwitterShareButton, XIcon, FacebookMessengerShareButton, FacebookMessengerIcon } from "react-share";
 
 const dictionaries = { th, en, zh };
@@ -314,74 +314,128 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     <>
       <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-      <div className="relative z-10 flex w-full md:w-auto gap-2 md:gap-4 items-stretch md:items-center">
-        {property.sellPrice && (
-          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
-            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.sell_price")}</span>
-            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
-              {property.sellPrice} <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
-            </div>
-          </div>
-        )}
-        {property.rentPrice && (
-          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
-            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.rent_price")}</span>
-            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
-              {property.rentPrice}
-              <div className="flex items-baseline gap-1">
-                <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
-                <span className="text-[10px] sm:text-xs md:text-base font-normal text-white/60">{t("property_card.month")}</span>
+      <div className="relative z-10 grid grid-cols-2 w-full md:w-fit gap-2 md:gap-4 items-stretch">
+        {property.sellPrice || property.rentPrice ? (
+          <>
+            {/* Sell Price */}
+            <div className={`min-w-0 border rounded-xl px-3 py-3 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.sellPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
+              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest block mb-1 truncate ${property.sellPrice ? 'text-accent/80' : 'text-white/40'}`}>
+                {t("property_card.sell_price")}
+              </span>
+              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.sellPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
+                {property.sellPrice ? (
+                  <>{property.sellPrice} <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span></>
+                ) : (
+                  <>-</>
+                )}
               </div>
             </div>
-          </div>
-        )}
-        {!property.sellPrice && !property.rentPrice && (
-          <div className="flex-1 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300">
+            {/* Rent Price */}
+            <div className={`min-w-0 border rounded-xl px-3 py-3 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.rentPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
+              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest block mb-1 truncate ${property.rentPrice ? 'text-accent/80' : 'text-white/40'}`}>
+                {t("property_card.rent_price")}
+              </span>
+              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.rentPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
+                {property.rentPrice ? (
+                  <>
+                    {property.rentPrice}
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span>
+                      <span className="text-[10px] sm:text-xs md:text-sm font-normal text-white/60">{t("property_card.month")}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>-</>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="col-span-2 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300 w-full">
             <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.starts_from")}</span>
-            <div className="text-xl sm:text-2xl md:text-4xl lg:text-5xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap md:flex-nowrap items-baseline gap-1 md:gap-1.5">
-              {property.price} <span className="text-xs sm:text-sm md:text-lg font-bold text-accent/70 uppercase">THB</span>
+            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words">
+              {property.price} <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span>
             </div>
           </div>
         )}
       </div>
 
-      <div className="hidden md:flex relative z-10 flex-wrap gap-8 md:gap-12 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8">
-        <div>
-          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.beds_label")}</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl md:text-2xl font-bold text-white">{property.beds}</span>
-          </div>
-        </div>
-        <div>
-          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.baths_label")}</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl md:text-2xl font-bold text-white">{property.baths}</span>
-          </div>
-        </div>
-        <div>
-          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.area_label")}</span>
-          <div className="flex items-baseline gap-1">
-            <span className="text-xl md:text-2xl font-bold text-white">{property.sqft}</span>
-            <span className="text-xs font-medium text-white/50">{t("property_detail.sqm")}</span>
-          </div>
-        </div>
-        {property.landSize && (
-          <div>
-            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.land_size")}</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl md:text-2xl font-bold text-white">{property.landSize}</span>
-              <span className="text-xs font-medium text-white/50">{t("property_detail.sqw")}</span>
+      <div className="hidden md:grid relative z-10 grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-6 lg:gap-x-8 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8 items-center content-center">
+        {property.beds !== undefined && property.beds !== null ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Bed className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.beds_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.beds} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
             </div>
           </div>
-        )}
-        {property.parkingLot && (
-          <div>
-            <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{t("property_detail.parking_lot")}</span>
-            <div className="flex items-baseline gap-1">
-              <span className="text-xl md:text-2xl font-bold text-white">{property.parkingLot}</span>
+        ) : null}
+
+        {property.baths !== undefined && property.baths !== null ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Bath className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.baths_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.baths} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
             </div>
           </div>
-        )}
+        ) : null}
+
+        {property.sqft ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Maximize className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.area_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.sqft} <span className="text-[10px] font-bold text-white/70 ml-0.5">{t("property_detail.sqm")}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.landSize ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.land_size")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.landSize} <span className="text-[10px] font-bold text-white/70 ml-0.5">{t("property_detail.sqw")}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.parkingLot ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.parking_lot")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.parkingLot} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "คัน" : currentLang === "zh" ? "车" : "Cars"}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.facing ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.facing")}</span>
+              <span className="text-sm font-black text-white leading-none">{translateFacing(property.facing)}</span>
+            </div>
+          </div>
+        ) : null}
       </div>
     </>
   );
@@ -570,10 +624,8 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 {currentLang === "th" ? "ข้อมูลอสังหาริมทรัพย์" : currentLang === "zh" ? "关于此房产" : "About this Property"}
               </h2>
               <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
-                <FormattedText text={property.description} className="text-white/70" />
-
                 {/* Detailed Specs Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4 border-t border-white/5">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-white/5">
                   {property.beds !== undefined && property.beds !== null ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
@@ -683,10 +735,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {property.facing ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v18m-9-9h18" />
-                        </svg>
+                        <Compass className="w-5 h-5" />
                       </div>
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.facing")}</span>
@@ -708,6 +757,10 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       </div>
                     </div>
                   ) : null}
+                </div>
+
+                <div className="pt-4 border-t border-white/5">
+                  <FormattedText text={property.description} className="text-white/70" />
                 </div>
 
                 <div className="pt-2 border-t border-white/5">
@@ -1228,11 +1281,6 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                     </span>
                   </div>
                 </div>
-                {property.id_string && (
-                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider bg-[#D4AF37] px-2.5 py-1 rounded-md shadow-sm">
-                    ID: {property.id_string}
-                  </span>
-                )}
               </div>
 
               {/* Feature Image */}
@@ -1270,122 +1318,125 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 </div>
 
                 {/* Price */}
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {property.sellPrice && (
-                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
-                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.sell_price")}</span>
-                      <div className="text-lg font-black text-[#D4AF37] leading-none">
-                        {property.sellPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB</span>
+                <div className="grid grid-cols-2 gap-2 mt-2">
+                  {property.sellPrice || property.rentPrice ? (
+                    <>
+                      {/* Sell Price Box */}
+                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.sellPrice ? 'bg-[#D4AF37]/10 border-[#D4AF37]/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
+                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.sellPrice ? 'text-[#D4AF37]' : 'text-gray-400'}`}>
+                          {t("property_card.sell_price")}
+                        </span>
+                        <div className={`text-[15px] font-black leading-none break-words ${property.sellPrice ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                          {property.sellPrice ? (
+                            <>{property.sellPrice} <span className="text-[9px] font-bold text-gray-500 ml-0.5 whitespace-nowrap">THB</span></>
+                          ) : (
+                            <>-</>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {property.rentPrice && (
-                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
-                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.rent_price")}</span>
-                      <div className="text-lg font-black text-[#D4AF37] leading-none">
-                        {property.rentPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB/{currentLang === "th" ? "เดือน" : currentLang === "zh" ? "月" : "Month"}</span>
+
+                      {/* Rent Price Box */}
+                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.rentPrice ? 'bg-[#D4AF37]/10 border-[#D4AF37]/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
+                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.rentPrice ? 'text-[#D4AF37]' : 'text-gray-400'}`}>
+                          {t("property_card.rent_price")}
+                        </span>
+                        <div className={`text-[15px] font-black leading-none break-words ${property.rentPrice ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                          {property.rentPrice ? (
+                            <>{property.rentPrice} <span className="text-[9px] font-bold text-gray-500 ml-0.5 whitespace-nowrap">THB/{currentLang === "th" ? "ด." : currentLang === "zh" ? "月" : "Mo"}</span></>
+                          ) : (
+                            <>-</>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {!property.sellPrice && !property.rentPrice && (
-                    <div className="bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-3 py-2 flex flex-col min-w-[100px]">
-                      <span className="text-[9px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5">{t("property_card.starts_from")}</span>
-                      <div className="text-lg font-black text-[#D4AF37] leading-none">{property.price}</div>
+                    </>
+                  ) : (
+                    /* Starts From Box (Fallback) */
+                    <div className="col-span-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px]">
+                      <span className="text-[8px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5 truncate">{t("property_card.starts_from")}</span>
+                      <div className="text-[15px] font-black text-[#D4AF37] leading-none break-words">{property.price}</div>
                     </div>
                   )}
                 </div>
 
                 {/* Attributes Detail Grid */}
-                <div className="grid grid-cols-2 gap-3 pt-4 mt-2 border-t border-gray-100">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 mt-2 border-t border-gray-100">
+                  {property.id_string ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
+                        </svg>
+                      </div>
+                      <span className="text-[11px] font-black text-[#D4AF37] leading-none uppercase">{property.id_string}</span>
+                    </div>
+                  ) : null}
+
                   {property.beds !== undefined && property.beds !== null ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <Bed className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Bed className="w-3 h-3" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.beds_label")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.beds} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.beds} <span className="text-[9px] font-bold text-gray-500">{currentLang === "th" ? "ห้องนอน" : currentLang === "zh" ? "卧" : "Beds"}</span></span>
                     </div>
                   ) : null}
 
                   {property.baths !== undefined && property.baths !== null ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <Bath className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Bath className="w-3 h-3" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.baths_label")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.baths} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.baths} <span className="text-[9px] font-bold text-gray-500">{currentLang === "th" ? "ห้องน้ำ" : currentLang === "zh" ? "卫" : "Baths"}</span></span>
                     </div>
                   ) : null}
 
                   {property.landSize ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
                         </svg>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.land_size")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.landSize} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.sqw")}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.landSize} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.sqw")}</span></span>
                     </div>
                   ) : null}
 
                   {property.usableArea ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <Maximize className="w-4 h-4" />
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Maximize className="w-3 h-3" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.area_label")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.usableArea} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.sqm")}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.usableArea} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.sqm")}</span></span>
                     </div>
                   ) : null}
 
                   {property.noFloor ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M6 6.878V6a2.25 2.25 0 0 1 2.25-2.25h7.5A2.25 2.25 0 0 1 18 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 4.5 9v.878m13.5-3A2.25 2.25 0 0 1 19.5 9v.878m-15 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 3 12v.878m18-3A2.25 2.25 0 0 1 21 12v.878m-18 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 0 0 1.5 15v.878m19.5-3A2.25 2.25 0 0 1 22.5 15v.878m-21 0a2.25 2.25 0 0 0 2.25 2.25h15A2.25 2.25 0 0 0 21.75 15" />
                         </svg>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.no_floor")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.noFloor} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{t("property_detail.floor")}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.noFloor} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.floor")}</span></span>
                     </div>
                   ) : null}
 
                   {property.parkingLot ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
                         </svg>
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{t("property_detail.parking_lot")}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{property.parkingLot} <span className="text-[10px] font-bold text-gray-500 ml-0.5">{currentLang === "th" ? "คัน" : "Cars"}</span></span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.parkingLot} <span className="text-[9px] font-bold text-gray-500">{currentLang === "th" ? "คัน" : "Cars"}</span></span>
                     </div>
                   ) : null}
                   
                   {property.facing && property.facing !== "-" ? (
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M15.042 21.672 13.684 16.6m0 0-2.51 2.225.569-9.47 5.227 7.917-3.286-.672ZM12 2.25V4.5m5.834.166-1.591 1.591M20.25 10.5H18M7.757 14.743l-1.59 1.59M6 10.5H3.75m4.007-4.243-1.59-1.59" />
-                        </svg>
+                    <div className="flex items-center gap-1.5">
+                      <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
+                        <Compass className="w-3 h-3" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-[9px] font-extrabold text-gray-400 uppercase tracking-widest leading-none mb-1">{currentLang === "th" ? "ทิศ" : currentLang === "zh" ? "方向" : "Facing"}</span>
-                        <span className="text-xs font-black text-gray-900 leading-none">{getMultilingualFacing(property.facing)}</span>
-                      </div>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{getMultilingualFacing(property.facing)}</span>
                     </div>
                   ) : null}
                 </div>
