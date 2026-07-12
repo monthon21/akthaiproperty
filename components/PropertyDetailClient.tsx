@@ -818,14 +818,14 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                         <span className="text-xs font-semibold text-white">{place.placeName}</span>
                         <div className="text-right">
                           {place.distance && (
-                            <span className="block text-xs md:text-sm font-black tracking-wider text-accent uppercase">
+                            <span className="block text-xs md:text-sm font-black tracking-wider text-accent">
                               {currentLang === "en" ? place.distance.replace("กิโลเมตร", "km").replace("เมตร", "m") :
                                 currentLang === "zh" ? place.distance.replace("กิโลเมตร", "公里").replace("km", "公里").replace("เมตร", "米").replace("m", "米") :
                                   place.distance.replace("km", "กิโลเมตร").replace("m", "เมตร")}
                             </span>
                           )}
                           {place.travelTime && (
-                            <span className="block text-xs md:text-sm font-black tracking-wider text-accent uppercase mt-1">
+                            <span className="block text-xs md:text-sm font-black tracking-wider text-accent mt-1">
                               {currentLang === "en" ? place.travelTime.replace("ชั่วโมง", "hrs").replace("นาที", "mins") :
                                 currentLang === "zh" ? place.travelTime.replace("ชั่วโมง", "小时").replace("hrs", "小时").replace("นาที", "分钟").replace("mins", "分钟") :
                                   place.travelTime.replace("hrs", "ชั่วโมง").replace("mins", "นาที")}

@@ -1477,12 +1477,12 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                             <span className="text-xs font-semibold text-white">{place.placeName}</span>
                             <div className="text-right">
                               {place.type === "distance" && place.value && (
-                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                <span className="block text-[10px] font-black tracking-widest text-accent">
                                   {place.value} {place.unit}
                                 </span>
                               )}
                               {place.type === "time" && place.value && (
-                                <span className="block text-[10px] font-black tracking-widest text-accent uppercase">
+                                <span className="block text-[10px] font-black tracking-widest text-accent">
                                   {place.value} {place.unit}
                                 </span>
                               )}
