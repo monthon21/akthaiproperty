@@ -32,8 +32,9 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
       const provinceMatch = asset.province?.toLowerCase().includes(q);
       const districtMatch = asset.district?.toLowerCase().includes(q);
       const ownerMatch = asset.customer?.name?.toLowerCase().includes(q);
+      const addressMatch = asset.address?.toLowerCase().includes(q);
       
-      if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch && !ownerMatch) {
+      if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch && !ownerMatch && !addressMatch) {
         return false;
       }
     }
@@ -95,7 +96,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
             <div className="relative">
               <input
                 type="text"
-                placeholder="ค้นหาด้วยรหัสทรัพย์, ชื่อทรัพย์สิน, โครงการ, จังหวัด..."
+                placeholder="ค้นหาด้วยรหัสทรัพย์, ชื่อทรัพย์สิน, โครงการ, จังหวัด, บ้านเลขที่, ชื่อเจ้าของ..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-11 pl-10 pr-4 bg-black/45 border border-white/10 rounded-xl text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
