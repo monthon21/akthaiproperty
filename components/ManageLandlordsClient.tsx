@@ -4,24 +4,24 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  getCustomerDetailsAction,
-  updateCustomerDetailsAction,
-  createCustomerAction,
-  deleteCustomerAction
-} from "@/lib/actions/customer";
+  getLandlordDetailsAction,
+  updateLandlordDetailsAction,
+  createLandlordAction,
+  deleteLandlordAction
+} from "@/lib/actions/landlord";
 import { Eye, Edit, Trash2 } from "lucide-react";
 
-export default function ManageCustomersClient({
-  initialCustomers,
+export default function ManageLandlordsClient({
+  initialLandlords,
   currentLang,
   errorMsg = ""
 }: {
-  initialCustomers: any[];
+  initialLandlords: any[];
   currentLang: string;
   errorMsg?: string;
 }) {
   const router = useRouter();
-  const [customers, setCustomers] = useState(initialCustomers);
+  const [landlords, setLandlords] = useState(initialLandlords);
   const [searchQuery, setSearchQuery] = useState("");
   const [isDeleting, setIsDeleting] = useState<number | null>(null);
   const [actionError, setActionError] = useState(errorMsg);
@@ -29,9 +29,9 @@ export default function ManageCustomersClient({
 
   // Modal states
   const [showModal, setShowModal] = useState(false);
-  const [isNewCustomer, setIsNewCustomer] = useState(false);
+  const [isNewLandlord, setIsNewLandlord] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
-  const [selectedCustomerId, setSelectedCustomerId] = useState<number | null>(null);
+  const [selectedLandlordId, setSelectedLandlordId] = useState<number | null>(null);
 
   // Form states
   const [formName, setFormName] = useState("");
@@ -45,7 +45,7 @@ export default function ManageCustomersClient({
   const [formAddress, setFormAddress] = useState("");
   const [associatedAssets, setAssociatedAssets] = useState<any[]>([]);
 
-  const filteredCustomers = customers.filter((c) => {
+  const filteredLandlords = landlords.filter((c) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     return (
@@ -60,7 +60,7 @@ export default function ManageCustomersClient({
   const handleDelete = async (id: number, name: string) => {
     if (
       !window.confirm(
-        `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเจ้าของทรัพย์ "${name}"?\nการลบนี้จะลบรายละเอียดส่วนตัว (CustomerDetails) ทั้งหมดด้วย แต่ทรัพย์สินต่างๆ ที่เชื่อมโยงจะยังอยู่ (โดยจะถูกตั้งค่าเจ้าของเป็นค่าว่าง)`
+        `คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเจ้าของทรัพย์ "${name}"?\nการลบนี้จะลบรายละเอียดส่วนตัว (LandlordDetails) ทั้งหมดด้วย แต่ทรัพย์สินต่างๆ ที่เชื่อมโยงจะยังอยู่ (โดยจะถูกตั้งค่าเจ้าของเป็นค่าว่าง)`
       )
     ) {
       return;
@@ -70,9 +70,9 @@ export default function ManageCustomersClient({
     setActionError("");
     setSuccessMessage("");
 
-    const res = await deleteCustomerAction(id);
+    const res = await deleteLandlordAction(id);
     if (res.success) {
-      setCustomers((prev) => prev.filter((c) => c.id !== id));
+      setLandlords((prev) => prev.filter((c) => c.id !== id));
       setSuccessMessage(`ลบข้อมูลเจ้าของทรัพย์ "${name}" สำเร็จ`);
       setTimeout(() => setSuccessMessage(""), 3000);
       router.refresh();
@@ -82,17 +82,17 @@ export default function ManageCustomersClient({
     setIsDeleting(null);
   };
 
-  const handleOpenEdit = async (customerId: number) => {
+  const handleOpenEdit = async (landlordId: number) => {
     setActionError("");
     setSuccessMessage("");
-    setIsNewCustomer(false);
-    setSelectedCustomerId(customerId);
+    setIsNewLandlord(false);
+    setSelectedLandlordId(landlordId);
     setModalLoading(true);
     setShowModal(true);
 
-    const res = await getCustomerDetailsAction(customerId);
-    if (res.success && res.customer) {
-      const c = res.customer;
+    const res = await getLandlordDetailsAction(landlordId);
+    if (res.success && res.landlord) {
+      const c = res.landlord;
       setFormName(c.name || "");
       setFormPhone(c.phone || "");
       setFormLine(c.line || "");
@@ -113,8 +113,8 @@ export default function ManageCustomersClient({
   const handleOpenCreate = () => {
     setActionError("");
     setSuccessMessage("");
-    setIsNewCustomer(true);
-    setSelectedCustomerId(null);
+    setIsNewLandlord(true);
+    setSelectedLandlordId(null);
     setFormName("");
     setFormPhone("");
     setFormLine("");
@@ -151,32 +151,32 @@ export default function ManageCustomersClient({
       address: formAddress
     };
 
-    if (isNewCustomer) {
-      const res = await createCustomerAction(payload);
-      if (res.success && res.customer) {
+    if (isNewLandlord) {
+      const res = await createLandlordAction(payload);
+      if (res.success && res.landlord) {
         const newCust = {
-          ...res.customer,
+          ...res.landlord,
           details: res.details,
           _count: { assets: 0 }
         };
-        setCustomers((prev) => [newCust, ...prev]);
+        setLandlords((prev) => [newCust, ...prev]);
         setSuccessMessage("สร้างข้อมูลเจ้าของทรัพย์สำเร็จ");
         setShowModal(false);
         router.refresh();
       } else {
         setActionError(res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
       }
-    } else if (selectedCustomerId) {
-      const res = await updateCustomerDetailsAction(selectedCustomerId, payload);
-      if (res.success && res.customer) {
-        setCustomers((prev) =>
+    } else if (selectedLandlordId) {
+      const res = await updateLandlordDetailsAction(selectedLandlordId, payload);
+      if (res.success && res.landlord) {
+        setLandlords((prev) =>
           prev.map((c) =>
-            c.id === selectedCustomerId
+            c.id === selectedLandlordId
               ? {
                   ...c,
-                  name: res.customer.name,
-                  phone: res.customer.phone,
-                  line: res.customer.line,
+                  name: res.landlord.name,
+                  phone: res.landlord.phone,
+                  line: res.landlord.line,
                   details: res.details
                 }
               : c
@@ -269,14 +269,14 @@ export default function ManageCustomersClient({
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filteredCustomers.length === 0 ? (
+              {filteredLandlords.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-10 text-center text-white/40">
                     ไม่พบข้อมูลเจ้าของทรัพย์สิน
                   </td>
                 </tr>
               ) : (
-                filteredCustomers.map((c) => (
+                filteredLandlords.map((c) => (
                   <tr key={c.id} className="hover:bg-white/5 transition-colors">
                     <td className="px-6 py-4 font-bold text-white">{c.name}</td>
                     <td className="px-6 py-4 text-white/70">{c.phone || "-"}</td>
@@ -348,7 +348,7 @@ export default function ManageCustomersClient({
             {/* Modal Header */}
             <div className="sticky top-0 bg-[#112240] px-6 py-4 border-b border-white/10 flex justify-between items-center z-10">
               <h3 className="font-bold text-base text-white">
-                {isNewCustomer ? "เพิ่มเจ้าของทรัพย์ใหม่" : "ข้อมูลเจ้าของทรัพย์ & รายละเอียดสัญญา"}
+                {isNewLandlord ? "เพิ่มเจ้าของทรัพย์ใหม่" : "ข้อมูลเจ้าของทรัพย์ & รายละเอียดสัญญา"}
               </h3>
               <button
                 onClick={() => setShowModal(false)}
@@ -359,16 +359,16 @@ export default function ManageCustomersClient({
             </div>
 
             {/* Modal Content */}
-            {modalLoading && !isNewCustomer ? (
+            {modalLoading && !isNewLandlord ? (
               <div className="p-10 text-center text-accent animate-pulse font-semibold">
                 กำลังดึงข้อมูล...
               </div>
             ) : (
               <form onSubmit={handleSave} className="p-6 space-y-6 flex-1">
-                {/* 1. Basic Info (Customer Table) */}
+                {/* 1. Basic Info (Landlord Table) */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
-                    ข้อมูลพื้นฐานติดต่อหลัก (Customer Basic Info)
+                    ข้อมูลพื้นฐานติดต่อหลัก (Landlord Basic Info)
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-1.5">
@@ -411,10 +411,10 @@ export default function ManageCustomersClient({
                   </div>
                 </div>
 
-                {/* 2. Detailed Info (CustomerDetails Table) */}
+                {/* 2. Detailed Info (LandlordDetails Table) */}
                 <div className="space-y-4">
                   <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
-                    ข้อมูลสัญญา & เอกสารเจ้าของทรัพย์ (Customer Details - Confidential)
+                    ข้อมูลสัญญา & เอกสารเจ้าของทรัพย์ (Landlord Details - Confidential)
                   </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-1.5">
@@ -493,7 +493,7 @@ export default function ManageCustomersClient({
                 </div>
 
                 {/* 3. Linked Assets (Properties list) */}
-                {!isNewCustomer && (
+                {!isNewLandlord && (
                   <div className="space-y-3">
                     <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
                       อสังหาริมทรัพย์ที่ครอบครอง ({associatedAssets.length} รายการ)

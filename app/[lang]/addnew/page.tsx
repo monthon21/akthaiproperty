@@ -104,15 +104,15 @@ export default function AddNewAssetPage() {
     }
   });
 
-  const [customerSuggestions, setCustomerSuggestions] = useState<any[]>([]);
-  const [showCustomerSuggestions, setShowCustomerSuggestions] = useState(false);
-  const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
-  const customerContainerRef = useRef<HTMLDivElement>(null);
+  const [landlordSuggestions, setLandlordSuggestions] = useState<any[]>([]);
+  const [showLandlordSuggestions, setShowLandlordSuggestions] = useState(false);
+  const [isSearchingLandlords, setIsSearchingLandlords] = useState(false);
+  const landlordContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (customerContainerRef.current && !customerContainerRef.current.contains(event.target as Node)) {
-        setShowCustomerSuggestions(false);
+      if (landlordContainerRef.current && !landlordContainerRef.current.contains(event.target as Node)) {
+        setShowLandlordSuggestions(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -123,20 +123,20 @@ export default function AddNewAssetPage() {
     const fetchSuggestions = async () => {
       const q = formData.ownerName || "";
       if (q.trim().length < 2) {
-        setCustomerSuggestions([]);
+        setLandlordSuggestions([]);
         return;
       }
-      setIsSearchingCustomers(true);
+      setIsSearchingLandlords(true);
       try {
-        const { searchCustomersAction } = await import("@/lib/actions/asset");
-        const res = await searchCustomersAction(q.trim());
-        if (res.success && res.customers) {
-          setCustomerSuggestions(res.customers);
+        const { searchLandlordsAction } = await import("@/lib/actions/asset");
+        const res = await searchLandlordsAction(q.trim());
+        if (res.success && res.landlords) {
+          setLandlordSuggestions(res.landlords);
         }
       } catch (err) {
-        console.error("Error fetching customer suggestions:", err);
+        console.error("Error fetching landlord suggestions:", err);
       } finally {
-        setIsSearchingCustomers(false);
+        setIsSearchingLandlords(false);
       }
     };
 
@@ -827,7 +827,7 @@ export default function AddNewAssetPage() {
                   ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                  <div className="space-y-1.5 md:col-span-1 relative" ref={customerContainerRef}>
+                  <div className="space-y-1.5 md:col-span-1 relative" ref={landlordContainerRef}>
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ชื่อเจ้าของทรัพย์ (Owner Name)</label>
                     <input
                       type="text"
@@ -836,23 +836,23 @@ export default function AddNewAssetPage() {
                       value={formData.ownerName || ""}
                       onChange={(e) => {
                         handleInputChange(e);
-                        setShowCustomerSuggestions(true);
+                        setShowLandlordSuggestions(true);
                       }}
-                      onFocus={() => setShowCustomerSuggestions(true)}
+                      onFocus={() => setShowLandlordSuggestions(true)}
                       autoComplete="off"
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white"
                     />
 
-                    {/* Customer Autocomplete Dropdown */}
-                    {showCustomerSuggestions && (formData.ownerName || "").trim().length >= 2 && (
+                    {/* Landlord Autocomplete Dropdown */}
+                    {showLandlordSuggestions && (formData.ownerName || "").trim().length >= 2 && (
                       <div className="absolute top-full left-0 w-full mt-1.5 bg-[#112240] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden">
-                        {isSearchingCustomers ? (
+                        {isSearchingLandlords ? (
                           <div className="px-4 py-3 text-xs text-white/50 animate-pulse">
                             กำลังค้นหา... (Searching...)
                           </div>
-                        ) : customerSuggestions.length > 0 ? (
+                        ) : landlordSuggestions.length > 0 ? (
                           <ul className="max-h-48 overflow-y-auto divide-y divide-white/5">
-                            {customerSuggestions.map((item) => (
+                            {landlordSuggestions.map((item) => (
                               <li
                                 key={item.id}
                                 onClick={() => {
@@ -862,7 +862,7 @@ export default function AddNewAssetPage() {
                                     ownerPhone: item.phone || "",
                                     ownerLine: item.line || ""
                                   }));
-                                  setShowCustomerSuggestions(false);
+                                  setShowLandlordSuggestions(false);
                                 }}
                                 className="px-4 py-2.5 hover:bg-white/5 cursor-pointer transition-colors flex flex-col gap-0.5 text-left text-white"
                               >

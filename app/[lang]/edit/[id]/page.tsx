@@ -29,7 +29,7 @@ export default async function EditAssetPage({ params }: PageProps) {
       prices: {
         orderBy: { createdAt: "desc" }
       },
-      customer: true,
+      landlord: true,
       assetPlaces: true
     }
   });

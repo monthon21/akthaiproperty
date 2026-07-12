@@ -108,9 +108,9 @@ export default function SearchBox({ currentLang, placeholder = "ค้นหา.
                       {item.address ? `${item.address} ` : ""}
                       {item.district} {item.province}
                     </span>
-                    {item.customer?.name && (
+                    {item.landlord?.name && (
                       <span className="text-[9px] text-accent font-bold bg-accent/10 px-1.5 py-0.5 rounded flex items-center gap-0.5">
-                        👤 เจ้าของ: {item.customer.name}
+                        👤 เจ้าของ: {item.landlord.name}
                       </span>
                     )}
                   </div>

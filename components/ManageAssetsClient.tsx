@@ -31,7 +31,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
       const projectMatch = asset.projectName?.toLowerCase().includes(q);
       const provinceMatch = asset.province?.toLowerCase().includes(q);
       const districtMatch = asset.district?.toLowerCase().includes(q);
-      const ownerMatch = asset.customer?.name?.toLowerCase().includes(q);
+      const ownerMatch = asset.landlord?.name?.toLowerCase().includes(q);
       const addressMatch = asset.address?.toLowerCase().includes(q);
       
       if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch && !ownerMatch && !addressMatch) {

@@ -138,8 +138,8 @@ model Asset {
 
   images     AssetImage[]
   prices     AssetPrice[]
-  customerId Int?
-  customer   Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  landlordId Int?
+  landlord   Landlord?    @relation(fields: [landlordId], references: [id], onDelete: SetNull)
 
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
@@ -207,22 +207,22 @@ model PasswordResetToken {
   @@unique([email, token])
 }
 
-model Customer {
+model Landlord {
   id            Int              @id @default(autoincrement())
   name          String
   phone         String?
   line          String?
   assets        Asset[]
-  details       CustomerDetails?
-  customerRoles CustomerRole[]
+  details       LandlordDetails?
+  landlordRoles LandlordRole[]
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 }
 
-model CustomerDetails {
+model LandlordDetails {
   id         Int      @id @default(autoincrement())
-  customerId Int      @unique
-  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  landlordId Int      @unique
+  landlord   Landlord @relation(fields: [landlordId], references: [id], onDelete: Cascade)
   fullname   String
   phone      String?
   idcard     String?
@@ -233,7 +233,7 @@ model CustomerDetails {
   updatedAt  DateTime @updatedAt
 }
 
-enum CustomerRoleType {
+enum LandlordRoleType {
   BUYER // ผู้ซื้อ
   SELLER // ผู้ขาย
   LANDLORD // เจ้าของทรัพย์
@@ -241,11 +241,11 @@ enum CustomerRoleType {
   OTHER // อื่นๆ
 }
 
-model CustomerRole {
+model LandlordRole {
   id         Int              @id @default(autoincrement())
-  customerId Int
-  customer   Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
-  role       CustomerRoleType
+  landlordId Int
+  landlord   Landlord         @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+  role       LandlordRoleType
   createdAt  DateTime         @default(now())
   updatedAt  DateTime         @updatedAt
 }

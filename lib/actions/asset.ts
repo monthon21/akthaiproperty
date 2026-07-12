@@ -122,46 +122,46 @@ export async function createAssetAction(input: AssetInput) {
       };
     }
 
-    // Handle customer info (find or create)
-    let customerId: number | null = null;
+    // Handle landlord info (find or create)
+    let landlordId: number | null = null;
     if (ownerName && ownerName.trim()) {
       const oName = ownerName.trim();
       const oPhone = ownerPhone?.trim() || null;
       const oLine = ownerLine?.trim() || null;
 
-      let existingCustomer = null;
+      let existingLandlord = null;
       if (oPhone) {
-        existingCustomer = await prisma.customer.findFirst({
+        existingLandlord = await prisma.landlord.findFirst({
           where: {
             name: oName,
             phone: oPhone,
           },
         });
       } else {
-        existingCustomer = await prisma.customer.findFirst({
+        existingLandlord = await prisma.landlord.findFirst({
           where: {
             name: oName,
           },
         });
       }
 
-      if (existingCustomer) {
-        customerId = existingCustomer.id;
-        if (oLine && !existingCustomer.line) {
-          await prisma.customer.update({
-            where: { id: customerId },
+      if (existingLandlord) {
+        landlordId = existingLandlord.id;
+        if (oLine && !existingLandlord.line) {
+          await prisma.landlord.update({
+            where: { id: landlordId },
             data: { line: oLine },
           });
         }
       } else {
-        const newCustomer = await prisma.customer.create({
+        const newLandlord = await prisma.landlord.create({
           data: {
             name: oName,
             phone: oPhone,
             line: oLine,
           },
         });
-        customerId = newCustomer.id;
+        landlordId = newLandlord.id;
       }
     }
 
@@ -201,7 +201,7 @@ export async function createAssetAction(input: AssetInput) {
         subdistrict,
         zipCode: zipCode || null,
         googleMap: googleMap || null,
-        customerId: customerId,
+        landlordId: landlordId,
         images: {
           create: images.map((img, idx) => ({
             imageUrl: img.imageUrl,
@@ -327,52 +327,52 @@ export async function updateAssetAction(id: string, input: AssetInput) {
       });
     }
 
-    // Handle customer info (find or create)
-    let customerId: number | null = null;
+    // Handle landlord info (find or create)
+    let landlordId: number | null = null;
     if (ownerName && ownerName.trim()) {
       const oName = ownerName.trim();
       const oPhone = ownerPhone?.trim() || null;
       const oLine = ownerLine?.trim() || null;
 
-      let existingCustomer = null;
+      let existingLandlord = null;
       if (oPhone) {
-        existingCustomer = await prisma.customer.findFirst({
+        existingLandlord = await prisma.landlord.findFirst({
           where: {
             name: oName,
             phone: oPhone,
           },
         });
       } else {
-        existingCustomer = await prisma.customer.findFirst({
+        existingLandlord = await prisma.landlord.findFirst({
           where: {
             name: oName,
           },
         });
       }
 
-      if (existingCustomer) {
-        customerId = existingCustomer.id;
+      if (existingLandlord) {
+        landlordId = existingLandlord.id;
         if (
-          existingCustomer.line !== oLine ||
-          existingCustomer.phone !== oPhone
+          existingLandlord.line !== oLine ||
+          existingLandlord.phone !== oPhone
         ) {
-          await prisma.customer.update({
-            where: { id: customerId },
+          await prisma.landlord.update({
+            where: { id: landlordId },
             data: {
-              phone: oPhone || existingCustomer.phone,
-              line: oLine || existingCustomer.line,
+              phone: oPhone || existingLandlord.phone,
+              line: oLine || existingLandlord.line,
             },
           });
         }
       } else {
-        const newCustomer = await prisma.customer.create({
+        const newLandlord = await prisma.landlord.create({
           data: {
             name: oName,
             phone: oPhone,
             line: oLine,
           },
         });
-        customerId = newCustomer.id;
+        landlordId = newLandlord.id;
       }
     }
 
@@ -417,7 +417,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
         subdistrict,
         zipCode: zipCode || null,
         googleMap: googleMap || null,
-        customerId: customerId,
+        landlordId: landlordId,
       },
     });
 
@@ -481,7 +481,7 @@ export async function getAssetAction(id: string) {
         prices: {
           orderBy: { createdAt: "desc" },
         },
-        customer: true,
+        landlord: true,
       },
     });
 
@@ -558,7 +558,7 @@ export async function getAllAssetsAction() {
           where: { isFeature: true },
           take: 1,
         },
-        customer: true,
+        landlord: true,
       },
     });
     const plainAssets = assets.map((a: any) => ({
@@ -689,12 +689,12 @@ export async function searchAssetSuggestionsAction(query: string) {
     if (canSearchOwner) {
       orConditions.push(
         {
-          customer: {
+          landlord: {
             name: { contains: query }
           }
         },
         {
-          customer: {
+          landlord: {
             details: {
               fullname: { contains: query }
             }
@@ -717,7 +717,7 @@ export async function searchAssetSuggestionsAction(query: string) {
         address: true,
         district: true,
         province: true,
-        customer: {
+        landlord: {
           select: {
             name: true,
           },
@@ -732,12 +732,12 @@ export async function searchAssetSuggestionsAction(query: string) {
   }
 }
 
-// 10. Search Customers for Owner autocomplete suggestions
-export async function searchCustomersAction(query: string) {
-  if (!query || query.length < 2) return { success: true, customers: [] };
+// 10. Search Landlords for Owner autocomplete suggestions
+export async function searchLandlordsAction(query: string) {
+  if (!query || query.length < 2) return { success: true, landlords: [] };
 
   try {
-    const customers = await prisma.customer.findMany({
+    const landlords = await prisma.landlord.findMany({
       where: {
         name: { contains: query },
       },
@@ -750,9 +750,9 @@ export async function searchCustomersAction(query: string) {
       },
     });
 
-    return { success: true, customers };
+    return { success: true, landlords };
   } catch (error: any) {
-    console.error("Error searching customers:", error);
+    console.error("Error searching landlords:", error);
     return {
       success: false,
       error: error.message || "เกิดข้อผิดพลาดในการค้นหาลูกค้า",

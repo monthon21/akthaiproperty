@@ -2,10 +2,10 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ManageCustomersClient from "@/components/ManageCustomersClient";
-import { getAllCustomersAction } from "@/lib/actions/customer";
+import ManageLandlordsClient from "@/components/ManageLandlordsClient";
+import { getAllLandlordsAction } from "@/lib/actions/landlord";
 
-export default async function ManageCustomersPage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
+export default async function ManageLandlordsPage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
   
   // Handle both Next.js 14 (sync params) and 15 (async params)
@@ -21,16 +21,16 @@ export default async function ManageCustomersPage({ params }: { params: Promise<
     redirect(`/${lang}/manage`);
   }
 
-  // Fetch all customers/owners from DB
-  const { success, customers, error } = await getAllCustomersAction();
+  // Fetch all landlords/owners from DB
+  const { success, landlords, error } = await getAllLandlordsAction();
   
   return (
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
         <div className="max-w-6xl mx-auto px-6">
-          <ManageCustomersClient 
-            initialCustomers={success ? JSON.parse(JSON.stringify(customers || [])) : []} 
+          <ManageLandlordsClient 
+            initialLandlords={success ? JSON.parse(JSON.stringify(landlords || [])) : []} 
             currentLang={lang} 
             errorMsg={error || ""}
           />

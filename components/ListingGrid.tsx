@@ -195,12 +195,12 @@ export default async function ListingGrid({
     if (canSearchOwner) {
       orConditions.push(
         {
-          customer: {
+          landlord: {
             name: { contains: queryTerm }
           }
         },
         {
-          customer: {
+          landlord: {
             details: {
               fullname: { contains: queryTerm }
             }
@@ -214,7 +214,7 @@ export default async function ListingGrid({
 
   if (ownerName && ownerName.trim() && canSearchOwner) {
     const ownerTerm = ownerName.trim();
-    whereConditions.customer = {
+    whereConditions.landlord = {
       OR: [
         { name: { contains: ownerTerm } },
         {

@@ -12,15 +12,15 @@ async function checkAdminSession() {
   return { authorized: true };
 }
 
-// 1. Get all customers
-export async function getAllCustomersAction() {
+// 1. Get all landlords
+export async function getAllLandlordsAction() {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
     return { success: false, error: authCheck.error };
   }
 
   try {
-    const customers = await prisma.customer.findMany({
+    const landlords = await prisma.landlord.findMany({
       orderBy: { createdAt: "desc" },
       include: {
         details: true,
@@ -36,23 +36,23 @@ export async function getAllCustomersAction() {
         }
       }
     });
-    return { success: true, customers };
+    return { success: true, landlords };
   } catch (error: any) {
-    console.error("Error getting all customers:", error);
+    console.error("Error getting all landlords:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการดึงข้อมูลเจ้าของทรัพย์" };
   }
 }
 
-// 2. Get details for a specific customer
-export async function getCustomerDetailsAction(customerId: number) {
+// 2. Get details for a specific landlord
+export async function getLandlordDetailsAction(landlordId: number) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
     return { success: false, error: authCheck.error };
   }
 
   try {
-    const customer = await prisma.customer.findUnique({
-      where: { id: customerId },
+    const landlord = await prisma.landlord.findUnique({
+      where: { id: landlordId },
       include: {
         details: true,
         assets: {
@@ -70,29 +70,29 @@ export async function getCustomerDetailsAction(customerId: number) {
       }
     });
 
-    if (!customer) {
+    if (!landlord) {
       return { success: false, error: "ไม่พบข้อมูลเจ้าของทรัพย์สินนี้" };
     }
 
-    const plainCustomer = {
-      ...customer,
-      assets: customer.assets.map((a: any) => ({
+    const plainLandlord = {
+      ...landlord,
+      assets: landlord.assets.map((a: any) => ({
         ...a,
         sellPrice: a.sellPrice ? Number(a.sellPrice) : null,
         loanPrice: a.loanPrice ? Number(a.loanPrice) : null,
       }))
     };
 
-    return { success: true, customer: plainCustomer };
+    return { success: true, landlord: plainLandlord };
   } catch (error: any) {
-    console.error("Error getting customer details:", error);
+    console.error("Error getting landlord details:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการดึงรายละเอียด" };
   }
 }
 
-// 3. Update customer details (upsert CustomerDetails & update Customer basic info)
-export async function updateCustomerDetailsAction(
-  customerId: number,
+// 3. Update landlord details (upsert LandlordDetails & update Landlord basic info)
+export async function updateLandlordDetailsAction(
+  landlordId: number,
   input: {
     name: string;
     phone?: string;
@@ -127,9 +127,9 @@ export async function updateCustomerDetailsAction(
   }
 
   try {
-    // 1. Update basic Customer record
-    const updatedCustomer = await prisma.customer.update({
-      where: { id: customerId },
+    // 1. Update basic Landlord record
+    const updatedLandlord = await prisma.landlord.update({
+      where: { id: landlordId },
       data: {
         name: name.trim(),
         phone: phone?.trim() || null,
@@ -137,9 +137,9 @@ export async function updateCustomerDetailsAction(
       }
     });
 
-    // 2. Upsert CustomerDetails record
-    const updatedDetails = await prisma.customerDetails.upsert({
-      where: { customerId: customerId },
+    // 2. Upsert LandlordDetails record
+    const updatedDetails = await prisma.landlordDetails.upsert({
+      where: { landlordId: landlordId },
       update: {
         fullname: fullname?.trim() || name.trim(),
         phone: detailPhone?.trim() || phone?.trim() || null,
@@ -149,7 +149,7 @@ export async function updateCustomerDetailsAction(
         address: address?.trim() || null
       },
       create: {
-        customerId: customerId,
+        landlordId: landlordId,
         fullname: fullname?.trim() || name.trim(),
         phone: detailPhone?.trim() || phone?.trim() || null,
         idcard: idcard?.trim() || null,
@@ -159,15 +159,15 @@ export async function updateCustomerDetailsAction(
       }
     });
 
-    return { success: true, customer: updatedCustomer, details: updatedDetails };
+    return { success: true, landlord: updatedLandlord, details: updatedDetails };
   } catch (error: any) {
-    console.error("Error updating customer details:", error);
+    console.error("Error updating landlord details:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการบันทึกข้อมูล" };
   }
 }
 
-// 4. Create new customer manually
-export async function createCustomerAction(
+// 4. Create new landlord manually
+export async function createLandlordAction(
   input: {
     name: string;
     phone?: string;
@@ -202,8 +202,8 @@ export async function createCustomerAction(
   }
 
   try {
-    // 1. Create basic Customer record
-    const newCustomer = await prisma.customer.create({
+    // 1. Create basic Landlord record
+    const newLandlord = await prisma.landlord.create({
       data: {
         name: name.trim(),
         phone: phone?.trim() || null,
@@ -211,10 +211,10 @@ export async function createCustomerAction(
       }
     });
 
-    // 2. Create CustomerDetails record
-    const newDetails = await prisma.customerDetails.create({
+    // 2. Create LandlordDetails record
+    const newDetails = await prisma.landlordDetails.create({
       data: {
-        customerId: newCustomer.id,
+        landlordId: newLandlord.id,
         fullname: fullname?.trim() || name.trim(),
         phone: detailPhone?.trim() || phone?.trim() || null,
         idcard: idcard?.trim() || null,
@@ -224,15 +224,15 @@ export async function createCustomerAction(
       }
     });
 
-    return { success: true, customer: newCustomer, details: newDetails };
+    return { success: true, landlord: newLandlord, details: newDetails };
   } catch (error: any) {
-    console.error("Error creating customer:", error);
+    console.error("Error creating landlord:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการสร้างข้อมูล" };
   }
 }
 
-// 5. Delete Customer
-export async function deleteCustomerAction(customerId: number) {
+// 5. Delete Landlord
+export async function deleteLandlordAction(landlordId: number) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
     return { success: false, error: authCheck.error };
@@ -240,16 +240,16 @@ export async function deleteCustomerAction(customerId: number) {
 
   try {
     // Will automatically cascade delete details because of:
-    // customer Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
-    // Assets will have customerId set to null because of:
-    // customer Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
-    await prisma.customer.delete({
-      where: { id: customerId }
+    // landlord Landlord @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+    // Assets will have landlordId set to null because of:
+    // landlord Landlord? @relation(fields: [landlordId], references: [id], onDelete: SetNull)
+    await prisma.landlord.delete({
+      where: { id: landlordId }
     });
 
     return { success: true };
   } catch (error: any) {
-    console.error("Error deleting customer:", error);
+    console.error("Error deleting landlord:", error);
     return { success: false, error: error.message || "เกิดข้อผิดพลาดในการลบข้อมูล" };
   }
 }
