@@ -272,3 +272,26 @@ model ProjectTemplatePlace {
   sortOrder  Int             @default(0)
   createdAt  DateTime        @default(now())
 }
+
+model BlogPost {
+  id          Int   @id @default(autoincrement())
+  slug        String   @unique
+  imageUrl    String?
+  isPublished Boolean  @default(false)
+
+  // Thai
+  title       String
+  content     String   @db.Text
+
+  // English
+  titleEn     String?
+  contentEn   String?  @db.Text
+
+  // Chinese
+  titleZh     String?
+  contentZh   String?  @db.Text
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

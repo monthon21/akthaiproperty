@@ -8,7 +8,8 @@
     "profile": "个人资料",
     "contact": "联系我们",
     "login": "登录",
-    "logout": "退出登录"
+    "logout": "退出登录",
+    "blog": "博客"
   },
   "hero": {
     "badge": "AK 奢华典藏",

@@ -8,7 +8,8 @@
     "profile": "Profile",
     "contact": "Contact",
     "login": "Login",
-    "logout": "Logout"
+    "logout": "Logout",
+    "blog": "Blog"
   },
   "hero": {
     "badge": "AK Luxury Collection",

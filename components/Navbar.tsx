@@ -94,7 +94,7 @@ export default function Navbar() {
         </Link>
 
         {/* Desktop Menu */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden lg:flex items-center gap-8">
           <Link href={`/${currentLang}`} className="font-alt font-medium text-sm tracking-widest text-white/70 hover:text-accent transition-colors duration-300">
             {t("navbar.home")}
           </Link>
@@ -106,6 +106,9 @@ export default function Navbar() {
           </Link>
           <Link href={`/${currentLang}/loan`} className="font-alt font-medium text-sm tracking-widest text-white/70 hover:text-accent transition-colors duration-300">
             {t("navbar.loan")}
+          </Link>
+          <Link href={`/${currentLang}/blog`} className="font-alt font-medium text-sm tracking-widest text-white/70 hover:text-accent transition-colors duration-300">
+            {t("navbar.blog")}
           </Link>
 
           {session && (
@@ -124,6 +127,9 @@ export default function Navbar() {
                 <div className="absolute top-full right-0 mt-4 w-48 bg-[#112240] border border-white/10 rounded-xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 flex flex-col overflow-hidden before:absolute before:-top-4 before:left-0 before:w-full before:h-4">
                   <Link href={`/${currentLang}/manage`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
                     {currentLang === "th" ? "รายการทรัพย์" : currentLang === "zh" ? "房源管理" : "Manage Properties"}
+                  </Link>
+                  <Link href={`/${currentLang}/manage/blog`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
+                    {currentLang === "th" ? "จัดการบล็อก" : currentLang === "zh" ? "博客管理" : "Manage Blog"}
                   </Link>
                   <Link href={`/${currentLang}/myprofile`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
                     {t("navbar.profile")}
@@ -174,7 +180,7 @@ export default function Navbar() {
         </div>
 
         {/* Mobile Actions Container (Language switcher + Hamburger) */}
-        <div className="flex md:hidden items-center gap-2">
+        <div className="flex lg:hidden items-center gap-2">
           {!mobileMenuOpen && (
             <div className="flex items-center gap-1.5 mr-2">
               <button
@@ -234,7 +240,7 @@ export default function Navbar() {
 
       {/* Mobile Drawer Overlay */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center md:hidden transition-all duration-300 animate-fade-in">
+        <div className="fixed inset-0 bg-black/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center lg:hidden transition-all duration-300 animate-fade-in">
           <div className="flex flex-col items-center gap-8 text-center w-full max-w-xs px-6">
             <Link
               href={`/${currentLang}`}
@@ -264,6 +270,13 @@ export default function Navbar() {
             >
               {t("navbar.loan")}
             </Link>
+            <Link
+              href={`/${currentLang}/blog`}
+              onClick={() => setMobileMenuOpen(false)}
+              className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
+            >
+              {t("navbar.blog")}
+            </Link>
 
             {session && (
               <>
@@ -280,6 +293,13 @@ export default function Navbar() {
                   className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
                 >
                   {currentLang === "th" ? "รายการทรัพย์" : currentLang === "zh" ? "房源管理" : "Manage Properties"}
+                </Link>
+                <Link
+                  href={`/${currentLang}/manage/blog`}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
+                >
+                  {currentLang === "th" ? "จัดการบล็อก" : currentLang === "zh" ? "博客管理" : "Manage Blog"}
                 </Link>
                 <Link
                   href={`/${currentLang}/myprofile`}

@@ -34,7 +34,7 @@ export default function PropertyGallery({ gallery, title, id_string, sellPrice, 
         {/* Dynamic Tags */}
         <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">
           {sellPrice && (
-            <span className="px-3 py-1 bg-[#D4AF37] text-[#112240] text-[10px] md:text-xs font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-[#8B6508]">
+            <span className="px-3 py-1 bg-accent text-[#112240] text-[10px] md:text-xs font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-accent-dark">
               {lang === 'th' ? 'ขาย' : lang === 'zh' ? '出售' : 'Sale'}
             </span>
           )}
@@ -136,7 +136,7 @@ export default function PropertyGallery({ gallery, title, id_string, sellPrice, 
           <div className="absolute top-6 left-6 md:top-8 md:left-10 z-50 max-w-[70vw] md:max-w-[80vw]">
             <h2 className="text-white text-base md:text-2xl font-bold truncate drop-shadow-md">{title}</h2>
             {id_string && (
-              <p className="text-[#D4AF37] text-xs md:text-sm font-medium mt-1 uppercase tracking-widest drop-shadow-md">
+              <p className="text-accent text-xs md:text-sm font-medium mt-1 uppercase tracking-widest drop-shadow-md">
                 ID: {id_string}
               </p>
             )}

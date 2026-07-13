@@ -1189,7 +1189,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {/* Badge */}
                   <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
                     {simProp.sellPrice && (
-                      <span className="px-3 py-1 bg-[#D4AF37] text-[#112240] text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-[#8B6508]">
+                      <span className="px-3 py-1 bg-accent text-[#112240] text-[10px] font-alt font-black uppercase tracking-widest rounded-full shadow-lg border border-accent-dark">
                         {t("property_card.for_sale") || "ขาย"}
                       </span>
                     )}
@@ -1271,7 +1271,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               {/* Card Brand Header */}
               <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-[#D4AF37] rounded-full flex items-center justify-center text-slate-900 font-bold text-sm shrink-0 shadow-sm">
+                  <div className="w-10 h-10 bg-accent rounded-full flex items-center justify-center text-slate-900 font-bold text-sm shrink-0 shadow-sm">
                     AK
                   </div>
                   <div className="flex flex-col">
@@ -1322,11 +1322,11 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   {property.sellPrice || property.rentPrice ? (
                     <>
                       {/* Sell Price Box */}
-                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.sellPrice ? 'bg-[#D4AF37]/10 border-[#D4AF37]/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
-                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.sellPrice ? 'text-[#D4AF37]' : 'text-gray-400'}`}>
+                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.sellPrice ? 'bg-accent/10 border-accent/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
+                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.sellPrice ? 'text-accent' : 'text-gray-400'}`}>
                           {t("property_card.sell_price")}
                         </span>
-                        <div className={`text-[15px] font-black leading-none break-words ${property.sellPrice ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                        <div className={`text-[15px] font-black leading-none break-words ${property.sellPrice ? 'text-accent' : 'text-gray-300'}`}>
                           {property.sellPrice ? (
                             <>{property.sellPrice} <span className="text-[9px] font-bold text-gray-500 ml-0.5 whitespace-nowrap">THB</span></>
                           ) : (
@@ -1336,11 +1336,11 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       </div>
 
                       {/* Rent Price Box */}
-                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.rentPrice ? 'bg-[#D4AF37]/10 border-[#D4AF37]/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
-                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.rentPrice ? 'text-[#D4AF37]' : 'text-gray-400'}`}>
+                      <div className={`border rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px] ${property.rentPrice ? 'bg-accent/10 border-accent/30' : 'bg-gray-50 border-gray-100 opacity-60'}`}>
+                        <span className={`text-[8px] font-extrabold uppercase tracking-widest block mb-0.5 truncate ${property.rentPrice ? 'text-accent' : 'text-gray-400'}`}>
                           {t("property_card.rent_price")}
                         </span>
-                        <div className={`text-[15px] font-black leading-none break-words ${property.rentPrice ? 'text-[#D4AF37]' : 'text-gray-300'}`}>
+                        <div className={`text-[15px] font-black leading-none break-words ${property.rentPrice ? 'text-accent' : 'text-gray-300'}`}>
                           {property.rentPrice ? (
                             <>{property.rentPrice} <span className="text-[9px] font-bold text-gray-500 ml-0.5 whitespace-nowrap">THB/{currentLang === "th" ? "ด." : currentLang === "zh" ? "月" : "Mo"}</span></>
                           ) : (
@@ -1351,9 +1351,9 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                     </>
                   ) : (
                     /* Starts From Box (Fallback) */
-                    <div className="col-span-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px]">
-                      <span className="text-[8px] font-extrabold text-[#D4AF37] uppercase tracking-widest block mb-0.5 truncate">{t("property_card.starts_from")}</span>
-                      <div className="text-[15px] font-black text-[#D4AF37] leading-none break-words">{property.price}</div>
+                    <div className="col-span-2 bg-accent/10 border border-accent/30 rounded-lg px-2.5 py-2 flex flex-col justify-center min-w-0 min-h-[52px]">
+                      <span className="text-[8px] font-extrabold text-accent uppercase tracking-widest block mb-0.5 truncate">{t("property_card.starts_from")}</span>
+                      <div className="text-[15px] font-black text-accent leading-none break-words">{property.price}</div>
                     </div>
                   )}
                 </div>
@@ -1362,12 +1362,12 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 <div className="flex flex-wrap items-center gap-x-3 gap-y-2 pt-3 mt-2 border-t border-gray-100">
                   {property.id_string ? (
                     <div className="flex items-center gap-1.5">
-                      <div className="w-5 h-5 rounded bg-[#D4AF37]/20 flex items-center justify-center text-[#D4AF37] shrink-0">
+                      <div className="w-5 h-5 rounded bg-accent/20 flex items-center justify-center text-accent shrink-0">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5l-3.9 19.5m-2.1-19.5l-3.9 19.5" />
                         </svg>
                       </div>
-                      <span className="text-[11px] font-black text-[#D4AF37] leading-none uppercase">{property.id_string}</span>
+                      <span className="text-[11px] font-black text-accent leading-none uppercase">{property.id_string}</span>
                     </div>
                   ) : null}
 
@@ -1444,7 +1444,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                 {/* Contact Footer */}
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-full bg-[#D4AF37]/10 flex items-center justify-center text-[#D4AF37]">
+                    <div className="w-9 h-9 rounded-full bg-accent/10 flex items-center justify-center text-accent">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
                         <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
                       </svg>
