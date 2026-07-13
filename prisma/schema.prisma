@@ -274,7 +274,7 @@ model ProjectTemplatePlace {
 }
 
 model BlogPost {
-  id          Int   @id @default(autoincrement())
+  id          String   @id @default(cuid())
   slug        String   @unique
   imageUrl    String?
   isPublished Boolean  @default(false)

@@ -12,7 +12,7 @@ export default async function EditBlogPage({ params }: { params: Promise<{ lang:
   // Handle both Next.js 14 and 15
   const resolvedParams = await params;
   const lang = resolvedParams?.lang || "th";
-  const id = parseInt(resolvedParams?.id, 10);
+  const id = resolvedParams?.id;
 
   if (!session) {
     redirect("/login");

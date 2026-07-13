@@ -80,7 +80,7 @@ export async function createBlogPost(data: any) {
 export async function updateBlogPost(id: string, data: any) {
   try {
     const post = await prisma.blogPost.update({
-      where: { id: parseInt(id, 10) },
+      where: { id },
       data: {
         slug: data.slug,
         title: data.title,
@@ -109,7 +109,7 @@ export async function updateBlogPost(id: string, data: any) {
 export async function deleteBlogPost(id: string) {
   try {
     await prisma.blogPost.delete({
-      where: { id: parseInt(id, 10) },
+      where: { id },
     });
     
     revalidatePath("/blog");
