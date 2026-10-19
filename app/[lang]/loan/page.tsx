@@ -50,6 +50,7 @@ export default function LoanPage() {
                   src="/greeting/ak-greeting-03.jpg"
                   alt="Loan for Thai Expats"
                   fill
+                  sizes="(max-width: 1024px) 100vw, 600px"
                   className="object-cover object-top hover:scale-105 transition-transform duration-700"
                 />
               </div>

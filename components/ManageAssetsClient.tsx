@@ -200,7 +200,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     <div className="w-16 h-12 relative rounded-md overflow-hidden bg-black/50 border border-white/10">
                       {asset.images && asset.images.length > 0 ? (() => {
                         const featureImage = asset.images.find((img: any) => img.isFeature)?.imageUrl || asset.images[0].imageUrl;
-                        return <Image src={featureImage} alt={asset.code} fill className="object-cover" />;
+                        return <Image src={featureImage} alt={asset.code} fill sizes="64px" className="object-cover" />;
                       })() : (
                         <div className="w-full h-full flex items-center justify-center text-[8px] font-bold uppercase text-white/30 tracking-widest">No Image</div>
                       )}

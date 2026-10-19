@@ -66,7 +66,7 @@ export default function PropertyGallery({ gallery, title, id_string, sellPrice, 
                 alt={`${title} view ${idx + 1}`} 
                 fill 
                 priority={idx === 0}
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 67vw, 850px"
                 className="object-cover" 
               />
               <div className="absolute inset-0 bg-black/10 hover:bg-transparent transition-colors duration-500"></div>
@@ -156,6 +156,7 @@ export default function PropertyGallery({ gallery, title, id_string, sellPrice, 
               src={gallery[activeIndex]} 
               alt={`${title} lightbox view ${activeIndex + 1}`} 
               fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
               className="object-contain"
             />
             
