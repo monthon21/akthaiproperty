@@ -77,7 +77,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
         </div>
         
         <Link href={`/${lang}/property/list/${property.id_string}`}>
-          <h3 className="text-[15px] font-bold text-white leading-tight mb-2 group-hover:text-accent transition-colors line-clamp-2">
+          <h3 className="text-[13px] md:text-[15px] font-bold text-white leading-snug md:leading-tight mb-2 group-hover:text-accent transition-colors line-clamp-2">
             {property.title}
           </h3>
         </Link>
@@ -91,15 +91,16 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
         </p>
         
         {/* Prices */}
-        <div className="flex flex-wrap gap-2 mt-2 mb-4">
+        <div className="flex flex-wrap gap-2 mt-1 mb-2.5">
           {showSell && (
             <div className={`border rounded-lg px-3 py-2 flex flex-col min-w-[100px] flex-1 ${property.sellPrice ? 'bg-accent/10 border-accent/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-              <span className={`text-[9px] font-extrabold uppercase tracking-widest block mb-0.5 ${property.sellPrice ? 'text-accent' : 'text-white/40'}`}>
-                {dict.property_card.sell_price}
+              <span className={`text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-between gap-1.5 mb-1 ${property.sellPrice ? 'text-accent' : 'text-white/40'}`}>
+                <span>{dict.property_card.sell_price}</span>
+                {property.sellPrice && <span className="shrink-0 text-gray-500">THB</span>}
               </span>
-              <div className={`text-lg font-black leading-none ${property.sellPrice ? 'text-accent' : 'text-white/30'}`}>
+              <div className={`${String(property.sellPrice ?? '').length > 10 ? 'text-base' : 'text-lg'} font-black leading-none whitespace-nowrap ${property.sellPrice ? 'text-accent' : 'text-white/30'}`}>
                 {property.sellPrice ? (
-                  <>{property.sellPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB</span></>
+                  <>{property.sellPrice}</>
                 ) : (
                   <>-</>
                 )}
@@ -109,12 +110,13 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
           
           {showRent && (
             <div className={`border rounded-lg px-3 py-2 flex flex-col min-w-[100px] flex-1 ${property.rentPrice ? 'bg-accent/10 border-accent/30' : 'bg-white/5 border-white/5 opacity-50'}`}>
-              <span className={`text-[9px] font-extrabold uppercase tracking-widest block mb-0.5 ${property.rentPrice ? 'text-accent' : 'text-white/40'}`}>
-                {dict.property_card.rent_price}
+              <span className={`text-[8px] sm:text-[9px] font-extrabold uppercase tracking-wide sm:tracking-wider whitespace-nowrap flex items-center justify-between gap-1.5 mb-1 ${property.rentPrice ? 'text-accent' : 'text-white/40'}`}>
+                <span>{dict.property_card.rent_price}</span>
+                {property.rentPrice && <span className="shrink-0 text-gray-500">THB</span>}
               </span>
-              <div className={`text-lg font-black leading-none ${property.rentPrice ? 'text-accent' : 'text-white/30'}`}>
+              <div className={`${String(property.rentPrice ?? '').length > 10 ? 'text-base' : 'text-lg'} font-black leading-none whitespace-nowrap ${property.rentPrice ? 'text-accent' : 'text-white/30'}`}>
                 {property.rentPrice ? (
-                  <>{property.rentPrice} <span className="text-[10px] font-bold text-gray-500 ml-0.5">THB{dict.property_card.month.startsWith('/') ? dict.property_card.month : `/${dict.property_card.month}`}</span></>
+                  <>{property.rentPrice}</>
                 ) : (
                   <>-</>
                 )}
@@ -124,7 +126,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
         </div>
 
         {/* 6-icon grid */}
-        <div className="grid grid-cols-2 gap-3 pt-4 border-t border-white/5 mt-auto">
+        <div className="grid grid-cols-2 gap-x-3 gap-y-2.5 pt-2.5 border-t border-white/5">
           {property.beds !== undefined && property.beds !== null ? (
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-md bg-white/5 flex items-center justify-center text-accent shrink-0">

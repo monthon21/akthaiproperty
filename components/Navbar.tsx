@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { usePathname } from "next/navigation";
 import { getSessionAction, logoutAction } from "@/lib/actions/auth";
 import th from "@/lib/i18n/th.json";
@@ -15,6 +16,8 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [session, setSession] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // phones / tablets: the bar slides away while scrolling down and comes back on the first scroll up
+  const [hidden, setHidden] = useState(false);
   const pathname = usePathname();
 
   // Get current language from pathname segment
@@ -34,10 +37,21 @@ export default function Navbar() {
   };
 
   useEffect(() => {
+    let lastY = window.scrollY;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      const y = window.scrollY;
+      setScrolled(y > 20);
+      // Hide as soon as the page starts moving down, so the bar never sits on top of the first lines
+      // of content. Back at the very top (or bouncing there on iOS) it is always shown.
+      if (y <= 8) setHidden(false);
+      else if (y > lastY + 3) setHidden(true);
+      else if (y < lastY - 8) setHidden(false);
+      lastY = y;
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // the page may already be scrolled when this mounts (reload, back button, restored position):
+    // without this the bar stays see-through on top of the content until the next scroll
+    handleScroll();
 
     // Fetch session on mount
     async function fetchSession() {
@@ -77,9 +91,27 @@ export default function Navbar() {
       ? { path: "users", label: pick("จัดการผู้ใช้งาน", "用户管理", "Manage Users") }
       : { path: "blog", label: pick("จัดการบล็อก", "博客管理", "Manage Blog") };
 
+  useEffect(() => {
+    document.documentElement.toggleAttribute("data-nav-hidden", hidden && !mobileMenuOpen);
+    return () => document.documentElement.removeAttribute("data-nav-hidden");
+  }, [hidden, mobileMenuOpen]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [mobileMenuOpen]);
+
+  // never hide while the menu is open; larger screens (lg+) keep the bar at all times
+  const slideAway = hidden && !mobileMenuOpen;
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
+      data-slide-away={slideAway}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${slideAway ? "max-lg:-translate-y-full" : ""} ${scrolled
         ? "bg-primary-dark/95 backdrop-blur-md border-b border-accent/10 py-3.5 shadow-2xl"
         : "bg-transparent py-6"
         }`}
@@ -247,8 +279,13 @@ export default function Navbar() {
       </div>
 
       {/* Mobile Drawer Overlay */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 bg-black/95 backdrop-blur-lg z-40 flex flex-col justify-center items-center lg:hidden transition-all duration-300 animate-fade-in">
+      {/*
+        Rendered into <body>, not inside <nav>: once the page is scrolled the nav has a backdrop blur,
+        which makes it the box that "fixed" children are positioned in — the menu then got squeezed into
+        the height of the bar, on a see-through background.
+      */}
+      {mobileMenuOpen && createPortal(
+        <div className="fixed inset-0 bg-[#020C1B] z-40 flex flex-col justify-center items-center lg:hidden overflow-y-auto pt-24 pb-10 text-white">
           <div className="flex flex-col items-center gap-8 text-center w-full max-w-xs px-6">
             <Link
               href={`/${currentLang}`}
@@ -372,7 +409,22 @@ export default function Navbar() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
+      )}
+
+      {/* Phones / tablets: while the bar is slid away, the AK logo stays in the top-right corner as the menu button */}
+      {slideAway && createPortal(
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(true)}
+          aria-label={pick("เปิดเมนู", "打开菜单", "Open menu")}
+          className="menu-glow lg:hidden fixed right-3 z-50 w-10 h-10 rounded-full bg-primary-dark/90 border border-accent/70 backdrop-blur-sm flex items-center justify-center active:scale-95 transition-transform cursor-pointer"
+          style={{ top: "calc(env(safe-area-inset-top, 0px) + 8px)" }}
+        >
+          <Image src="/logo.png" alt="" width={26} height={26} className="object-contain" />
+        </button>,
+        document.body
       )}
     </nav>
   );

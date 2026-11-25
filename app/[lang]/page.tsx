@@ -107,30 +107,30 @@ export default async function Home({ params }: PageProps) {
         <Testimonials lang={lang} />
 
         {/* Final CTA Section */}
-        <section className="py-32 px-6 bg-primary relative overflow-hidden group">
+        <section className="py-12 md:py-32 px-6 bg-primary relative overflow-hidden group">
           {/* Animated decorative shapes */}
           <div className="absolute top-0 right-1/4 w-[600px] h-full bg-white/5 skew-x-12 transform -translate-y-1/2 group-hover:translate-x-10 transition-transform duration-1000"></div>
           
           <div className="max-w-7xl mx-auto text-center relative z-10">
-            <h2 className="text-sm font-bold text-white/50 uppercase tracking-[0.4em] mb-8">{dict.cta.subtitle}</h2>
-            <h3 className="text-4xl md:text-7xl font-black text-white mb-12 tracking-tighter leading-[0.9]">
+            <h2 className="text-[11px] md:text-sm font-bold text-white/50 uppercase tracking-[0.4em] mb-3 md:mb-8">{dict.cta.subtitle}</h2>
+            <h3 className="text-2xl md:text-7xl font-black text-white mb-4 md:mb-12 tracking-tight md:tracking-tighter leading-tight md:leading-[0.9]">
               {dict.cta.title_part1} <span className="text-white/40 italic">{dict.cta.title_italic}</span> <br className="hidden md:block" /> 
               {dict.cta.title_part2}
             </h3>
-            <p className="text-xl md:text-2xl text-white/70 mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
+            <p className="text-sm md:text-2xl text-white/70 mb-6 md:mb-16 max-w-2xl mx-auto font-medium leading-relaxed">
               {dict.cta.desc}
             </p>
             
-            <div className="flex flex-col sm:flex-row justify-center items-center gap-8">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-8">
               <Link 
                 href={`/${lang}/contact`} 
-                className="w-full sm:w-auto px-12 py-6 bg-accent text-white rounded-2xl text-lg font-black hover:bg-accent-dark hover:scale-110 transition-all shadow-2xl hover:shadow-accent/40 active:scale-95"
+                className="w-full sm:w-auto px-8 py-3.5 md:px-12 md:py-6 bg-accent text-white rounded-xl md:rounded-2xl text-sm md:text-lg font-black hover:bg-accent-dark md:hover:scale-110 transition-all shadow-2xl hover:shadow-accent/40 active:scale-95"
               >
                 {dict.cta.btn_contact}
               </Link>
-              <div className="flex flex-col text-left">
-                <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest mb-1">{dict.cta.call_now}</span>
-                <a href="tel:+66824448989" className="text-2xl font-black text-white hover:text-white/80 transition-colors">+66 82-444-8989</a>
+              <div className="flex flex-row items-baseline gap-2 md:flex-col md:items-start md:gap-0 text-left">
+                <span className="text-white/40 text-[10px] font-bold uppercase tracking-widest md:mb-1">{dict.cta.call_now}</span>
+                <a href="tel:+66824448989" className="text-lg md:text-2xl font-black text-white hover:text-white/80 transition-colors">+66 82-444-8989</a>
               </div>
             </div>
           </div>

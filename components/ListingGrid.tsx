@@ -151,7 +151,6 @@ export default async function ListingGrid({
   const session = await auth();
   const userRole = (session?.user as any)?.role;
   const canSearchOwner = userRole === "ADMIN" || userRole === "USER";
-  console.log("[ListingGrid Debug] session:", session, "userRole:", userRole, "canSearchOwner:", canSearchOwner, "searchQuery:", searchQuery);
 
   // Construct dynamic database query
   const whereConditions: any = {

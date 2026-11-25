@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Property } from "@/lib/properties";
 import PropertyGallery from "./PropertyGallery";
 import { formatNumber, formatLandSize, DATE_LOCALE } from "@/lib/format";
+import ListingCarousel from "@/components/ListingCarousel";
 import FormattedText from "./FormattedText";
 import { getSessionAction } from "@/lib/actions/auth";
 import SearchBox from "./SearchBox";
@@ -311,274 +312,9 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
     ? `${Math.round(priceNum / property.sqft).toLocaleString()} / Sq.M.`
     : `${Math.round((priceNum / property.sqft) / 1000)}k / Sq.M.`;
 
-  const quickMetricsContent = (
+  /** Jump links to the sections of the page (Overview / Features / Location / Contact) */
+  const sectionLinks = (
     <>
-      <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-      <div className="relative z-10 grid grid-cols-2 w-full md:w-fit gap-2 md:gap-4 items-stretch">
-        {property.sellPrice || property.rentPrice ? (
-          <>
-            {/* Sell Price */}
-            <div className={`min-w-0 border rounded-xl px-3 py-3 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.sellPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
-              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest block mb-1 truncate ${property.sellPrice ? 'text-accent/80' : 'text-white/40'}`}>
-                {t("property_card.sell_price")}
-              </span>
-              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.sellPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
-                {property.sellPrice ? (
-                  <>{property.sellPrice} <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span></>
-                ) : (
-                  <>-</>
-                )}
-              </div>
-            </div>
-            {/* Rent Price */}
-            <div className={`min-w-0 border rounded-xl px-3 py-3 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.rentPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
-              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest block mb-1 truncate ${property.rentPrice ? 'text-accent/80' : 'text-white/40'}`}>
-                {t("property_card.rent_price")}
-              </span>
-              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.rentPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
-                {property.rentPrice ? (
-                  <>
-                    {property.rentPrice}
-                    <div className="flex items-baseline gap-1">
-                      <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span>
-                      <span className="text-[10px] sm:text-xs md:text-sm font-normal text-white/60">{t("property_card.month")}</span>
-                    </div>
-                  </>
-                ) : (
-                  <>-</>
-                )}
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="col-span-2 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300 w-full">
-            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.starts_from")}</span>
-            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words">
-              {property.price} <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="hidden md:grid relative z-10 grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-6 lg:gap-x-8 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8 items-center content-center">
-        {property.beds !== undefined && property.beds !== null ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <Bed className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.beds_label")}</span>
-              <span className="text-sm font-black text-white leading-none">{property.beds} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
-            </div>
-          </div>
-        ) : null}
-
-        {property.baths !== undefined && property.baths !== null ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <Bath className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.baths_label")}</span>
-              <span className="text-sm font-black text-white leading-none">{property.baths} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
-            </div>
-          </div>
-        ) : null}
-
-        {property.sqft ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <Maximize className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.area_label")}</span>
-              <span className="text-sm font-black text-white leading-none">{property.sqft} <span className="text-[10px] font-bold text-white/70 ml-0.5">{t("property_detail.sqm")}</span></span>
-            </div>
-          </div>
-        ) : null}
-
-        {property.landSize ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
-              </svg>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.land_size")}</span>
-              <span className="text-sm font-black text-white leading-none">{formatLandSize(property.landSize, currentLang, property.landParts)}</span>
-            </div>
-          </div>
-        ) : null}
-
-        {property.parkingLot ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
-              </svg>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.parking_lot")}</span>
-              <span className="text-sm font-black text-white leading-none">{property.parkingLot} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "คัน" : currentLang === "zh" ? "车" : "Cars"}</span></span>
-            </div>
-          </div>
-        ) : null}
-
-        {property.facing ? (
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
-              <Compass className="w-5 h-5" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.facing")}</span>
-              <span className="text-sm font-black text-white leading-none">{translateFacing(property.facing)}</span>
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </>
-  );
-
-  return (
-    <main className="pt-32 md:pt-36 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
-
-      {/* Breadcrumbs & Search */}
-      <div className="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div className="text-[10px] font-alt tracking-widest text-white/40 flex flex-wrap items-center gap-2">
-          <Link href={`/${currentLang}`} className="hover:text-accent transition-colors uppercase">
-            {t("property_detail.home")}
-          </Link>
-          <span>/</span>
-          <span className="text-white/60 uppercase">{t("property_detail.property")}</span>
-          <span>/</span>
-          <span className="text-accent uppercase truncate max-w-[200px] sm:max-w-[400px] inline-block" title={property.title}>
-            {property.title}
-          </span>
-        </div>
-        <div className="w-full md:w-80 relative z-50">
-          <SearchBox
-            currentLang={currentLang}
-            placeholder={currentLang === "th" ? "รหัสทรัพย์, ทำเล, ชื่อโครงการ..." : "ID, Location, Project..."}
-            buttonText={currentLang === "en" ? "Search" : currentLang === "zh" ? "搜索" : "ค้นหา"}
-          />
-        </div>
-      </div>
-
-      {/* Top Fold Title Block & Pricing Metrics */}
-      <div className="max-w-7xl mx-auto px-6 py-8 mb-8 space-y-6">
-        {/* Title and ID (Full Width) */}
-        <div className="w-full">
-          <div className="flex items-center gap-2.5 mb-4 flex-wrap">
-            <span className="px-3 py-1 bg-accent/10 text-accent border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.1)]">
-              {property.sellPrice && property.rentPrice
-                ? t("property_card.for_sale_rent")
-                : property.sellPrice
-                  ? t("property_card.for_sale")
-                  : property.rentPrice
-                    ? t("property_card.for_rent")
-                    : property.type}
-            </span>
-            <span className="px-3 py-1 bg-white/5 text-white/70 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">
-              {property.category}
-            </span>
-            <span className="px-3 py-1 bg-white/5 text-white/70 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
-              Available
-            </span>
-          </div>
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/50 mb-5 leading-tight w-full">
-            {property.title}
-          </h1>
-          {property.projectName && (
-            <h2 className="text-xl md:text-2xl font-bold tracking-tight text-accent mb-4 leading-snug w-full">
-              {property.projectName}
-            </h2>
-          )}
-          <div className="flex items-center gap-4 text-white/50 text-sm font-medium tracking-wide flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4 text-accent">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
-              </svg>
-              {property.location} {property.zipCode ? property.zipCode : ""}
-            </div>
-            <span className="w-1 h-1 rounded-full bg-white/20"></span>
-            <div className="flex items-center gap-1.5 text-accent/80 font-mono">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5.25 8.25h15m-16.5 7.5h15m-1.8-13.5-3.9 19.5m-2.1-19.5-3.9 19.5" />
-              </svg>
-              ID: {property.id_string}
-            </div>
-
-            {shareUrl && (
-              <>
-                <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <div className="flex items-center gap-2">
-                  <FacebookShareButton url={shareUrl} className="hover:scale-110 transition-transform active:scale-95">
-                    <FacebookIcon size={20} round />
-                  </FacebookShareButton>
-                  <FacebookMessengerShareButton url={shareUrl} appId="" className="hover:scale-110 transition-transform active:scale-95">
-                    <FacebookMessengerIcon size={20} round />
-                  </FacebookMessengerShareButton>
-                  <TwitterShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
-                    <XIcon size={20} round />
-                  </TwitterShareButton>
-                  <LineShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
-                    <LineIcon size={20} round />
-                  </LineShareButton>
-                  <button 
-                    onClick={handleShareLink} 
-                    className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 transition-all active:scale-95"
-                    title={copied ? "Copied!" : "Copy Link"}
-                  >
-                    {copied ? <Check size={12} className="text-green-400" /> : <LinkIcon size={12} />}
-                  </button>
-                </div>
-
-              </>
-            )}
-
-            {/* 
-            <span className="w-1 h-1 rounded-full bg-white/20"></span>
-            <button
-              type="button"
-              onClick={() => setShowShareModal(true)}
-              className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary-dark uppercase tracking-wider transition-all duration-300 bg-accent hover:bg-accent-dark px-3 py-1.5 rounded-md shadow-md hover:shadow-accent/20 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer animate-fade-in"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3-3m0 0 3 3m-3-3V1.5" />
-              </svg>
-              {currentLang === "th" ? "แชร์การ์ดข้อมูล" : currentLang === "zh" ? "分享卡片" : "Share Card"}
-            </button>
-            */}
-            {session && (
-              <>
-                <span className="w-1 h-1 rounded-full bg-white/20"></span>
-                <Link
-                  href={`/edit/${property.code || property.id}`}
-                  className="inline-flex items-center gap-1.5 text-[10px] font-bold text-accent hover:text-white uppercase tracking-wider transition-colors border border-accent/20 px-2.5 py-1 rounded-md bg-accent/5 hover:bg-accent/10"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
-                  </svg>
-                  แก้ไขข้อมูล
-                </Link>
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* Quick Metrics Bar (Desktop) */}
-        <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
-          {quickMetricsContent}
-        </div>
-      </div>
-
-      {/* Sub-Navigation Anchor Menu */}
-      <div className="sticky top-[72px] bg-[#0A192F]/95 backdrop-blur-md z-30 border-y border-white/5 py-3 mb-8">
-        <div className="max-w-7xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar py-1">
           <a href="#overview" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
             {currentLang === "th" ? "ภาพรวม" : currentLang === "zh" ? "概览" : "Overview"}
           </a>
@@ -593,42 +329,12 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
           <a href="#contact" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
             {currentLang === "th" ? "ติดต่อ" : currentLang === "zh" ? "联系" : "Contact"}
           </a>
-        </div>
-      </div>
+    </>
+  );
 
-      {/* Main Content Layout */}
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
-
-          {/* LEFT COLUMN: Gallery, About, Amenities, Map */}
-          <div className="lg:col-span-2 space-y-12">
-
-            {/* Gallery slideshow */}
-            <div className="w-full">
-              <PropertyGallery 
-                gallery={property.gallery} 
-                title={property.title} 
-                id_string={property.id_string}
-                sellPrice={property.sellPrice}
-                rentPrice={property.rentPrice}
-                type={property.type}
-                lang={currentLang}
-              />
-            </div>
-
-            {/* Quick Metrics Bar (Mobile) */}
-            <div className="flex md:hidden flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
-              {quickMetricsContent}
-            </div>
-
-            {/* About this House */}
-            <section id="overview" className="scroll-mt-36 pt-4 space-y-4">
-              <h2 className="text-lg font-bold text-white tracking-wide border-l-2 border-accent pl-3">
-                {currentLang === "th" ? "ข้อมูลอสังหาริมทรัพย์" : currentLang === "zh" ? "关于此房产" : "About this Property"}
-              </h2>
-              <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
-                {/* Detailed Specs Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-white/5">
+  /** Every spec of the listing (rooms, sizes, floors, parking, facing, industrial specs…) as tiles */
+  const specTiles = (
+    <>
                   {property.specs?.map((sp) => (
                     <div key={sp.key} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
@@ -776,6 +482,326 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       </div>
                     </div>
                   ) : null}
+    </>
+  );
+
+  const quickMetricsContent = (
+    <>
+      <div className="absolute inset-0 bg-gradient-to-r from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+      <div className="relative z-10 grid grid-cols-2 w-full md:w-fit gap-2 md:gap-4 items-stretch">
+        {property.sellPrice || property.rentPrice ? (
+          <>
+            {/* Sell Price */}
+            <div className={`min-w-0 border rounded-xl px-3 py-1.5 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.sellPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
+              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest flex items-center justify-between gap-2 mb-0.5 md:mb-1 ${property.sellPrice ? 'text-accent/80' : 'text-white/40'}`}>
+                <span className="truncate">{t("property_card.sell_price")}</span>
+                {property.sellPrice && <span className="md:hidden shrink-0 text-accent/60">THB</span>}
+              </span>
+              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.sellPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
+                {property.sellPrice ? (
+                  <>{property.sellPrice} <span className="hidden md:inline text-base font-bold text-accent/70 uppercase">THB</span></>
+                ) : (
+                  <>-</>
+                )}
+              </div>
+            </div>
+            {/* Rent Price */}
+            <div className={`min-w-0 border rounded-xl px-3 py-1.5 md:px-6 md:py-4 flex flex-col transition-all duration-300 ${property.rentPrice ? 'bg-accent/[0.04] border-accent/30 hover:border-accent/50 hover:bg-accent/[0.06] shadow-[0_0_20px_rgba(212,175,55,0.08)]' : 'bg-white/5 border-white/10 opacity-50'}`}>
+              <span className={`text-[9px] md:text-[10px] font-extrabold uppercase tracking-widest flex items-center justify-between gap-2 mb-0.5 md:mb-1 ${property.rentPrice ? 'text-accent/80' : 'text-white/40'}`}>
+                <span className="truncate">{t("property_card.rent_price")}</span>
+                {property.rentPrice && <span className="md:hidden shrink-0 text-accent/60">THB</span>}
+              </span>
+              <div className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words ${property.rentPrice ? 'text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)]' : 'text-white/30'}`}>
+                {property.rentPrice ? (
+                  <>
+                    {property.rentPrice}
+                    <span className="hidden md:inline text-base font-bold text-accent/70 uppercase">THB</span>
+                  </>
+                ) : (
+                  <>-</>
+                )}
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="col-span-2 min-w-0 bg-accent/[0.04] border border-accent/30 rounded-xl px-3 py-3 md:px-6 md:py-4 shadow-[0_0_20px_rgba(212,175,55,0.08)] flex flex-col hover:border-accent/50 hover:bg-accent/[0.06] transition-all duration-300 w-full">
+            <span className="text-[9px] md:text-[10px] font-extrabold text-accent/80 uppercase tracking-widest block mb-1 truncate">{t("property_card.starts_from")}</span>
+            <div className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-accent drop-shadow-[0_2px_10px_rgba(0,0,0,0.4)] leading-none flex flex-wrap items-baseline gap-1 md:gap-1.5 break-words">
+              {property.price} <span className="text-xs sm:text-sm md:text-base font-bold text-accent/70 uppercase">THB</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Phones: all specs right under the prices, as plain rows (no boxes inside the box) */}
+      <div className="md:hidden relative z-10 grid grid-cols-2 gap-x-3 gap-y-2.5 pt-2.5 border-t border-white/10 [&>div]:bg-transparent [&>div]:border-0 [&>div]:p-0 [&>div]:shadow-none [&>div]:rounded-none [&>div]:gap-2 [&>div>div:first-child]:w-7 [&>div>div:first-child]:h-7 [&>div>div:first-child_svg]:w-4 [&>div>div:first-child_svg]:h-4">
+        {specTiles}
+      </div>
+
+      <div className="hidden md:grid relative z-10 grid-cols-2 xl:grid-cols-3 gap-y-4 gap-x-6 lg:gap-x-8 pt-5 md:pt-0 border-t md:border-t-0 md:border-l border-white/10 md:pl-8 items-center content-center">
+        {property.beds !== undefined && property.beds !== null ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Bed className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.beds_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.beds} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.baths !== undefined && property.baths !== null ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Bath className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.baths_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.baths} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "ห้อง" : currentLang === "zh" ? "间" : "Rooms"}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.sqft ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Maximize className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.area_label")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.sqft} <span className="text-[10px] font-bold text-white/70 ml-0.5">{t("property_detail.sqm")}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.landSize ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.land_size")}</span>
+              <span className="text-sm font-black text-white leading-none">{formatLandSize(property.landSize, currentLang, property.landParts)}</span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.parkingLot ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 0 1-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m3 0h1.125c.621 0 1.129-.504 1.129-1.125V14.25M3 14.25h18M4.5 14.25l1.687-3.374a2.25 2.25 0 0 1 2.013-1.246h7.6c.866 0 1.636.49 2.013 1.246l1.687 3.374M2.25 5.25h19.5" />
+              </svg>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.parking_lot")}</span>
+              <span className="text-sm font-black text-white leading-none">{property.parkingLot} <span className="text-[10px] font-bold text-white/70 ml-0.5">{currentLang === "th" ? "คัน" : currentLang === "zh" ? "车" : "Cars"}</span></span>
+            </div>
+          </div>
+        ) : null}
+
+        {property.facing ? (
+          <div className="flex items-center gap-2.5">
+            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-accent shrink-0">
+              <Compass className="w-5 h-5" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.facing")}</span>
+              <span className="text-sm font-black text-white leading-none">{translateFacing(property.facing)}</span>
+            </div>
+          </div>
+        ) : null}
+      </div>
+    </>
+  );
+
+  return (
+    <main className="pt-28 md:pt-36 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
+
+      {/* Breadcrumbs & Search — not on phones, so the title, photo and price fit on the first screen */}
+      <div className="hidden md:flex max-w-7xl mx-auto px-6 py-4 flex-row justify-between items-center gap-4">
+        <div className="text-[10px] font-alt tracking-widest text-white/40 flex flex-wrap items-center gap-2">
+          <Link href={`/${currentLang}`} className="hover:text-accent transition-colors uppercase">
+            {t("property_detail.home")}
+          </Link>
+          <span>/</span>
+          <span className="text-white/60 uppercase">{t("property_detail.property")}</span>
+          <span>/</span>
+          <span className="text-accent uppercase truncate max-w-[200px] sm:max-w-[400px] inline-block" title={property.title}>
+            {property.title}
+          </span>
+        </div>
+        <div className="w-full md:w-80 relative z-50">
+          <SearchBox
+            currentLang={currentLang}
+            placeholder={currentLang === "th" ? "รหัสทรัพย์, ทำเล, ชื่อโครงการ..." : "ID, Location, Project..."}
+            buttonText={currentLang === "en" ? "Search" : currentLang === "zh" ? "搜索" : "ค้นหา"}
+          />
+        </div>
+      </div>
+
+      {/* Top Fold Title Block & Pricing Metrics */}
+      <div className="max-w-7xl mx-auto px-6 pt-3 pb-4 md:py-8 md:mb-8 md:space-y-6">
+        {/* Title and ID (Full Width) */}
+        <div className="w-full">
+          <div className="flex items-center gap-2 md:gap-2.5 mb-2 md:mb-4 flex-wrap">
+            <span className="px-3 py-1 bg-accent/10 text-accent border border-accent/20 rounded-full text-[10px] font-black uppercase tracking-widest shadow-[0_0_15px_rgba(212,175,55,0.1)]">
+              {property.sellPrice && property.rentPrice
+                ? t("property_card.for_sale_rent")
+                : property.sellPrice
+                  ? t("property_card.for_sale")
+                  : property.rentPrice
+                    ? t("property_card.for_rent")
+                    : property.type}
+            </span>
+            <span className="px-3 py-1 bg-white/5 text-white/70 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">
+              {property.category}
+            </span>
+            <span className="px-3 py-1 bg-white/5 text-white/70 border border-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.6)] animate-pulse"></span>
+              Available
+            </span>
+          </div>
+          <h1 className="text-lg md:text-4xl lg:text-5xl font-semibold md:font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-white via-white/90 to-white/50 mb-1.5 md:mb-5 leading-snug md:leading-tight w-full">
+            {property.title}
+          </h1>
+          {property.projectName && (
+            <h2 className="text-base md:text-2xl font-bold tracking-tight text-accent mb-2 md:mb-4 leading-snug w-full">
+              {property.projectName}
+            </h2>
+          )}
+          <div className="flex items-center gap-x-3 md:gap-x-4 gap-y-2 text-white/50 text-xs md:text-sm font-medium tracking-wide flex-wrap">
+            <div className="basis-full md:basis-auto flex items-center gap-1 md:gap-1.5 text-[11px] md:text-sm">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3 h-3 md:w-4 md:h-4 shrink-0 text-accent">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+              </svg>
+              {property.location} {property.zipCode ? property.zipCode : ""}
+            </div>
+            <span className="hidden md:block w-1 h-1 rounded-full bg-white/20"></span>
+            {/* same gold pill as on the listing cards */}
+            <span className="text-[11px] md:text-xs font-alt font-bold text-accent uppercase tracking-widest bg-accent/10 border border-accent/30 px-2.5 py-1 rounded-full leading-none whitespace-nowrap">
+              ID: {property.id_string}
+            </span>
+
+            {shareUrl && (
+              <>
+                <span className="hidden md:block w-1 h-1 rounded-full bg-white/20"></span>
+                <div className="flex items-center gap-2">
+                  <FacebookShareButton url={shareUrl} className="hover:scale-110 transition-transform active:scale-95">
+                    <FacebookIcon size={20} round />
+                  </FacebookShareButton>
+                  <FacebookMessengerShareButton url={shareUrl} appId="" className="hover:scale-110 transition-transform active:scale-95">
+                    <FacebookMessengerIcon size={20} round />
+                  </FacebookMessengerShareButton>
+                  <TwitterShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
+                    <XIcon size={20} round />
+                  </TwitterShareButton>
+                  <LineShareButton url={shareUrl} title={property.title} className="hover:scale-110 transition-transform active:scale-95">
+                    <LineIcon size={20} round />
+                  </LineShareButton>
+                  <button 
+                    onClick={handleShareLink} 
+                    className="w-5 h-5 rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center hover:scale-110 transition-all active:scale-95"
+                    title={copied ? "Copied!" : "Copy Link"}
+                  >
+                    {copied ? <Check size={12} className="text-green-400" /> : <LinkIcon size={12} />}
+                  </button>
+                </div>
+
+              </>
+            )}
+
+            {/* 
+            <span className="hidden md:block w-1 h-1 rounded-full bg-white/20"></span>
+            <button
+              type="button"
+              onClick={() => setShowShareModal(true)}
+              className="inline-flex items-center gap-1.5 text-[10px] font-black text-primary-dark uppercase tracking-wider transition-all duration-300 bg-accent hover:bg-accent-dark px-3 py-1.5 rounded-md shadow-md hover:shadow-accent/20 transform hover:-translate-y-0.5 active:scale-95 cursor-pointer animate-fade-in"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3.5 h-3.5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M7.5 7.5h-.75A2.25 2.25 0 0 0 4.5 9.75v7.5a2.25 2.25 0 0 0 2.25 2.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-7.5a2.25 2.25 0 0 0-2.25-2.25h-.75m-6 3.75 3-3m0 0 3 3m-3-3V1.5" />
+              </svg>
+              {currentLang === "th" ? "แชร์การ์ดข้อมูล" : currentLang === "zh" ? "分享卡片" : "Share Card"}
+            </button>
+            */}
+            {session && (
+              <>
+                <span className="hidden md:block w-1 h-1 rounded-full bg-white/20"></span>
+                {/* phones: a round icon button in the same row as the share icons; md and up: icon + text */}
+                <Link
+                  href={`/edit/${property.code || property.id}`}
+                  title="แก้ไขข้อมูล"
+                  aria-label="แก้ไขข้อมูล"
+                  className="inline-flex items-center justify-center gap-1.5 w-7 h-7 md:w-auto md:h-auto rounded-full md:rounded-md md:px-2.5 md:py-1 text-[10px] font-bold text-accent hover:text-white uppercase tracking-wider transition-colors border border-accent/30 md:border-accent/20 bg-accent/10 md:bg-accent/5 hover:bg-accent/10"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-3.5 h-3.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+                  </svg>
+                  <span className="hidden md:inline">แก้ไขข้อมูล</span>
+                </Link>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Quick Metrics Bar (Desktop) */}
+        <div className="hidden md:flex flex-col md:flex-row md:items-center justify-between gap-6 bg-white/[0.03] border border-white/10 rounded-2xl p-6 lg:p-7 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
+          {quickMetricsContent}
+        </div>
+      </div>
+
+      {/* Sub-Navigation Anchor Menu (md and up; on phones it sits under the price box, see below) */}
+      <div className="below-nav hidden md:block sticky top-[91px] bg-[#0A192F]/95 backdrop-blur-md z-30 border-y border-white/5 py-3 mb-8">
+        <div className="max-w-7xl mx-auto px-6 flex items-center gap-6 overflow-x-auto no-scrollbar py-1">
+          {sectionLinks}
+        </div>
+      </div>
+
+      {/* Main Content Layout */}
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-start">
+
+          {/* LEFT COLUMN: Gallery, About, Amenities, Map */}
+          <div className="lg:col-span-2 space-y-8 md:space-y-12">
+
+            {/* Gallery slideshow (phones: the price box follows closely) */}
+            <div className="w-full mb-4 md:mb-12">
+              <PropertyGallery 
+                gallery={property.gallery} 
+                title={property.title} 
+                id_string={property.id_string}
+                sellPrice={property.sellPrice}
+                rentPrice={property.rentPrice}
+                type={property.type}
+                lang={currentLang}
+              />
+            </div>
+
+            {/* Quick Metrics Bar (Mobile) */}
+            <div className="flex md:hidden flex-col justify-between gap-2.5 bg-white/[0.03] border border-white/10 rounded-2xl px-3 py-2.5 w-full shadow-2xl backdrop-blur-sm relative overflow-hidden group">
+              {quickMetricsContent}
+            </div>
+
+            {/* Section tabs (phones): under the price box; sticks to the top of the screen while reading on */}
+            <div className="below-nav md:hidden sticky top-[91px] z-30 -mx-6 px-6 bg-[#0A192F]/95 backdrop-blur-md border-y border-white/5 py-2">
+              <div className="flex items-center gap-6 overflow-x-auto no-scrollbar py-1">{sectionLinks}</div>
+            </div>
+
+            {/* About this House */}
+            <section id="overview" className="scroll-mt-36 pt-4 space-y-4">
+              <h2 className="text-lg font-bold text-white tracking-wide border-l-2 border-accent pl-3">
+                {currentLang === "th" ? "ข้อมูลอสังหาริมทรัพย์" : currentLang === "zh" ? "关于此房产" : "About this Property"}
+              </h2>
+              <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
+                {/* Detailed Specs Grid */}
+                {/* Detailed specs — on phones these sit inside the price box at the top instead */}
+                <div className="hidden md:grid grid-cols-3 gap-4 border-white/5">
+                  {specTiles}
                 </div>
 
                 <div className="pt-4 border-t border-white/5">
@@ -819,10 +845,10 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <h2 className="text-lg font-bold text-white tracking-wide border-l-2 border-accent pl-3">
                 {currentLang === "th" ? "สิ่งอำนวยความสะดวก" : currentLang === "zh" ? "设施与特点" : "Amenities & Features"}
               </h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-12 bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="grid grid-cols-2 gap-y-1 sm:gap-y-4 gap-x-5 sm:gap-x-12 bg-white/5 border border-white/10 rounded-xl p-4 sm:p-6">
                 {property.facilities.map((fac, idx) => (
-                  <div key={idx} className="flex justify-between items-center py-2.5 border-b border-white/5 last:border-0">
-                    <span className="text-xs font-semibold text-white/80">{fac}</span>
+                  <div key={idx} className="flex justify-between items-center gap-2 py-2.5 border-b border-white/5">
+                    <span className="text-xs font-semibold text-white/80 leading-snug">{fac}</span>
                     <div className="w-5 h-5 rounded-full bg-accent/20 flex items-center justify-center text-accent shrink-0">
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={3} stroke="currentColor" className="w-3 h-3">
                         <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
@@ -857,11 +883,11 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
                     {currentLang === "th" ? "สถานที่ใกล้เคียง (Nearby Places)" : currentLang === "zh" ? "附近地点" : "Nearby Places"}
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4">
                     {property.nearbyPlaces.map((place, idx) => (
-                      <div key={idx} className="flex justify-between items-center p-4 bg-black/20 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
+                      <div key={idx} className="flex justify-between items-center px-4 py-3 sm:p-4 bg-black/20 border border-white/5 rounded-xl hover:bg-white/5 transition-colors">
                         <span className="text-xs font-semibold text-white">{place.placeName}</span>
-                        <div className="text-right">
+                        <div className="text-right whitespace-nowrap shrink-0 pl-3">
                           {place.distance && (
                             <span className="block text-xs md:text-sm font-black tracking-wider text-accent">
                               {currentLang === "en" ? place.distance.replace("กิโลเมตร", "km").replace("เมตร", "m") :
@@ -1219,17 +1245,18 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
         </div>
 
         {/* BOTTOM SECTION: Similar Listings */}
-        {similarProperties.length >= 3 && (
-          <section className="mt-20 border-t border-white/5 pt-16 space-y-8">
+        {similarProperties.length > 0 && (
+          <section className="mt-12 md:mt-20 border-t border-white/5 pt-10 md:pt-16 space-y-5 md:space-y-8">
             <h2 className="text-xl font-bold text-white tracking-wide border-l-2 border-accent pl-3">
               Similar Listings
             </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* same carousel as the home page: swipe on phones (side arrows + counter), arrow buttons on larger screens */}
+            <ListingCarousel>
               {similarProperties.map((simProp) => (
                 <Link
                   key={simProp.id}
                   href={`/${currentLang}/property/list/${simProp.id_string}`}
-                  className="group relative rounded-xl overflow-hidden aspect-4/3 border border-white/10 shadow-2xl flex flex-col justify-end p-6 bg-black/40"
+                  className="group relative w-full rounded-xl overflow-hidden aspect-4/3 border border-white/10 shadow-2xl flex flex-col justify-end p-4 md:p-6 bg-black/40"
                 >
                   {/* Badge */}
                   <div className="absolute top-4 left-4 z-10 flex flex-wrap gap-2">
@@ -1263,8 +1290,8 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/45 to-transparent z-1"></div>
 
                   {/* Content */}
-                  <div className="relative z-10 flex justify-between items-end w-full">
-                    <div className="space-y-1 min-w-0 flex-1 pr-2">
+                  <div className="relative z-10 flex flex-col items-start gap-1.5 md:flex-row md:justify-between md:items-end w-full">
+                    <div className="space-y-1 min-w-0 w-full md:w-auto md:flex-1 md:pr-2">
                       <p className="text-xs sm:text-sm font-black text-white group-hover:text-accent transition-colors leading-tight">
                         {simProp.price}
                       </p>
@@ -1283,7 +1310,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
 
                 </Link>
               ))}
-            </div>
+            </ListingCarousel>
           </section>
         )}
 

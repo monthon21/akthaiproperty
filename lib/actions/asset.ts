@@ -681,7 +681,6 @@ export async function searchAssetSuggestionsAction(query: string) {
     const session = await auth();
     const userRole = (session?.user as any)?.role;
     const canSearchOwner = userRole === "ADMIN" || userRole === "USER";
-    console.log("[searchAssetSuggestionsAction Debug] query:", query, "session user:", session?.user, "userRole:", userRole, "canSearchOwner:", canSearchOwner);
 
     const orConditions: any[] = [
       { code: { contains: query } },

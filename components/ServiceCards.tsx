@@ -44,38 +44,39 @@ export default async function ServiceCards({ lang = "th", bgColor = "bg-primary"
   ];
 
   return (
-    <section className={`py-24 px-6 ${bgColor}`}>
+    // phones: a compact row of three tiles (icon + title); the full cards with descriptions start at md
+    <section className={`py-10 md:py-24 px-6 ${bgColor}`}>
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-20">
-          <h2 className="text-[10px] font-alt font-extrabold text-accent uppercase tracking-[0.35em] mb-4">{dict.services.subtitle}</h2>
-          <h3 className="text-3xl md:text-5xl font-display font-bold text-white tracking-wide">
+        <div className="text-center mb-6 md:mb-20">
+          <h2 className="text-[10px] font-alt font-extrabold text-accent uppercase tracking-[0.35em] mb-2 md:mb-4">{dict.services.subtitle}</h2>
+          <h3 className="text-xl md:text-5xl font-display font-bold text-white tracking-wide">
             {dict.services.title} <span className="text-gradient">AK THAI</span>
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-10">
+        <div className="grid grid-cols-3 gap-2.5 md:gap-8 lg:gap-10">
           {services.map((service) => (
             <Link 
               key={service.id} 
               href={service.href}
-              className="bg-[#112240] border border-white/5 p-10 group relative overflow-hidden rounded transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/5 hover:-translate-y-1"
+              className="bg-[#112240] border border-white/5 p-3 md:p-10 flex flex-col items-center text-center md:block md:text-left group relative overflow-hidden rounded transition-all duration-300 hover:border-accent hover:shadow-2xl hover:shadow-accent/5 hover:-translate-y-1"
             >
               {/* Background accent line effect */}
               <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-accent/30 to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-700"></div>
               
-              <div className="mb-8 transform group-hover:scale-105 transition-transform duration-500 origin-left">
+              <div className="mb-2 md:mb-8 [&>svg]:w-8 [&>svg]:h-8 md:[&>svg]:w-12 md:[&>svg]:h-12 transform group-hover:scale-105 transition-transform duration-500 origin-left">
                 {service.icon}
               </div>
               
-              <h4 className="text-xl font-display font-bold text-white mb-4 group-hover:text-accent transition-colors duration-300">
+              <h4 className="text-[11px] leading-snug md:text-xl font-display font-bold text-white md:mb-4 group-hover:text-accent transition-colors duration-300">
                 {service.title}
               </h4>
               
-              <p className="font-alt text-xs text-white/55 leading-relaxed mb-8 font-medium">
+              <p className="hidden md:block font-alt text-xs text-white/55 leading-relaxed mb-8 font-medium">
                 {service.description}
               </p>
               
-              <div className="inline-flex items-center gap-2 font-alt font-bold text-xs tracking-widest text-accent uppercase">
+              <div className="hidden md:inline-flex items-center gap-2 font-alt font-bold text-xs tracking-widest text-accent uppercase">
                 <span>{dict.services.read_more}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 group-hover:translate-x-1.5 transition-transform">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 8.25 21 12m0 0-3.75 3.75M21 12H3" />

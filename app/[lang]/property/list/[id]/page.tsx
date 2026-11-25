@@ -266,9 +266,17 @@ export default async function PropertyDetailPage({ params }: PageProps) {
     if (dbAsset) {
       property = mapAssetToProperty(dbAsset, resolvedParams.lang);
 
-      const dbSimilar = await prisma.asset.findMany({
-        where: { id: { not: dbAsset.id } },
-        take: 3,
+      // Similar listings: published, still available, same kind of deal — ranked by how close they are
+      // to this one (project, type, area, price, bedrooms). Up to 8, shown as a carousel.
+      const candidates = await prisma.asset.findMany({
+        where: {
+          id: { not: dbAsset.id },
+          isDraft: false,
+          isAvailable: true,
+          OR: [...(dbAsset.isSell ? [{ isSell: true }] : []), ...(dbAsset.isRent ? [{ isRent: true }] : [])],
+        },
+        orderBy: { createdAt: "desc" },
+        take: 80,
         include: {
           images: {
             orderBy: {
@@ -278,14 +286,26 @@ export default async function PropertyDetailPage({ params }: PageProps) {
         }
       });
 
-      similarProperties = dbSimilar.map(asset => mapAssetToProperty(asset, resolvedParams.lang));
-      if (similarProperties.length < 3) {
-        const needed = 3 - similarProperties.length;
-        const staticFill = featuredProperties
-          .filter((p) => p.id !== property?.id)
-          .slice(0, needed);
-        similarProperties = [...similarProperties, ...staticFill];
-      }
+      const within = (x: unknown, y: unknown, ratio: number) => {
+        const m = Number(x);
+        const n = Number(y);
+        return m > 0 && n > 0 && Math.abs(m - n) / n <= ratio;
+      };
+      const same = (x?: string | null, y?: string | null) => Boolean(x && y && x.trim() === y.trim());
+      const score = (c: (typeof candidates)[number]) =>
+        (c.type === dbAsset.type ? 3 : 0) +
+        (same(c.projectName, dbAsset.projectName) ? 3 : 0) +
+        (same(c.district, dbAsset.district) ? 2 : 0) +
+        (same(c.province, dbAsset.province) ? 1 : 0) +
+        (dbAsset.isSell && c.isSell && within(c.sellPrice, dbAsset.sellPrice, 0.3) ? 2 : 0) +
+        (dbAsset.isRent && c.isRent && within(c.loanPrice, dbAsset.loanPrice, 0.3) ? 2 : 0) +
+        (c.noBedroom !== null && c.noBedroom === dbAsset.noBedroom ? 1 : 0);
+
+      similarProperties = candidates
+        .map((asset) => ({ asset, points: score(asset) }))
+        .sort((x, y) => y.points - x.points) // stable: ties keep newest first
+        .slice(0, 8)
+        .map(({ asset }) => mapAssetToProperty(asset, resolvedParams.lang));
     }
   }
 

@@ -29,12 +29,12 @@ export default function LocationCard({
         <div className="absolute inset-0 bg-gradient-to-br from-[#112240] to-[#0A192F]" />
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
-      <div className="absolute bottom-0 left-0 right-0 p-4 md:p-5">
+      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-5">
         <div className="flex items-center gap-1.5 text-accent text-[10px] font-alt font-bold uppercase tracking-widest mb-1">
           <MapPin className="w-3 h-3" />
           {location.province}
         </div>
-        <h4 className="text-lg md:text-xl font-display font-bold text-white leading-tight">{location.district}</h4>
+        <h4 className="text-base md:text-xl font-display font-bold text-white leading-tight">{location.district}</h4>
         <p className="text-[11px] text-white/60 mt-1 font-alt">
           {location.count} {listingsLabel}
         </p>

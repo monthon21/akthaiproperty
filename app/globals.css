@@ -141,3 +141,33 @@
     border-radius: 0 !important;
   }
 }
+
+/* Bars that stick under the navbar move up to the top edge while the navbar is slid away (phones / tablets) */
+.below-nav {
+  transition: top 0.3s ease;
+}
+@media (max-width: 1023.98px) {
+  html[data-nav-hidden] .below-nav {
+    top: 0 !important;
+  }
+}
+
+/* Floating AK logo menu button: soft gold glow that breathes slowly */
+.menu-glow {
+  box-shadow: 0 0 10px 1px rgb(190 175 135 / 0.45), 0 0 22px 4px rgb(190 175 135 / 0.2), 0 4px 14px rgb(0 0 0 / 0.5);
+  animation: fadeIn 0.4s ease-out backwards, menuGlow 2.6s ease-in-out 0.4s infinite;
+}
+@keyframes menuGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 10px 1px rgb(190 175 135 / 0.45), 0 0 22px 4px rgb(190 175 135 / 0.2), 0 4px 14px rgb(0 0 0 / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 16px 3px rgb(190 175 135 / 0.75), 0 0 34px 8px rgb(190 175 135 / 0.35), 0 4px 14px rgb(0 0 0 / 0.5);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-glow {
+    animation: none;
+  }
+}

@@ -1,5 +1,5 @@
 import { Star, Quote } from "lucide-react";
-import Image from "next/image";
+import ListingCarousel from "@/components/ListingCarousel";
 
 interface TestimonialProps {
   lang: string;
@@ -46,40 +46,41 @@ export default function Testimonials({ lang }: TestimonialProps) {
   ];
 
   return (
-    <section className="py-24 px-6 bg-[#0A192F] relative overflow-hidden">
+    <section className="py-12 md:py-24 px-6 bg-[#0A192F] relative overflow-hidden">
       {/* Decorative background elements */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-[100px] -mr-48 -mt-48"></div>
       <div className="absolute bottom-0 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[100px] -ml-48 -mb-48"></div>
 
       <div className="max-w-7xl mx-auto relative z-10">
-        <div className="text-center mb-16">
-          <h2 className="text-sm font-bold text-accent uppercase tracking-[0.3em] mb-4">
+        <div className="text-center mb-6 md:mb-16">
+          <h2 className="text-xs md:text-sm font-bold text-accent uppercase tracking-[0.3em] mb-2 md:mb-4">
             {lang === 'zh' ? "客户真实评价" : lang === 'en' ? "Client Testimonials" : "เสียงจากผู้ใช้บริการจริง"}
           </h2>
-          <h3 className="text-3xl md:text-5xl font-black text-white tracking-tight">
+          <h3 className="text-2xl md:text-5xl font-black text-white tracking-tight">
             {lang === 'zh' ? "深受全球泰国人信赖" : lang === 'en' ? "Trusted by Thais Worldwide" : "ความไว้วางใจจากคนไทยทั่วโลก"}
           </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {/* phones: swipeable carousel (one review at a time); md and up: three columns */}
+        <ListingCarousel gridFromMd>
           {testimonials.map((testimonial) => (
             <div
               key={testimonial.id}
-              className="premium-card p-8 md:p-10 rounded-2xl bg-[#112240] border border-white/5 hover:border-accent/30 transition-all duration-500 group relative"
+              className="premium-card h-full flex flex-col p-6 md:p-10 rounded-2xl bg-[#112240] border border-white/5 hover:border-accent/30 transition-all duration-500 group relative"
             >
               <Quote className="absolute top-8 right-8 w-12 h-12 text-white/5 group-hover:text-accent/10 transition-colors duration-500" />
 
-              <div className="flex gap-1 mb-6">
+              <div className="flex gap-1 mb-4 md:mb-6">
                 {[...Array(testimonial.rating)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-accent text-accent" />
                 ))}
               </div>
 
-              <p className="text-white/70 leading-relaxed mb-8 font-alt relative z-10 min-h-[120px]">
-                "{testimonial.content}"
+              <p className="text-sm md:text-base text-white/70 leading-relaxed mb-6 md:mb-8 font-alt relative z-10 md:min-h-[120px]">
+                “{testimonial.content}”
               </p>
 
-              <div className="flex items-center gap-4 mt-auto border-t border-white/10 pt-6">
+              <div className="flex items-center gap-4 mt-auto border-t border-white/10 pt-4 md:pt-6">
                 <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center text-accent font-black text-lg border border-accent/30">
                   {testimonial.name.charAt(0)}
                 </div>
@@ -91,7 +92,7 @@ export default function Testimonials({ lang }: TestimonialProps) {
               </div>
             </div>
           ))}
-        </div>
+        </ListingCarousel>
       </div>
     </section>
   );

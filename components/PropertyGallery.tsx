@@ -29,7 +29,7 @@ export default function PropertyGallery({ gallery, title, id_string, sellPrice, 
 
   return (
     <>
-      <div className="relative w-full rounded-2xl overflow-hidden mb-12 shadow-2xl bg-black/20 border border-white/5 h-[350px] md:h-[450px] lg:h-[550px] group">
+      <div className="relative w-full rounded-2xl overflow-hidden mb-0 md:mb-12 shadow-2xl bg-black/20 border border-white/5 h-[260px] md:h-[450px] lg:h-[550px] group">
         
         {/* Dynamic Tags */}
         <div className="absolute top-4 left-4 z-20 flex flex-wrap gap-2">

@@ -319,7 +319,7 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
   const t = translations[lang];
 
   return (
-    <div className="sticky top-24 z-40 max-w-7xl mx-auto px-4 sm:px-6 mb-6">
+    <div className="below-nav sticky top-24 z-40 max-w-7xl mx-auto px-4 sm:px-6 mb-6">
       <div className="bg-[#112240]/95 backdrop-blur-md border border-white/10 rounded-2xl p-4 sm:p-5 shadow-2xl overflow-y-auto max-h-[calc(100vh-120px)] custom-scrollbar">
         <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-3">
           <div className="flex items-center gap-2">

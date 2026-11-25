@@ -91,52 +91,52 @@ export default function Hero({ featuredAsset }: HeroProps) {
   }
 
   return (
-    <section className="relative min-h-[95vh] flex items-center pt-32 pb-24 px-6 overflow-hidden bg-primary-dark">
+    <section className="relative md:min-h-[95vh] flex items-center pt-36 pb-10 md:pt-32 md:pb-24 px-6 overflow-hidden bg-primary-dark">
       {/* Subtle brand gold ambient background light */}
       <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-accent/5 blur-[120px] rounded-full -mr-40 -mt-20"></div>
       <div className="absolute bottom-0 left-0 w-[350px] h-[350px] bg-accent/5 blur-[100px] rounded-full -ml-20 -mb-20"></div>
 
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-20 items-center z-10">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 lg:gap-20 items-center z-10">
         <div className="animate-fade-in text-center lg:text-left">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-accent/10 border border-accent/20 text-accent mb-8">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded bg-accent/10 border border-accent/20 text-accent mb-4 md:mb-8">
             <span className="w-1.5 h-1.5 bg-accent rounded-full animate-pulse"></span>
             <span className="text-[9px] font-alt font-extrabold uppercase tracking-[0.25em] leading-none">{t("hero.badge")}</span>
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-display font-extrabold tracking-wider leading-[1.15] mb-6 text-white">
+          <h1 className="text-3xl md:text-6xl lg:text-7xl font-display font-extrabold tracking-wide md:tracking-wider leading-[1.15] mb-3 md:mb-6 text-white">
             {t("hero.title_part1")} <br />
             <span className="text-gradient">{t("hero.title_part2")}</span>
           </h1>
-          <p className="font-alt text-sm md:text-base text-white/55 leading-relaxed mb-10 max-w-xl mx-auto lg:mx-0 font-medium">
+          <p className="font-alt text-xs md:text-base text-white/55 leading-relaxed mb-6 md:mb-10 max-w-xl mx-auto lg:mx-0 font-medium">
             {t("hero.subtitle")}
           </p>
 
           <HeroSearchBox currentLang={currentLang} defaultTab="all" />
 
-          <div className="mt-12 flex flex-wrap justify-center lg:justify-start gap-12 border-t border-white/5 pt-8">
+          <div className="mt-6 md:mt-12 grid grid-cols-3 gap-2 md:flex md:flex-wrap md:justify-center lg:justify-start md:gap-12 border-t border-white/5 pt-5 md:pt-8">
             <div className="flex flex-col">
-              <span className="text-4xl font-display font-bold text-accent">
+              <span className="text-2xl md:text-4xl font-display font-bold text-accent">
                 <AnimatedNumber value={1000} suffix="+" />
               </span>
-              <span className="text-md font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_properties")}</span>
+              <span className="text-[10px] md:text-base leading-tight font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_properties")}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-4xl font-display font-bold text-accent">
+              <span className="text-2xl md:text-4xl font-display font-bold text-accent">
                 <AnimatedNumber value={500} suffix="+" />
               </span>
-              <span className="text-md font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_clients")}</span>
+              <span className="text-[10px] md:text-base leading-tight font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_clients")}</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-4xl font-display font-bold text-accent">
+              <span className="text-2xl md:text-4xl font-display font-bold text-accent">
                 <AnimatedNumber value={100} suffix="%" />
               </span>
-              <span className="text-md font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_efficiency")}</span>
+              <span className="text-[10px] md:text-base leading-tight font-alt uppercase font-normal text-white/40 mt-1">{t("hero.stat_efficiency")}</span>
             </div>
           </div>
         </div>
 
         <div className="relative animate-fade-in [animation-delay:200ms]">
-          <div className="aspect-4/5 shadow-2xl relative rounded border border-accent/20 overflow-hidden bg-[#112240] p-3 group">
+          <div className="aspect-[4/3] md:aspect-4/5 shadow-2xl relative rounded border border-accent/20 overflow-hidden bg-[#112240] p-2 md:p-3 group">
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent z-10 pointer-events-none"></div>
 
             <div className="w-full h-full bg-[#0A192F] rounded relative overflow-hidden flex items-center justify-center">
@@ -146,9 +146,9 @@ export default function Hero({ featuredAsset }: HeroProps) {
                 </div>
               </div>
 
-              <div className="absolute bottom-4 left-4 right-4 z-20 bg-black/80 border border-white/10 p-5 rounded backdrop-blur">
-                <h3 className="font-display font-bold text-lg mb-1 text-white truncate" title={displayTitle}>{displayTitle}</h3>
-                <p className="font-alt text-xs text-white/55 mb-3 truncate">{displayLocation}</p>
+              <div className="absolute bottom-4 left-4 right-4 z-20 bg-black/80 border border-white/10 p-3 md:p-5 rounded backdrop-blur">
+                <h3 className="font-display font-bold text-sm md:text-lg mb-1 text-white truncate" title={displayTitle}>{displayTitle}</h3>
+                <p className="font-alt text-xs text-white/55 mb-1.5 md:mb-3 truncate">{displayLocation}</p>
                 <div className="flex justify-between items-center text-xs font-bold font-alt">
                   <span className="text-accent">{displayPrice}</span>
                   {featuredAsset ? (
