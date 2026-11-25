@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { DATE_LOCALE } from "@/lib/format";
 import Link from "next/link";
 import { deleteBlogPost } from "@/lib/actions/blog";
 import { useRouter } from "next/navigation";
@@ -48,7 +49,7 @@ export default function ManageBlogClient({ initialPosts, currentLang }: { initia
                   </span>
                 </td>
                 <td className="px-6 py-4 text-white/50 text-xs">
-                  {new Date(post.createdAt).toLocaleDateString()}
+                  {new Date(post.createdAt).toLocaleDateString(DATE_LOCALE, { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Bangkok" })}
                 </td>
                 <td className="px-6 py-4 text-right">
                   <div className="flex items-center justify-end gap-1">

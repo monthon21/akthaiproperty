@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Property } from "@/lib/properties";
 import PropertyGallery from "./PropertyGallery";
-import { formatNumber, formatLandSize } from "@/lib/format";
+import { formatNumber, formatLandSize, DATE_LOCALE } from "@/lib/format";
 import FormattedText from "./FormattedText";
 import { getSessionAction } from "@/lib/actions/auth";
 import SearchBox from "./SearchBox";
@@ -1322,7 +1322,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   <div className="flex flex-col">
                     <span className="font-bold text-sm tracking-wide text-gray-950">AKThaiProperty.com</span>
                     <span className="text-[10px] text-gray-500 font-medium">
-                      {new Date().toLocaleDateString('th-TH', { day: '2-digit', month: '2-digit' })}, {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false })} น.
+                      {new Date().toLocaleDateString(DATE_LOCALE, { day: '2-digit', month: '2-digit' })}, {new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false })} น.
                     </span>
                   </div>
                 </div>

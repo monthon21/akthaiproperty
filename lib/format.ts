@@ -100,10 +100,16 @@ export function isValidThaiNationalId(value: string | null | undefined): boolean
   return (11 - (sum % 11)) % 10 === Number(d[12]);
 }
 
-/** "1990-05-20" -> "20 พฤษภาคม 2533" (Buddhist era) */
+/**
+ * Locale for every date shown in the app: Thai month names with Christian-era (ค.ศ.) years.
+ * Plain "th-TH" would print Buddhist-era years (2569).
+ */
+export const DATE_LOCALE = "th-TH-u-ca-gregory";
+
+/** "1990-05-20" -> "20 พฤษภาคม 1990" */
 export function formatThaiDate(iso: string | null | undefined): string {
   if (!iso) return "";
   const date = new Date(`${iso.slice(0, 10)}T00:00:00`);
   if (isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("th-TH", { day: "numeric", month: "long", year: "numeric" });
+  return date.toLocaleDateString(DATE_LOCALE, { day: "numeric", month: "long", year: "numeric" });
 }

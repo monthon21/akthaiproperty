@@ -1,17 +1,37 @@
 "use client";
 
 import { useState } from "react";
+import { DATE_LOCALE } from "@/lib/format";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteAssetAction, toggleAssetAvailabilityAction, toggleAssetRecommendationAction } from "@/lib/actions/asset";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { Eye, Edit, Trash2, CalendarDays, ClipboardCheck, UserRound } from "lucide-react";
+import RowActionsMenu from "@/components/RowActionsMenu";
 
 const formatNumberWithCommas = (value: string) => {
   const clean = value.replace(/[^0-9]/g, "");
   if (!clean) return "";
   return parseInt(clean, 10).toLocaleString();
 };
+
+// Fixed locale + time zone so the server and the browser render the same text
+const LISTED_DATE = new Intl.DateTimeFormat(DATE_LOCALE, { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Bangkok" });
+const LISTED_DATE_TIME = new Intl.DateTimeFormat(DATE_LOCALE, {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  timeZone: "Asia/Bangkok",
+});
+
+/** "24 พ.ย. 2026" (ค.ศ.); with `full` also the time, for the tooltip */
+function formatListedDate(value: string | Date, full = false) {
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+  return (full ? LISTED_DATE_TIME : LISTED_DATE).format(date);
+}
 
 const ASSET_TYPE_LABELS: Record<string, string> = {
   DETACHED_HOUSE: "บ้านเดี่ยว",
@@ -273,7 +293,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 <th className="px-6 py-4 font-bold text-right">จัดการ</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-white/5 [&_td]:align-top">
               {filteredAssets.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="px-6 py-12 text-center text-white/40">
@@ -291,25 +311,44 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                 filteredAssets.map((asset) => (
                 <tr key={asset.id} className="hover:bg-white/5 transition-colors group">
                   <td className="px-6 py-4">
-                    <div className="w-16 h-12 relative rounded-md overflow-hidden bg-black/50 border border-white/10">
+                    <Link
+                      href={`/${currentLang}/edit/${asset.code || asset.id}`}
+                      title={`แก้ไขทรัพย์ ${asset.code}`}
+                      className="block w-16 h-12 relative rounded-md overflow-hidden bg-black/50 border border-white/10 hover:border-accent transition-colors"
+                    >
                       {asset.images && asset.images.length > 0 ? (() => {
                         const featureImage = asset.images.find((img: any) => img.isFeature)?.imageUrl || asset.images[0].imageUrl;
                         return <Image src={featureImage} alt={asset.code} fill sizes="64px" className="object-cover" />;
                       })() : (
                         <div className="w-full h-full flex items-center justify-center text-[8px] font-bold uppercase text-white/30 tracking-widest">No Image</div>
                       )}
-                    </div>
+                    </Link>
                   </td>
-                  <td className="px-6 py-4 font-mono text-xs text-accent font-bold">{asset.code}</td>
+                  <td className="px-6 py-4">
+                    <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} title={`แก้ไขทรัพย์ ${asset.code}`} className="font-mono text-xs text-accent font-bold block hover:underline underline-offset-2">
+                      {asset.code}
+                    </Link>
+                    {asset.createdAt && (
+                      <span
+                        className="text-[10px] text-white/40 whitespace-nowrap flex items-center gap-1 mt-1"
+                        title={`ลงเมื่อ ${formatListedDate(asset.createdAt, true)}${asset.updatedAt ? ` · แก้ไขล่าสุด ${formatListedDate(asset.updatedAt, true)}` : ""}`}
+                      >
+                        <CalendarDays className="w-3 h-3 text-accent/70 shrink-0" aria-hidden />
+                        {formatListedDate(asset.createdAt)}
+                      </span>
+                    )}
+                  </td>
                    <td className="px-6 py-4 font-medium max-w-[200px]">
-                    <div className="truncate text-white" title={asset.title}>{asset.title}</div>
-                    {asset.titleEn && <div className="truncate text-[10px] text-white/40" title={asset.titleEn}>{asset.titleEn}</div>}
+                    <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} className="block group/title" title={asset.title}>
+                      <span className="block truncate text-white group-hover/title:text-accent transition-colors">{asset.title}</span>
+                      {asset.titleEn && <span className="block truncate text-[10px] text-white/40">{asset.titleEn}</span>}
+                    </Link>
                     <div className="text-[10px] text-accent/80 font-bold mt-1 uppercase tracking-wider">
                       {ASSET_TYPE_LABELS[asset.type as string] || asset.type}
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex gap-1.5 flex-wrap">
+                    <div className="flex flex-col items-start gap-1.5">
                       {asset.isDraft && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">แบบร่าง</span>}
                       {!asset.isAvailable && <span className="bg-white/5 text-white/50 border border-white/10 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ปิดประกาศ</span>}
                       {asset.isAvailable && !asset.isDraft && (
@@ -364,41 +403,25 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-[#0A192F] transition-transform ${asset.isRecommended ? 'translate-x-4' : 'translate-x-1'}`} />
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-right opacity-70 group-hover:opacity-100 transition-opacity">
-                    <div className="flex items-center justify-end gap-2">
-                      <Link 
-                        href={`/${currentLang}/property/list/${asset.code || asset.id}`} 
-                        target="_blank" 
-                        title="View"
-                        className="p-1.5 text-white/30 hover:text-white transition-colors"
-                      >
-                        <Eye size={16} />
-                      </Link>
-                      <Link 
-                        href={`/${currentLang}/edit/${asset.code || asset.id}`} 
-                        title="Edit"
-                        className="p-1.5 text-white/30 hover:text-blue-400 transition-colors"
-                      >
-                        <Edit size={16} />
-                      </Link>
-                      {isAdmin && (
-                        <button
-                          onClick={() => handleDelete(asset.id, asset.code)}
-                          disabled={isDeleting === asset.id}
-                          title="Delete"
-                          className="p-1.5 text-white/30 hover:text-red-400 transition-colors cursor-pointer disabled:opacity-50"
-                        >
-                          {isDeleting === asset.id ? (
-                            <svg className="animate-spin w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                            </svg>
-                          ) : (
-                            <Trash2 size={16} />
-                          )}
-                        </button>
-                      )}
-                    </div>
+                  <td className="px-6 py-4 text-right">
+                    {isDeleting === asset.id ? (
+                      <span className="inline-flex w-9 h-9 items-center justify-center" aria-label="กำลังลบ">
+                        <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-red-400 animate-spin" />
+                      </span>
+                    ) : (
+                      <RowActionsMenu
+                        label={`เมนูจัดการ ${asset.code}`}
+                        actions={[
+                          { label: "View", Icon: Eye, href: `/${currentLang}/property/list/${asset.code || asset.id}`, newTab: true },
+                          { label: "Edit", Icon: Edit, href: `/${currentLang}/edit/${asset.code || asset.id}` },
+                          { label: "Checklist", Icon: ClipboardCheck, href: `/${currentLang}/edit/${asset.code || asset.id}/checklist` },
+                          asset.landlordId
+                            ? { label: "Landlord Info", Icon: UserRound, href: `/${currentLang}/manage/landlord/edit/${asset.landlordId}`, disabled: !isAdmin, hint: isAdmin ? undefined : "เฉพาะแอดมิน" }
+                            : { label: "Landlord Info", Icon: UserRound, disabled: true, hint: "ยังไม่ระบุ" },
+                          ...(isAdmin ? [{ label: "Trash", Icon: Trash2, danger: true, onSelect: () => handleDelete(asset.id, asset.code) }] : []),
+                        ]}
+                      />
+                    )}
                   </td>
                 </tr>
               ))

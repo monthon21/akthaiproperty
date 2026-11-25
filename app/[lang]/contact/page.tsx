@@ -113,7 +113,7 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h4 className="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">{t("contact_page.email")}</h4>
-                    <a href="mailto:contact@akthaiproperty.com" className="text-xl md:text-2xl font-black text-white hover:text-accent transition-colors">contact@akthaiproperty.com</a>
+                    <a href="mailto:amari@akthaiproperty.com" className="text-xl md:text-2xl font-black text-white hover:text-accent transition-colors">amari@akthaiproperty.com</a>
                     <p className="text-xs text-white/50 mt-0.5">{t("contact_page.email_desc")}</p>
                   </div>
                 </div>

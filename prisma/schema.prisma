@@ -143,9 +143,10 @@ model Asset {
   landlordId Int?
   landlord   Landlord?    @relation(fields: [landlordId], references: [id], onDelete: SetNull)
 
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
   assetPlaces AssetPlaces[]
+  checklists  AssetChecklist[]
 }
 
 enum AssetType {
@@ -347,4 +348,21 @@ model UserProfile {
   signatureUrl    String?   @db.Text // รูปลายเซ็นสำหรับเอกสาร PDF
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+}
+
+// ใบตรวจสภาพทรัพย์ (Check list) — ก่อนเข้าอยู่ / ส่งคืน
+// `data` = JSON: ห้อง/ตำแหน่ง → จุดที่ตรวจ → สถานะ หมายเหตุ รูปถ่าย + เลขมิเตอร์ กุญแจ (ดู lib/checklist.ts)
+model AssetChecklist {
+  id          Int       @id @default(autoincrement())
+  assetId     String
+  asset       Asset     @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  kind        String    @default("move_in") // move_in | move_out
+  inspectedAt DateTime? @db.Date
+  inspector   String? // ผู้ตรวจ
+  occupant    String? // ผู้เช่า / ผู้ซื้อ
+  data        String    @db.MediumText
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([assetId])
 }

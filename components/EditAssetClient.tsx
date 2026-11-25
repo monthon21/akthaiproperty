@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { updateAssetAction } from "@/lib/actions/asset";
@@ -17,7 +17,9 @@ import SavingModal from "@/components/SavingModal";
 import LandSizeInput from "@/components/LandSizeInput";
 import PlaceNameInput from "@/components/PlaceNameInput";
 import NearbyAutoMatch from "@/components/NearbyAutoMatch";
-import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone } from "@/lib/format";
+import FormSectionNav, { FormSection } from "@/components/FormSectionNav";
+import { FileText, Banknote, Handshake, Sparkles, MapPin, UserRound, Navigation, Images, History, ClipboardCheck } from "lucide-react";
+import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone, DATE_LOCALE } from "@/lib/format";
 import SpecFieldsGroup from "@/components/SpecFieldsGroup";
 import { isIndustrialType, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 
@@ -121,6 +123,18 @@ const getGoogleMapsEmbedUrl = (googleMapField: string | null | undefined, fallba
   return `https://maps.google.com/maps?q=${encodeURIComponent(googleMapField)}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
 };
 
+const FORM_SECTIONS: FormSection[] = [
+  { id: "sec-basic", label: "Basic", title: "ข้อมูลพื้นฐาน", Icon: FileText },
+  { id: "sec-pricing", label: "Pricing", title: "ราคาและข้อมูลทรัพย์สิน", Icon: Banknote },
+  { id: "sec-terms", label: "Terms", title: "เงื่อนไขการซื้อขาย / เช่า", Icon: Handshake, important: true },
+  { id: "sec-amenities", label: "Amenities", title: "สิ่งอำนวยความสะดวก", Icon: Sparkles },
+  { id: "sec-location", label: "Location", title: "ที่ตั้งทรัพย์สิน", Icon: MapPin },
+  { id: "sec-owner", label: "Owner", title: "ข้อมูลเจ้าของทรัพย์", Icon: UserRound },
+  { id: "sec-places", label: "Nearby", title: "สถานที่ใกล้เคียง", Icon: Navigation },
+  { id: "sec-images", label: "Images", title: "รูปภาพประกอบ", Icon: Images },
+  { id: "sec-price-logs", label: "Price Log", title: "ประวัติการแก้ไขราคา", Icon: History },
+];
+
 export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const router = useRouter();
   const params = useParams();
@@ -176,6 +190,14 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   );
   const [specs, setSpecs] = useState<IndustrialSpecs>(parseSpecs(asset.specs));
   const isIndustrial = isIndustrialType(formData.type);
+  // shortcut tiles: form sections + a link to this asset's checklist page
+  const formSections = useMemo<FormSection[]>(
+    () => [
+      ...FORM_SECTIONS,
+      { id: "checklist", label: "Checklist", title: "Check list ตรวจสภาพทรัพย์ก่อนเข้าอยู่", Icon: ClipboardCheck, href: `/${lang}/edit/${asset.code}/checklist` },
+    ],
+    [lang, asset.code]
+  );
   const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>(
     (asset.assetPlaces || []).map(p => {
       let type: "distance" | "time" = "distance";
@@ -416,7 +438,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
 
   return (
     <>
-      <div className="max-w-4xl mx-auto px-6">
+      <div className="max-w-6xl mx-auto px-6">
       <div className="flex justify-between items-center mb-8">
         <div>
           <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">
@@ -432,7 +454,9 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         </Link>
       </div>
 
-      <div className="space-y-8">
+      <div className="lg:grid lg:grid-cols-[212px_minmax(0,1fr)] lg:gap-6 items-start">
+        <FormSectionNav sections={formSections} onSave={(e) => handleSubmit(e, false)} saving={isSubmitting} />
+      <div className="space-y-8 min-w-0">
         {/* Form panel */}
         <div className="bg-[#112240] border border-white/10 rounded-2xl p-8 shadow-2xl relative">
 
@@ -456,7 +480,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
           <form className="space-y-6" onSubmit={handleSubmit}>
 
             {/* Basic Info */}
-            <div className="space-y-4">
+            <div id="sec-basic" className="space-y-4 scroll-mt-32">
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 ข้อมูลพื้นฐาน (Basic Info)
               </h3>
@@ -471,6 +495,61 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none text-white/50 cursor-not-allowed font-mono"
                   />
                 </div>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ประเภททรัพย์สิน</label>
+                    <select
+                      name="type"
+                      value={formData.type}
+                      onChange={handleInputChange}
+                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer"
+                    >
+                      <option value="DETACHED_HOUSE">บ้านเดี่ยว (Detached House)</option>
+                      <option value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
+                      <option value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
+                      <option value="VILLA">วิลล่า (Villa)</option>
+                      <option value="FACTORY">โรงงาน (Factory)</option>
+                      <option value="WAREHOUSE">โกดัง (Warehouse)</option>
+                      <option value="OFFICE">ออฟฟิศ (Office)</option>
+                      <option value="RETAIL">ร้านค้า (Retail)</option>
+                      <option value="LAND">ที่ดินเปล่า (Land)</option>
+                      <option value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                      <option value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
+                      <option value="OTHER">อื่นๆ (Other)</option>
+                    </select>
+                  </div>
+                <div className="space-y-1.5">
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขาย / เช่า *</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {([
+                        { name: "isSell", checked: formData.isSell, label: "ขาย", sub: "Sell" },
+                        { name: "isRent", checked: formData.isRent, label: "เช่า", sub: "Rent" },
+                      ] as const).map((opt) => (
+                        <label
+                          key={opt.name}
+                          className={`flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer select-none transition-all active:scale-95 focus-within:ring-2 focus-within:ring-accent/40 ${
+                            opt.checked
+                              ? "bg-accent border-accent text-primary-dark shadow-lg shadow-accent/20"
+                              : "bg-black/30 border-white/15 text-white/60 hover:border-accent/50 hover:text-white"
+                          }`}
+                        >
+                          <input type="checkbox" name={opt.name} checked={opt.checked} onChange={handleInputChange} className="sr-only" />
+                          <span
+                            className={`flex items-center justify-center w-5 h-5 rounded-md border-2 shrink-0 ${
+                              opt.checked ? "bg-primary-dark border-primary-dark text-accent" : "border-white/30"
+                            }`}
+                          >
+                            {opt.checked && (
+                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4} stroke="currentColor" className="w-3 h-3">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                              </svg>
+                            )}
+                          </span>
+                          <span className="text-sm font-black">{opt.label}</span>
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${opt.checked ? "text-primary-dark/60" : "text-white/30"}`}>{opt.sub}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 {/* Title — Language Tabs */}
                 <div className="md:col-span-3">
                   <LangTabInput
@@ -584,60 +663,10 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                 rows={5}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ประเภททรัพย์สิน</label>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white appearance-none cursor-pointer"
-                  >
-                    <option value="DETACHED_HOUSE">บ้านเดี่ยว (Detached House)</option>
-                    <option value="TOWNHOUSE">ทาวน์เฮาส์ (Townhouse)</option>
-                    <option value="SEMI_DETACHED">บ้านแฝด (Semi-Detached House)</option>
-                    <option value="VILLA">วิลล่า (Villa)</option>
-                    <option value="FACTORY">โรงงาน (Factory)</option>
-                    <option value="WAREHOUSE">โกดัง (Warehouse)</option>
-                    <option value="OFFICE">ออฟฟิศ (Office)</option>
-                    <option value="RETAIL">ร้านค้า (Retail)</option>
-                    <option value="LAND">ที่ดินเปล่า (Land)</option>
-                    <option value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
-                    <option value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
-                    <option value="OTHER">อื่นๆ (Other)</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ลักษณะการทำรายการ</label>
-                  <div className="flex gap-6 items-center h-11 bg-black/20 px-4 rounded-xl border border-white/5">
-                    <label className="flex items-center gap-2 text-xs font-semibold text-white/70 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="isSell"
-                        checked={formData.isSell}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 rounded accent-accent bg-black border-white/10"
-                      />
-                      สำหรับขาย (Sell)
-                    </label>
-                    <label className="flex items-center gap-2 text-xs font-semibold text-white/70 cursor-pointer">
-                      <input
-                        type="checkbox"
-                        name="isRent"
-                        checked={formData.isRent}
-                        onChange={handleInputChange}
-                        className="w-4 h-4 rounded accent-accent bg-black border-white/10"
-                      />
-                      สำหรับเช่า (Rent)
-                    </label>
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Pricing & Specs */}
-            <div className="space-y-4">
+            <div id="sec-pricing" className="space-y-4 scroll-mt-32">
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 ราคาและข้อมูลทรัพย์สิน (Pricing & Specs)
               </h3>
@@ -789,6 +818,17 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               {isIndustrial && (
                 <SpecFieldsGroup title="ข้อมูลโกดัง / โรงงาน" subtitle="Industrial Specs" fields={INDUSTRIAL_SPEC_FIELDS} specs={specs} onChange={setSpecs} />
               )}
+            </div>
+
+            {/* Deal Terms */}
+            <div id="sec-terms" className="space-y-4 scroll-mt-32">
+              <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2 flex items-center gap-2">
+                เงื่อนไขการซื้อขาย / เช่า (Deal Terms)
+                <span className="text-[9px] font-bold text-primary-dark bg-accent rounded-full px-2 py-0.5 normal-case tracking-normal">สำคัญ</span>
+              </h3>
+              {!formData.isSell && !formData.isRent && (
+                <p className="text-xs text-white/40">เลือก “สำหรับขาย” หรือ “สำหรับเช่า” ในข้อมูลพื้นฐานก่อน แล้วช่องเงื่อนไขจะแสดงที่นี่</p>
+              )}
               {formData.isSell && (
                 <SpecFieldsGroup title="เงื่อนไขการซื้อขาย" subtitle="Sale Terms" fields={SALE_TERM_FIELDS} specs={specs} onChange={setSpecs} />
               )}
@@ -798,7 +838,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
             </div>
 
             {/* Amenities */}
-            <div className="space-y-4">
+            <div id="sec-amenities" className="space-y-4 scroll-mt-32">
               <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 สิ่งอำนวยความสะดวก (Amenities)
               </h3>
@@ -840,7 +880,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
             </div>
 
             {/* Location */}
-            <div className="space-y-4">
+            <div id="sec-location" className="space-y-4 scroll-mt-32">
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 ที่ตั้งทรัพย์สิน (Location)
               </h3>
@@ -1060,7 +1100,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
             </div>
 
               {/* ข้อมูลเจ้าของทรัพย์ (Owner Details) */}
-              <div className="space-y-4">
+              <div id="sec-owner" className="space-y-4 scroll-mt-32">
                 <h3 className="text-sm font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                   ข้อมูลเจ้าของทรัพย์ (Owner Details - จะไม่แสดงผลหน้าเว็บสาธารณะ)
                 </h3>
@@ -1134,7 +1174,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
 
               {/* ── 5.1 สถานที่ใกล้เคียง (Nearby Places) ── */}
-              <div className="space-y-4">
+              <div id="sec-places" className="space-y-4 scroll-mt-32">
                 <div className="flex justify-between items-end border-b border-white/5 pb-2">
                   <h3 className="text-sm font-bold text-accent uppercase tracking-widest">
                     สถานที่ใกล้เคียง (Nearby Places)
@@ -1212,7 +1252,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
 
               {/* Images */}
-            <div className="space-y-4">
+            <div id="sec-images" className="space-y-4 scroll-mt-32">
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 รูปภาพประกอบ (Images List)
               </h3>
@@ -1251,7 +1291,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         </div>
 
         {/* Price History Sidebar logs */}
-        <div className="space-y-6">
+        <div id="sec-price-logs" className="space-y-6 scroll-mt-32">
           <div className="bg-[#112240] border border-white/10 rounded-2xl p-6 shadow-2xl space-y-4">
             <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
               ประวัติการแก้ไขราคา (Price Logs)
@@ -1267,7 +1307,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   <div key={log.id} className="bg-black/30 border border-white/5 p-3 rounded-lg space-y-2 text-xs">
                     <div className="flex justify-between text-[9px] text-white/40 font-bold uppercase">
                       <span>Log date</span>
-                      <span>{new Date(log.createdAt).toLocaleDateString("th-TH", {
+                      <span>{new Date(log.createdAt).toLocaleDateString(DATE_LOCALE, {
                         year: "numeric",
                         month: "short",
                         day: "numeric",
@@ -1297,6 +1337,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
           </div>
         </div>
 
+      </div>
       </div>
 
       {/* Preview Modal Overlay */}
