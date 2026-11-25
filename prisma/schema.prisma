@@ -27,9 +27,12 @@ model User {
   emailVerified DateTime?
   image         String?
   role          UserRole     @default(USER)
+  isBlocked     Boolean      @default(false) // ระงับการใช้งาน: เข้าสู่ระบบไม่ได้
+  deletedAt     DateTime? // ย้ายไปถังขยะ (soft delete) — ข้อมูลยังอยู่ กู้คืนได้
   accounts      Account[]
   sessions      Session[]
   profile       UserProfile?
+  deals         Deal[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -147,6 +150,7 @@ model Asset {
   updatedAt   DateTime         @updatedAt
   assetPlaces AssetPlaces[]
   checklists  AssetChecklist[]
+  deals       Deal[]
 }
 
 enum AssetType {
@@ -346,6 +350,7 @@ model UserProfile {
   bankAccountNo   String?
   bankAccountName String?
   signatureUrl    String?   @db.Text // รูปลายเซ็นสำหรับเอกสาร PDF
+  idCardCopyUrl   String?   @db.Text // สำเนาบัตรประชาชน (รูปหรือ PDF) สำหรับแนบชุดเอกสาร
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
 }
@@ -364,5 +369,28 @@ model AssetChecklist {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  @@index([assetId])
+}
+
+// ดีลที่ปิดแล้ว (ขาย / เช่า) — ประวัติการปิดการขายของตัวแทน และจุดผูกชุดเอกสารต่อ 1 ธุรกรรมในอนาคต
+model Deal {
+  id            String   @id @default(cuid())
+  kind          String // "sale" | "rent"
+  assetId       String?
+  asset         Asset?   @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  assetCode     String // เก็บสำเนาไว้ เผื่อทรัพย์ถูกลบภายหลัง
+  assetTitle    String?
+  agentId       Int // ตัวแทนผู้ปิดดีล
+  agent         User     @relation(fields: [agentId], references: [id])
+  customerName  String? // ผู้ซื้อ / ผู้เช่า
+  customerPhone String?
+  price         Decimal? @db.Decimal(14, 2) // ราคาขาย หรือ ค่าเช่าต่อเดือน ที่ตกลงกันจริง
+  commission    Decimal? @db.Decimal(14, 2) // ค่านายหน้าที่ได้รับ
+  closedAt      DateTime @db.Date // วันที่ปิดดีล
+  note          String?  @db.Text
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([agentId])
   @@index([assetId])
 }

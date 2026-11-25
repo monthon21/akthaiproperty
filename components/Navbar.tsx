@@ -70,6 +70,13 @@ export default function Navbar() {
     window.location.href = newPath;
   };
 
+  // second item of the management menu: user management for admins, blog management for everyone else
+  const pick = (th: string, zh: string, en: string) => (currentLang === "th" ? th : currentLang === "zh" ? zh : en);
+  const secondItem =
+    session?.user?.role === "ADMIN"
+      ? { path: "users", label: pick("จัดการผู้ใช้งาน", "用户管理", "Manage Users") }
+      : { path: "blog", label: pick("จัดการบล็อก", "博客管理", "Manage Blog") };
+
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled
@@ -128,8 +135,9 @@ export default function Navbar() {
                   <Link href={`/${currentLang}/manage`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
                     {currentLang === "th" ? "รายการทรัพย์" : currentLang === "zh" ? "房源管理" : "Manage Properties"}
                   </Link>
-                  <Link href={`/${currentLang}/manage/blog`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
-                    {currentLang === "th" ? "จัดการบล็อก" : currentLang === "zh" ? "博客管理" : "Manage Blog"}
+                  {/* admins manage users here; blog management is in the admin menu on /manage */}
+                  <Link href={`/${currentLang}/manage/${secondItem.path}`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
+                    {secondItem.label}
                   </Link>
                   <Link href={`/${currentLang}/myprofile`} className="px-5 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-white/5 hover:text-accent transition-colors border-b border-white/5">
                     {t("navbar.profile")}
@@ -295,11 +303,11 @@ export default function Navbar() {
                   {currentLang === "th" ? "รายการทรัพย์" : currentLang === "zh" ? "房源管理" : "Manage Properties"}
                 </Link>
                 <Link
-                  href={`/${currentLang}/manage/blog`}
+                  href={`/${currentLang}/manage/${secondItem.path}`}
                   onClick={() => setMobileMenuOpen(false)}
                   className="font-alt font-bold text-lg tracking-widest text-white hover:text-accent transition-colors"
                 >
-                  {currentLang === "th" ? "จัดการบล็อก" : currentLang === "zh" ? "博客管理" : "Manage Blog"}
+                  {secondItem.label}
                 </Link>
                 <Link
                   href={`/${currentLang}/myprofile`}

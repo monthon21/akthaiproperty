@@ -5,6 +5,7 @@ import { Edit, Trash2, MapPin, Plus, X } from "lucide-react";
 import { postCode as POSTCODES } from "@/lib/postcode";
 import { parseLatLng } from "@/lib/geo";
 import MapPickerModal from "@/components/MapPickerModal";
+import RowActionsMenu from "@/components/RowActionsMenu";
 import {
   createPlaceAction,
   updatePlaceAction,
@@ -256,13 +257,15 @@ export default function ManagePlacesClient({ initialPlaces }: { initialPlaces: P
                       </button>
                     </td>
                     <td className="px-5 py-4">
-                      <div className="flex justify-center gap-2">
-                        <button onClick={() => openEdit(p)} className="p-2 rounded-lg bg-white/5 hover:bg-accent/15 text-white/60 hover:text-accent transition-all cursor-pointer" title="แก้ไข">
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button onClick={() => handleDelete(p)} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/15 text-white/60 hover:text-red-400 transition-all cursor-pointer" title="ลบ">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex justify-center">
+                        <RowActionsMenu
+                          label={`เมนูจัดการ ${p.placeNameTH}`}
+                          actions={[
+                            ...(p.location && parseLatLng(p.location) ? [{ label: "Map", Icon: MapPin, href: mapHref(p.location), newTab: true }] : []),
+                            { label: "Edit", Icon: Edit, onSelect: () => openEdit(p) },
+                            { label: "Trash", Icon: Trash2, danger: true, onSelect: () => handleDelete(p) },
+                          ]}
+                        />
                       </div>
                     </td>
                   </tr>

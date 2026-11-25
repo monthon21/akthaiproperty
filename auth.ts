@@ -12,8 +12,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("[authorize] credentials received:", credentials);
-
         if (!credentials?.username || !credentials?.password) {
           console.log("[authorize] missing username or password");
           return null;
@@ -26,6 +24,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         console.log("[authorize] user found:", user ? user.username : "NOT FOUND");
 
         if (!user || !user.password) return null;
+        // blocked or trashed accounts cannot sign in
+        if (user.isBlocked || user.deletedAt) return null;
 
         const isValid = credentials.password === user.password;
 

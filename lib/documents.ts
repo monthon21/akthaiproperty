@@ -13,6 +13,8 @@ export interface DocumentType {
   titleEn: string;
   description: string;
   ready: boolean;
+  /** page (under /{lang}/manage/documents/) that prepares it, once ready */
+  path?: string;
 }
 
 export const DOCUMENT_TYPES: DocumentType[] = [
@@ -71,7 +73,37 @@ export const DOCUMENT_TYPES: DocumentType[] = [
     deal: "sale",
     title: "สัญญาแต่งตั้งนายหน้า",
     titleEn: "Brokerage Agreement",
-    description: "ระหว่างเจ้าของทรัพย์กับ AK Thai Property",
-    ready: false,
+    description: "ระหว่างเจ้าของทรัพย์กับ AK Thai Property — ใช้ได้ทั้งขายและให้เช่า (ฉบับร่าง)",
+    ready: true,
+    path: "broker-appointment",
   },
+];
+
+// ============================================================
+// Document set for ONE transaction (a rental or a sale).
+// All of these belong together as one set per deal.
+// `expected: true` (shown with *) = normally part of the set, but the deal is
+// never blocked when it's missing — some papers are only handed over on signing day.
+// ============================================================
+
+export interface DealSetItem {
+  key: string;
+  title: string; // ภาษาไทย
+  titleEn: string;
+  /** marked * — should be in the set, but may arrive later */
+  expected: boolean;
+  /** which kinds of deal use it */
+  deals: DealKind[];
+  /** "generated" = the system prepares it as a PDF; "uploaded" = a file handed in; unset = not decided yet */
+  source?: "generated" | "uploaded";
+  note?: string;
+}
+
+export const DEAL_DOCUMENT_SET: DealSetItem[] = [
+  { key: "contract", title: "สัญญาเช่า หรือ สัญญาซื้อขาย", titleEn: "Lease / Sale Agreement", expected: true, deals: ["rent", "sale"] },
+  { key: "customer_docs", title: "เอกสารผู้เช่า หรือ ผู้ซื้อ", titleEn: "Tenant / Buyer Documents", expected: true, deals: ["rent", "sale"] },
+  { key: "owner_docs", title: "เอกสารเจ้าของทรัพย์", titleEn: "Owner Documents", expected: true, deals: ["rent", "sale"] },
+  { key: "bank_book", title: "สำเนาหน้าบุ๊คแบงก์", titleEn: "Bank Book Copy", expected: false, deals: ["rent"], note: "กรณีเช่า" },
+  { key: "broker_appointment", title: "เอกสารแต่งตั้งนายหน้า", titleEn: "Broker Appointment", expected: false, deals: ["rent", "sale"], source: "generated" },
+  { key: "handover", title: "เอกสารตรวจรับ-ส่งมอบทรัพย์", titleEn: "Handover Inspection", expected: true, deals: ["rent", "sale"] },
 ];

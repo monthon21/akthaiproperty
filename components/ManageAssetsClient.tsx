@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { deleteAssetAction, toggleAssetAvailabilityAction, toggleAssetRecommendationAction } from "@/lib/actions/asset";
-import { Eye, Edit, Trash2, CalendarDays, ClipboardCheck, UserRound } from "lucide-react";
+import { Eye, Edit, Trash2, CalendarDays, ClipboardCheck, UserRound, FileText } from "lucide-react";
 import RowActionsMenu from "@/components/RowActionsMenu";
 
 const formatNumberWithCommas = (value: string) => {
@@ -415,6 +415,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                           { label: "View", Icon: Eye, href: `/${currentLang}/property/list/${asset.code || asset.id}`, newTab: true },
                           { label: "Edit", Icon: Edit, href: `/${currentLang}/edit/${asset.code || asset.id}` },
                           { label: "Checklist", Icon: ClipboardCheck, href: `/${currentLang}/edit/${asset.code || asset.id}/checklist` },
+                          ...(isAdmin ? [{ label: "Documents", Icon: FileText, href: `/${currentLang}/manage/documents/broker-appointment?asset=${asset.code}` }] : []),
                           asset.landlordId
                             ? { label: "Landlord Info", Icon: UserRound, href: `/${currentLang}/manage/landlord/edit/${asset.landlordId}`, disabled: !isAdmin, hint: isAdmin ? undefined : "เฉพาะแอดมิน" }
                             : { label: "Landlord Info", Icon: UserRound, disabled: true, hint: "ยังไม่ระบุ" },

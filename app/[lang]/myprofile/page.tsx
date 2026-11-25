@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import AvatarUploader from "@/components/AvatarUploader";
 import { prisma } from "@/lib/prisma";
 import AgentProfileForm, { AgentProfileValues } from "@/components/AgentProfileForm";
+import ProfileShortcutNav from "@/components/ProfileShortcutNav";
 
 export default async function MyProfilePage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
@@ -55,7 +56,7 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
-        <div className="max-w-4xl mx-auto px-6">
+        <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center mb-8">
             <div>
               <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">
@@ -71,12 +72,14 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
             </Link>
           </div>
 
+          <div className="lg:grid lg:grid-cols-[212px_minmax(0,1fr)] lg:gap-6 items-start">
+          <ProfileShortcutNav />
           <div className="bg-[#112240] border border-white/10 rounded-2xl overflow-hidden shadow-2xl relative">
             {/* Top decorative gradient bar */}
             <div className="h-2 bg-gradient-to-r from-accent/60 via-accent to-accent-dark"></div>
 
             <div className="p-8 md:p-10">
-              <div className="flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-white/5 mb-8">
+              <div id="sec-account" className="scroll-mt-32 flex flex-col sm:flex-row gap-8 items-start sm:items-center pb-8 border-b border-white/5 mb-8">
                 {/* Avatar Uploader */}
                 <AvatarUploader
                   currentImage={userFromDb?.image || null}
@@ -170,6 +173,7 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
               </div>
 
             </div>
+          </div>
           </div>
         </div>
       </main>

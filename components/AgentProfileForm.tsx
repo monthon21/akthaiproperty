@@ -11,6 +11,7 @@ import {
   isValidThaiNationalId,
 } from "@/lib/format";
 import SavingModal from "@/components/SavingModal";
+import { PROFILE_SAVE_BUTTON_ID } from "@/components/ProfileShortcutNav";
 import SignaturePad from "@/components/SignaturePad";
 
 export type AgentProfileValues = Required<{ [K in keyof AgentProfileInput]: string }>;
@@ -44,9 +45,9 @@ function Field({ label, hint, children, span2 }: { label: string; hint?: React.R
   );
 }
 
-function Section({ title, subtitle, children }: { title: string; subtitle?: string; children: React.ReactNode }) {
+function Section({ id, title, subtitle, children }: { id: string; title: string; subtitle?: string; children: React.ReactNode }) {
   return (
-    <section className="space-y-4">
+    <section id={id} className="space-y-4 scroll-mt-32">
       <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
         {title}
         {subtitle && <span className="text-white/30 normal-case tracking-normal font-normal ml-2">{subtitle}</span>}
@@ -143,7 +144,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
         <p className="text-xs text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      <Section title="ข้อมูลส่วนตัว" subtitle="ตามบัตรประชาชน">
+      <Section id="sec-personal" title="ข้อมูลส่วนตัว" subtitle="ตามบัตรประชาชน">
         <Field label="คำนำหน้า">
           <select value={form.prefix} onChange={(e) => set("prefix", e.target.value)} className={`${inputCls} appearance-none cursor-pointer`}>
             <option className="bg-[#112240]" value="">ไม่ระบุ</option>
@@ -195,7 +196,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
         </Field>
       </Section>
 
-      <Section title="ที่อยู่ตามบัตรประชาชน">
+      <Section id="sec-address" title="ที่อยู่ตามบัตรประชาชน">
         <Field label="บ้านเลขที่ / หมู่ / ซอย / ถนน" span2>
           <input value={form.address} onChange={(e) => set("address", e.target.value)} className={inputCls} placeholder="e.g. 99/9 หมู่ 5 ซอยเอกชัย 1 ถนนเอกชัย" />
         </Field>
@@ -243,7 +244,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
         </Field>
       </Section>
 
-      <Section title="ข้อมูลติดต่อ">
+      <Section id="sec-contact" title="ข้อมูลติดต่อ">
         <Field label="เบอร์โทรศัพท์">
           <input inputMode="tel" value={form.phone} onChange={(e) => set("phone", formatThaiPhone(e.target.value))} className={inputCls} placeholder="e.g. 086-888-0196" />
         </Field>
@@ -252,7 +253,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
         </Field>
       </Section>
 
-      <Section title="บัญชีรับค่าคอมมิชชั่น">
+      <Section id="sec-bank" title="บัญชีรับค่าคอมมิชชั่น">
         <Field label="ธนาคาร">
           <input list="agent-banks" value={form.bankName} onChange={(e) => set("bankName", e.target.value)} className={inputCls} placeholder="เลือกหรือพิมพ์ชื่อธนาคาร" />
           <datalist id="agent-banks">
@@ -267,7 +268,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
         </Field>
       </Section>
 
-      <Section title="ลายเซ็น" subtitle="สำหรับพิมพ์ลงเอกสาร PDF">
+      <Section id="sec-signature" title="ลายเซ็น" subtitle="สำหรับพิมพ์ลงเอกสาร PDF">
         {drawingSignature ? (
           <div className="md:col-span-2">
             <SignaturePad busy={uploading} onConfirm={handleSignature} onCancel={() => setDrawingSignature(false)} />
@@ -309,6 +310,7 @@ export default function AgentProfileForm({ initial }: { initial: AgentProfileVal
       <div className="flex justify-end pt-2">
         <button
           type="button"
+          id={PROFILE_SAVE_BUTTON_ID}
           onClick={save}
           disabled={status === "saving" || uploading}
           className="px-10 h-11 bg-accent text-primary-dark rounded-xl font-black text-xs tracking-widest uppercase hover:bg-accent-dark transition-all shadow-lg disabled:opacity-50 cursor-pointer"
