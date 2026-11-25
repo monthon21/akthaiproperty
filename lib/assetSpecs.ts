@@ -3,6 +3,7 @@ import { stripCommas, formatNumber } from "./format";
 // ============================================================
 // Asset specs — stored together as one JSON object in Asset.specs
 //  - INDUSTRIAL_SPEC_FIELDS : โกดัง / โรงงาน only
+//  - CONDO_SPEC_FIELDS      : คอนโดมิเนียม / อพาร์ทเม้นท์ only
 //  - RENT_TERM_FIELDS       : เงื่อนไขการเช่า (any type, when isRent)
 //  - SALE_TERM_FIELDS       : เงื่อนไขการซื้อขาย (any type, when isSell)
 // ============================================================
@@ -11,6 +12,13 @@ export const INDUSTRIAL_TYPES = ["WAREHOUSE", "FACTORY"] as const;
 
 export function isIndustrialType(type: string | null | undefined): boolean {
   return !!type && (INDUSTRIAL_TYPES as readonly string[]).includes(type);
+}
+
+/** Units inside a building: no land of their own, described by floor / building / room layout */
+export const CONDO_TYPES = ["CONDO", "APARTMENT"] as const;
+
+export function isCondoType(type: string | null | undefined): boolean {
+  return !!type && (CONDO_TYPES as readonly string[]).includes(type);
 }
 
 type L = { th: string; en: string; zh: string };
@@ -243,10 +251,111 @@ export function parseSpecs(json: string | null | undefined): IndustrialSpecs {
   }
 }
 
+export const CONDO_SPEC_FIELDS: SpecField[] = [
+  {
+    key: "unitFloor",
+    label: { th: "ชั้นที่ห้องอยู่", en: "Floor", zh: "所在楼层" },
+    input: "number",
+    placeholder: "e.g. 12",
+  },
+  {
+    key: "building",
+    label: { th: "อาคาร / ตึก", en: "Building", zh: "楼栋" },
+    input: "text",
+    placeholder: "e.g. A, ตึก 2",
+  },
+  {
+    key: "roomType",
+    label: { th: "รูปแบบห้อง", en: "Room Type", zh: "户型" },
+    input: "select",
+    options: [
+      { value: "studio", label: { th: "สตูดิโอ", en: "Studio", zh: "开间" } },
+      { value: "1br", label: { th: "1 ห้องนอน", en: "1 Bedroom", zh: "一居室" } },
+      { value: "2br", label: { th: "2 ห้องนอน", en: "2 Bedrooms", zh: "两居室" } },
+      { value: "3br", label: { th: "3 ห้องนอน", en: "3 Bedrooms", zh: "三居室" } },
+      { value: "duplex", label: { th: "ดูเพล็กซ์ (2 ชั้น)", en: "Duplex", zh: "复式" } },
+      { value: "penthouse", label: { th: "เพนต์เฮาส์", en: "Penthouse", zh: "顶层公寓" } },
+    ],
+  },
+  {
+    key: "commonFee",
+    label: { th: "ค่าส่วนกลาง", en: "Common Fee", zh: "物业费" },
+    unit: { th: "บาท/ตร.ม./เดือน", en: "THB/sq.m./month", zh: "泰铢/平方米/月" },
+    input: "number",
+    placeholder: "e.g. 45",
+  },
+  {
+    key: "view",
+    label: { th: "วิว", en: "View", zh: "景观" },
+    input: "select",
+    options: [
+      { value: "city", label: { th: "วิวเมือง", en: "City View", zh: "城市景观" } },
+      { value: "river", label: { th: "วิวแม่น้ำ", en: "River View", zh: "河景" } },
+      { value: "sea", label: { th: "วิวทะเล", en: "Sea View", zh: "海景" } },
+      { value: "pool", label: { th: "วิวสระว่ายน้ำ", en: "Pool View", zh: "泳池景观" } },
+      { value: "garden", label: { th: "วิวสวน", en: "Garden View", zh: "花园景观" } },
+      { value: "mountain", label: { th: "วิวภูเขา", en: "Mountain View", zh: "山景" } },
+    ],
+  },
+  {
+    key: "furnishing",
+    label: { th: "การตกแต่ง", en: "Furnishing", zh: "装修" },
+    input: "select",
+    options: [
+      { value: "bare", label: { th: "ห้องเปล่า", en: "Unfurnished", zh: "毛坯" } },
+      { value: "partly", label: { th: "ตกแต่งบางส่วน", en: "Partly Furnished", zh: "部分家具" } },
+      { value: "fully", label: { th: "ตกแต่งครบ พร้อมเข้าอยู่", en: "Fully Furnished", zh: "精装修 拎包入住" } },
+    ],
+  },
+  {
+    key: "foreignQuota",
+    label: { th: "โควตาต่างชาติ", en: "Foreign Quota", zh: "外国人配额" },
+    input: "select",
+    options: [
+      { value: "yes", label: { th: "มี", en: "Available", zh: "有" } },
+      { value: "no", label: { th: "ไม่มี", en: "Not Available", zh: "无" } },
+    ],
+  },
+  {
+    key: "buildingFloors",
+    label: { th: "จำนวนชั้นของอาคาร", en: "Building Floors", zh: "总楼层" },
+    input: "number",
+    placeholder: "e.g. 32",
+  },
+  {
+    key: "yearBuilt",
+    label: { th: "ปีที่สร้างเสร็จ (ค.ศ.)", en: "Year Built", zh: "建成年份" },
+    input: "text",
+    placeholder: "e.g. 2019",
+  },
+  {
+    key: "unitNo",
+    label: { th: "เลขที่ห้อง (ข้อมูลภายใน ไม่แสดงหน้าเว็บ)", en: "Unit No. (internal)", zh: "房号（内部）" },
+    input: "text",
+    placeholder: "e.g. 1205",
+  },
+];
+
+/** Kept for staff and documents only — never shown on the public site */
+const PRIVATE_SPEC_KEYS = ["unitNo"];
+
+/** Condo fields for this exact type: only real condominiums (strata title) have a foreign quota */
+export function condoFieldsFor(type: string | null | undefined): SpecField[] {
+  return type === "CONDO" ? CONDO_SPEC_FIELDS : CONDO_SPEC_FIELDS.filter((f) => f.key !== "foreignQuota");
+}
+
+/** Type-specific fields that may be shown publicly (industrial specs, or condo specs without the unit number) */
+export function publicTypeSpecFields(type: string | null | undefined): SpecField[] {
+  if (isIndustrialType(type)) return INDUSTRIAL_SPEC_FIELDS;
+  if (isCondoType(type)) return condoFieldsFor(type).filter((f) => !PRIVATE_SPEC_KEYS.includes(f.key));
+  return [];
+}
+
 /** Fields that apply to an asset with this type / deal */
 export function applicableSpecFields(ctx: { type?: string | null; isRent?: boolean; isSell?: boolean }): SpecField[] {
   return [
     ...(isIndustrialType(ctx.type) ? INDUSTRIAL_SPEC_FIELDS : []),
+    ...(isCondoType(ctx.type) ? condoFieldsFor(ctx.type) : []),
     ...(ctx.isRent ? RENT_TERM_FIELDS : []),
     ...(ctx.isSell ? SALE_TERM_FIELDS : []),
   ];

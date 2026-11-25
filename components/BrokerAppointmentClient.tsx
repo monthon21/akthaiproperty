@@ -12,6 +12,8 @@ export interface BrokerDocData {
     code: string;
     isSell: boolean;
     isRent: boolean;
+    /** a unit in a building: titled by a condominium title deed, no land area of its own */
+    isCondo: boolean;
     sellPrice: number | null;
     rentPrice: number | null;
     /** e.g. "บ้านเดี่ยว โครงการ The Grand Rama 2" */
@@ -242,9 +244,9 @@ export default function BrokerAppointmentClient({ lang, data }: { lang: string; 
           <h2 className={groupCls}>ทรัพย์สิน</h2>
           {field("ประเภท / โครงการ", "propertySummary")}
           {field("ที่ตั้ง", "propertyAddress")}
-          {field("โฉนดที่ดินเลขที่", "deedNo", { placeholder: "เว้นว่างเพื่อเขียนเอง" })}
+          {field(asset?.isCondo ? "หนังสือกรรมสิทธิ์ห้องชุดเลขที่" : "โฉนดที่ดินเลขที่", "deedNo", { placeholder: "เว้นว่างเพื่อเขียนเอง" })}
           <div className="grid grid-cols-2 gap-2">
-            {field("เนื้อที่ดิน", "landSize")}
+            {!asset?.isCondo && field("เนื้อที่ดิน", "landSize")}
             {field("พื้นที่ใช้สอย", "usableArea")}
           </div>
         </div>
@@ -286,8 +288,17 @@ export default function BrokerAppointmentClient({ lang, data }: { lang: string; 
           <p className="indent-10">
             <b>ข้อ 1. ทรัพย์สิน</b> เจ้าของทรัพย์เป็นผู้มีกรรมสิทธิ์หรือมีอำนาจโดยชอบใน{" "}
             <Fill value={f.propertySummary} width="16rem" />
-            {asset?.code ? <> (รหัสทรัพย์ {asset.code})</> : null} ตั้งอยู่ที่ <Fill value={f.propertyAddress} width="24rem" /> โฉนดที่ดินเลขที่{" "}
-            <Fill value={f.deedNo} width="8rem" /> เนื้อที่ดิน <Fill value={f.landSize} width="8rem" /> พื้นที่ใช้สอยประมาณ <Fill value={f.usableArea} width="7rem" />{" "}
+            {asset?.code ? <> (รหัสทรัพย์ {asset.code})</> : null} ตั้งอยู่ที่ <Fill value={f.propertyAddress} width="24rem" />{" "}
+            {asset?.isCondo ? (
+              <>
+                หนังสือกรรมสิทธิ์ห้องชุดเลขที่ <Fill value={f.deedNo} width="8rem" /> เนื้อที่ห้องชุดประมาณ <Fill value={f.usableArea} width="7rem" />
+              </>
+            ) : (
+              <>
+                โฉนดที่ดินเลขที่ <Fill value={f.deedNo} width="8rem" /> เนื้อที่ดิน <Fill value={f.landSize} width="8rem" /> พื้นที่ใช้สอยประมาณ{" "}
+                <Fill value={f.usableArea} width="7rem" />
+              </>
+            )}{" "}
             ซึ่งต่อไปในสัญญานี้เรียกว่า “ทรัพย์สิน”
           </p>
           <p className="indent-10">

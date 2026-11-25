@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import PropertyDetailClient from "@/components/PropertyDetailClient";
 import { prisma } from "@/lib/prisma";
 import { parseAmenities, AMENITY_MAP } from "@/lib/amenities";
-import { isIndustrialType, parseSpecs, formatSpecs, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
+import { isIndustrialType, isCondoType, publicTypeSpecFields, parseSpecs, formatSpecs, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -122,6 +122,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   else if (asset.type === "LAND") category = "Land";
   else if (asset.type === "COMMERCIAL") category = "Commercial";
   else if (asset.type === "APARTMENT") category = "Apartment";
+  else if (asset.type === "CONDO") category = "Condo";
   else if (asset.type === "OTHER") category = "Other";
 
   // Fallback default image
@@ -146,7 +147,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   let sqft = asset.usableArea ? Number(asset.usableArea) : (asset.landSize ? Number(asset.landSize) : 120);
   if (!asset.usableArea && !asset.landSize) {
     if (asset.type === "LAND") sqft = 200;
-    else if (asset.type === "APARTMENT" || asset.type === "OFFICE" || asset.type === "RETAIL") sqft = 50;
+    else if (asset.type === "APARTMENT" || asset.type === "CONDO" || asset.type === "OFFICE" || asset.type === "RETAIL") sqft = 50;
   }
 
   let title = asset.title;
@@ -176,7 +177,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     beds: isIndustrialType(asset.type) ? undefined : asset.noBedroom || 0,
     baths: isIndustrialType(asset.type) ? undefined : asset.noBathroom || 0,
     isIndustrial: isIndustrialType(asset.type),
-    specs: isIndustrialType(asset.type) ? formatSpecs(parseSpecs(asset.specs), lang) : undefined,
+    specs: isIndustrialType(asset.type) || isCondoType(asset.type) ? formatSpecs(parseSpecs(asset.specs), lang, publicTypeSpecFields(asset.type)) : undefined,
     rentTerms: isRent ? formatSpecs(parseSpecs(asset.specs), lang, RENT_TERM_FIELDS) : undefined,
     saleTerms: isSell ? formatSpecs(parseSpecs(asset.specs), lang, SALE_TERM_FIELDS) : undefined,
     sqft,

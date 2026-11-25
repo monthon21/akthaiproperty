@@ -22,7 +22,7 @@ import FormSectionNav, { FormSection } from "@/components/FormSectionNav";
 import { FileText, Banknote, Handshake, Sparkles, MapPin, UserRound, Navigation, Images, History, ClipboardCheck } from "lucide-react";
 import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone, DATE_LOCALE } from "@/lib/format";
 import SpecFieldsGroup from "@/components/SpecFieldsGroup";
-import { isIndustrialType, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
+import { isIndustrialType, isCondoType, condoFieldsFor, publicTypeSpecFields, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 
 // Define TypeScript interfaces matching database models
 interface DBAssetPrice {
@@ -191,6 +191,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   );
   const [specs, setSpecs] = useState<IndustrialSpecs>(parseSpecs(asset.specs));
   const isIndustrial = isIndustrialType(formData.type);
+  // condo / apartment: a unit in a building — no land size or house floors, and its own set of fields
+  const isCondo = isCondoType(formData.type);
   // shortcut tiles: form sections + a link to this asset's checklist page
   const formSections = useMemo<FormSection[]>(
     () => [
@@ -510,6 +512,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                       <option value="RETAIL">ร้านค้า (Retail)</option>
                       <option value="LAND">ที่ดินเปล่า (Land)</option>
                       <option value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                      <option value="CONDO">คอนโดมิเนียม / ห้องชุด (Condominium)</option>
                       <option value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
                       <option value="OTHER">อื่นๆ (Other)</option>
                     </select>
@@ -670,6 +673,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   />
                 </div>
                 </>)}
+                {!isCondo && (
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนชั้น (Floors)</label>
                   <input
@@ -681,9 +685,11 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
                   />
                 </div>
+                )}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                {!isCondo && (
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ไร่ / งาน / ตร.วา)</label>
                   <LandSizeInput
@@ -695,8 +701,9 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     }}
                   />
                 </div>
+                )}
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : isCondo ? "ขนาดห้อง (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
                   <input
                     type="text"
                     inputMode="decimal"
@@ -738,7 +745,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">หน้าบ้านหันไปทางทิศ (Facing Direction)</label>
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isCondo ? "ห้องหันไปทางทิศ (Facing Direction)" : "หน้าบ้านหันไปทางทิศ (Facing Direction)"}</label>
                   <select
                     name="facing"
                     value={formData.facing}
@@ -770,6 +777,9 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
               {isIndustrial && (
                 <SpecFieldsGroup title="ข้อมูลโกดัง / โรงงาน" subtitle="Industrial Specs" fields={INDUSTRIAL_SPEC_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+              {isCondo && (
+                <SpecFieldsGroup title="ข้อมูลห้องชุด" subtitle="Condo Specs" fields={condoFieldsFor(formData.type)} specs={specs} onChange={setSpecs} />
               )}
             </div>
 
@@ -1417,7 +1427,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     
                     {/* Specs Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
-                      {isIndustrial && formatSpecs(specs, "th").map((sp) => (
+                      {formatSpecs(specs, "th", publicTypeSpecFields(formData.type)).map((sp) => (
                         <div key={sp.key} className="bg-white/5 p-3.5 rounded-xl border border-white/5">
                           <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{sp.label}</span>
                           <span className="text-sm font-bold text-accent">{sp.value} {sp.unit && <span className="text-xs font-normal text-white/70">{sp.unit}</span>}</span>

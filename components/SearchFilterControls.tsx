@@ -62,6 +62,7 @@ const translations = {
     LAND: "ที่ดินเปล่า (Land)",
     COMMERCIAL: "อาคารพาณิชย์ (Commercial Building)",
     APARTMENT: "อพาร์ทเม้นท์ (Apartment)",
+    CONDO: "คอนโดมิเนียม (Condo)",
     OTHER: "อื่นๆ (Other)",
     // Deal types
     allDeals: "ทั้งหมด (Sell or Rent)",
@@ -126,6 +127,7 @@ const translations = {
     LAND: "Land Lot",
     COMMERCIAL: "Commercial Building",
     APARTMENT: "Apartment",
+    CONDO: "Condominium",
     OTHER: "Other",
     // Deal types
     allDeals: "All (Sell or Rent)",
@@ -190,6 +192,7 @@ const translations = {
     LAND: "土地",
     COMMERCIAL: "商业楼",
     APARTMENT: "公寓",
+    CONDO: "共管公寓",
     OTHER: "其他",
     // Deal types
     allDeals: "全部（出售或出租）",
@@ -408,6 +411,7 @@ export default function SearchFilterControls({ currentLang, canSearchOwner = fal
                   <option value="RETAIL">{t.RETAIL}</option>
                   <option value="LAND">{t.LAND}</option>
                   <option value="COMMERCIAL">{t.COMMERCIAL}</option>
+                  <option value="CONDO">{t.CONDO}</option>
                   <option value="APARTMENT">{t.APARTMENT}</option>
                   <option value="OTHER">{t.OTHER}</option>
                 </select>

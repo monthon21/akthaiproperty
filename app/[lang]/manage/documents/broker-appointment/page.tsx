@@ -8,7 +8,7 @@ import BrokerAppointmentClient, { BrokerDocData } from "@/components/BrokerAppoi
 import { prisma } from "@/lib/prisma";
 import { composeThaiAddress, hasAddressParts } from "@/lib/address";
 import { formatLandSize, formatNumber } from "@/lib/format";
-import { parseSpecs } from "@/lib/assetSpecs";
+import { isCondoType, parseSpecs } from "@/lib/assetSpecs";
 
 const TYPE_LABELS: Record<string, string> = {
   DETACHED_HOUSE: "บ้านเดี่ยว",
@@ -16,6 +16,7 @@ const TYPE_LABELS: Record<string, string> = {
   SEMI_DETACHED: "บ้านแฝด",
   VILLA: "วิลล่า",
   APARTMENT: "อพาร์ทเม้นท์",
+  CONDO: "ห้องชุดคอนโดมิเนียม",
   WAREHOUSE: "โกดัง",
   FACTORY: "โรงงาน",
   OFFICE: "ออฟฟิศ",
@@ -48,6 +49,7 @@ export default async function BrokerAppointmentPage({
   ]);
 
   const d = asset?.landlord?.details;
+  const condo = parseSpecs(asset?.specs);
   const ownerAddress = {
     houseNo: d?.houseNo ?? "",
     moo: d?.moo ?? "",
@@ -68,7 +70,21 @@ export default async function BrokerAppointmentPage({
           isRent: asset.isRent,
           sellPrice: asset.sellPrice ? Number(asset.sellPrice) : null,
           rentPrice: asset.loanPrice ? Number(asset.loanPrice) : null,
-          summary: [TYPE_LABELS[asset.type] ?? "", asset.projectName ? `โครงการ ${asset.projectName}` : ""].filter(Boolean).join(" "),
+          isCondo: isCondoType(asset.type),
+          summary: [
+            TYPE_LABELS[asset.type] ?? "",
+            asset.projectName ? `โครงการ ${asset.projectName}` : "",
+            // unit number / floor / building, for units in a building
+            ...(isCondoType(asset.type)
+              ? [
+                  condo.unitNo ? `ห้องชุดเลขที่ ${condo.unitNo}` : "",
+                  condo.unitFloor ? `ชั้น ${condo.unitFloor}` : "",
+                  condo.building ? `อาคาร ${condo.building}` : "",
+                ]
+              : []),
+          ]
+            .filter(Boolean)
+            .join(" "),
           address: composeThaiAddress({
             houseNo: asset.address ?? "",
             soi: asset.soi ?? "",

@@ -20,6 +20,7 @@ const QUICK_TYPES: { value: string; label: Record<Lang, string> }[] = [
   { value: "DETACHED_HOUSE", label: { th: "บ้านเดี่ยว", en: "Detached house", zh: "独栋别墅" } },
   { value: "TOWNHOUSE", label: { th: "ทาวน์เฮาส์", en: "Townhouse", zh: "联排别墅" } },
   { value: "SEMI_DETACHED", label: { th: "บ้านแฝด", en: "Semi-detached", zh: "双拼别墅" } },
+  { value: "CONDO", label: { th: "คอนโดมิเนียม", en: "Condominium", zh: "共管公寓" } },
   { value: "APARTMENT", label: { th: "อพาร์ทเม้นท์", en: "Apartment", zh: "公寓" } },
   { value: "COMMERCIAL", label: { th: "อาคารพาณิชย์", en: "Commercial", zh: "商业楼" } },
   { value: "LAND", label: { th: "ที่ดินเปล่า", en: "Land", zh: "土地" } },

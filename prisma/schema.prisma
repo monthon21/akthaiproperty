@@ -165,6 +165,7 @@ enum AssetType {
   LAND // ที่ดินเปล่า
   COMMERCIAL // อาคารพาณิชย์
   APARTMENT // อพาร์ทเม้นท์
+  CONDO // คอนโดมิเนียม / ห้องชุด
   OTHER // อื่นๆ
 }
 

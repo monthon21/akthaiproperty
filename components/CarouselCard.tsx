@@ -23,6 +23,7 @@ interface PropertyProps {
   landParts?: string;
   usableArea?: number | null;
   noFloor?: number | null;
+  unitFloor?: string;
   parkingLot?: number | null;
   facing?: string | null;
   image: string;
@@ -191,7 +192,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
             </div>
           ) : null}
 
-          {property.noFloor ? (
+          {property.unitFloor || property.noFloor ? (
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-md bg-white/5 flex items-center justify-center text-accent shrink-0">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
@@ -199,8 +200,8 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
                 </svg>
               </div>
               <div className="flex flex-col">
-                <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{lang === 'th' ? 'จำนวนชั้น' : lang === 'zh' ? '楼层' : 'Stories'}</span>
-                <span className="text-xs font-black text-white leading-none">{property.noFloor} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ชั้น' : lang === 'zh' ? '层' : 'Fl.'}</span></span>
+                <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{property.unitFloor ? (lang === 'th' ? 'อยู่ชั้น' : lang === 'zh' ? '所在楼层' : 'Floor') : lang === 'th' ? 'จำนวนชั้น' : lang === 'zh' ? '楼层' : 'Stories'}</span>
+                <span className="text-xs font-black text-white leading-none">{property.unitFloor || property.noFloor} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ชั้น' : lang === 'zh' ? '层' : 'Fl.'}</span></span>
               </div>
             </div>
           ) : null}

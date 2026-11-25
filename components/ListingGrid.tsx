@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import Link from "next/link";
 import { auth } from "@/auth";
-import { isIndustrialType, parseSpecs } from "@/lib/assetSpecs";
+import { isIndustrialType, isCondoType, parseSpecs } from "@/lib/assetSpecs";
 
 interface ListingGridProps {
   type?: "sell" | "rent";
@@ -60,6 +60,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   else if (asset.type === "LAND") category = "Land";
   else if (asset.type === "COMMERCIAL") category = "Commercial";
   else if (asset.type === "APARTMENT") category = "Apartment";
+  else if (asset.type === "CONDO") category = "Condo";
   else if (asset.type === "OTHER") category = "Other";
 
   // Fallback default image
@@ -71,7 +72,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
   let sqft = asset.usableArea ? Number(asset.usableArea) : (asset.landSize ? Number(asset.landSize) : 120);
   if (!asset.usableArea && !asset.landSize) {
     if (asset.type === "LAND") sqft = 200;
-    else if (asset.type === "APARTMENT" || asset.type === "OFFICE" || asset.type === "RETAIL") sqft = 50;
+    else if (asset.type === "APARTMENT" || asset.type === "CONDO" || asset.type === "OFFICE" || asset.type === "RETAIL") sqft = 50;
   }
 
   let title = asset.title;
@@ -105,6 +106,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     landParts: parseSpecs(asset.specs).landParts,
     usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
     noFloor: asset.noFloor ? Number(asset.noFloor) : undefined,
+    unitFloor: isCondoType(asset.type) ? parseSpecs(asset.specs).unitFloor : undefined,
     parkingLot: asset.parkingLot ? Number(asset.parkingLot) : undefined,
     image: featureImage,
     description: description,

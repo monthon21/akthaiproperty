@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DATE_LOCALE } from "@/lib/format";
+import { DATE_LOCALE, formatThaiPhone } from "@/lib/format";
 import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -39,6 +39,7 @@ const ASSET_TYPE_LABELS: Record<string, string> = {
   SEMI_DETACHED: "บ้านแฝด",
   VILLA: "วิลล่า",
   APARTMENT: "อพาร์ทเม้นท์",
+  CONDO: "คอนโดมิเนียม",
   WAREHOUSE: "โกดัง",
   FACTORY: "โรงงาน",
   OFFICE: "ออฟฟิศ",
@@ -49,7 +50,7 @@ const ASSET_TYPE_LABELS: Record<string, string> = {
 };
 
 const ASSET_TYPE_GROUPS: { label: string; types: string[] }[] = [
-  { label: "ที่อยู่อาศัย", types: ["DETACHED_HOUSE", "TOWNHOUSE", "SEMI_DETACHED", "VILLA", "APARTMENT"] },
+  { label: "ที่อยู่อาศัย", types: ["DETACHED_HOUSE", "TOWNHOUSE", "SEMI_DETACHED", "VILLA", "CONDO", "APARTMENT"] },
   { label: "อุตสาหกรรม", types: ["WAREHOUSE", "FACTORY"] },
   { label: "พาณิชย์", types: ["OFFICE", "RETAIL", "COMMERCIAL"] },
   { label: "ที่ดินและอื่นๆ", types: ["LAND", "OTHER"] },
@@ -282,21 +283,22 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
           <table className="w-full text-left text-sm text-white min-w-[800px]">
             <thead className="bg-black/40 text-[10px] uppercase text-white/50 tracking-widest border-b border-white/5">
               <tr>
-                <th className="px-6 py-4 font-bold">รูปภาพ</th>
-                <th className="px-6 py-4 font-bold">รหัส</th>
-                <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน</th>
-                <th className="px-6 py-4 font-bold">สถานะ</th>
-                <th className="px-6 py-4 font-bold">ราคาขาย</th>
-                <th className="px-6 py-4 font-bold">ราคาเช่า</th>
-                <th className="px-6 py-4 font-bold text-center">ออนไลน์</th>
-                <th className="px-6 py-4 font-bold text-center">หน้าแรก</th>
-                <th className="px-6 py-4 font-bold text-right">จัดการ</th>
+                <th className="px-3.5 py-3.5 font-bold">รูปภาพ</th>
+                <th className="px-3.5 py-3.5 font-bold">รหัส</th>
+                <th className="px-3.5 py-3.5 font-bold">ชื่อทรัพย์สิน</th>
+                {isAdmin && <th className="px-3.5 py-3.5 font-bold">เจ้าของทรัพย์</th>}
+                <th className="px-3.5 py-3.5 font-bold">สถานะ</th>
+                <th className="px-3.5 py-3.5 font-bold">ราคาขาย</th>
+                <th className="px-3.5 py-3.5 font-bold">ราคาเช่า</th>
+                <th className="px-3.5 py-3.5 font-bold text-center">ออนไลน์</th>
+                <th className="px-3.5 py-3.5 font-bold text-center">หน้าแรก</th>
+                <th className="px-3.5 py-3.5 font-bold text-right">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5 [&_td]:align-top">
               {filteredAssets.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-6 py-12 text-center text-white/40">
+                  <td colSpan={isAdmin ? 10 : 9} className="px-4 py-12 text-center text-white/40">
                     <p className="text-sm">
                       {assets.length === 0 ? "ไม่มีข้อมูลทรัพย์สินในระบบ" : "ไม่พบทรัพย์สินที่ตรงกับเงื่อนไขการกรองของคุณ"}
                     </p>
@@ -310,7 +312,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
               ) : (
                 filteredAssets.map((asset) => (
                 <tr key={asset.id} className="hover:bg-white/5 transition-colors group">
-                  <td className="px-6 py-4">
+                  <td className="px-3.5 py-3.5">
                     <Link
                       href={`/${currentLang}/edit/${asset.code || asset.id}`}
                       title={`แก้ไขทรัพย์ ${asset.code}`}
@@ -324,7 +326,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       )}
                     </Link>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-3.5 py-3.5">
                     <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} title={`แก้ไขทรัพย์ ${asset.code}`} className="font-mono text-xs text-accent font-bold block hover:underline underline-offset-2">
                       {asset.code}
                     </Link>
@@ -338,7 +340,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       </span>
                     )}
                   </td>
-                   <td className="px-6 py-4 font-medium max-w-[200px]">
+                   <td className="px-3.5 py-3.5 font-medium max-w-[200px]">
                     <Link href={`/${currentLang}/edit/${asset.code || asset.id}`} className="block group/title" title={asset.title}>
                       <span className="block truncate text-white group-hover/title:text-accent transition-colors">{asset.title}</span>
                       {asset.titleEn && <span className="block truncate text-[10px] text-white/40">{asset.titleEn}</span>}
@@ -347,7 +349,29 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       {ASSET_TYPE_LABELS[asset.type as string] || asset.type}
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  {/* owner: private contact details, admins only */}
+                  {isAdmin && (
+                    <td className="px-3.5 py-3.5">
+                      {asset.landlord ? (
+                        <Link
+                          href={`/${currentLang}/manage/landlord/edit/${asset.landlord.id}`}
+                          title={`ดูข้อมูลเจ้าของทรัพย์: ${asset.landlord.name}`}
+                          className="group/owner block max-w-[140px]"
+                        >
+                          <span className="block truncate text-[13px] font-semibold text-white group-hover/owner:text-accent transition-colors">{asset.landlord.name}</span>
+                          {asset.landlord.phone && <span className="block text-[10px] text-white/45 font-mono leading-tight mt-0.5">{formatThaiPhone(asset.landlord.phone)}</span>}
+                        </Link>
+                      ) : (
+                        <Link
+                          href={`/${currentLang}/edit/${asset.code || asset.id}#sec-owner`}
+                          className="text-[11px] font-bold text-amber-400/80 hover:text-amber-300 border border-dashed border-amber-400/40 rounded-md px-2 py-1 inline-block"
+                        >
+                          + ระบุเจ้าของ
+                        </Link>
+                      )}
+                    </td>
+                  )}
+                  <td className="px-3.5 py-3.5">
                     <div className="flex flex-col items-start gap-1.5">
                       {asset.isDraft && <span className="bg-amber-500/10 text-amber-400 border border-amber-500/20 text-[9px] font-bold uppercase px-2 py-0.5 rounded">แบบร่าง</span>}
                       {!asset.isAvailable && <span className="bg-white/5 text-white/50 border border-white/10 text-[9px] font-bold uppercase px-2 py-0.5 rounded">ปิดประกาศ</span>}
@@ -359,9 +383,9 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       )}
                     </div>
                   </td>
-                  <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.sellPrice)}</td>
-                  <td className="px-6 py-4 font-bold text-sm">{formatPrice(asset.loanPrice)}</td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-3.5 py-3.5 font-bold text-[13px]">{formatPrice(asset.sellPrice)}</td>
+                  <td className="px-3.5 py-3.5 font-bold text-[13px]">{formatPrice(asset.loanPrice)}</td>
+                  <td className="px-3.5 py-3.5 text-center">
                     <button
                       onClick={async () => {
                         const newValue = !asset.isAvailable;
@@ -382,7 +406,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-[#0A192F] transition-transform ${asset.isAvailable ? 'translate-x-4' : 'translate-x-1'}`} />
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-center">
+                  <td className="px-3.5 py-3.5 text-center">
                     <button
                       onClick={async () => {
                         const newValue = !asset.isRecommended;
@@ -403,7 +427,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                       <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-[#0A192F] transition-transform ${asset.isRecommended ? 'translate-x-4' : 'translate-x-1'}`} />
                     </button>
                   </td>
-                  <td className="px-6 py-4 text-right">
+                  <td className="px-3.5 py-3.5 text-right">
                     {isDeleting === asset.id ? (
                       <span className="inline-flex w-9 h-9 items-center justify-center" aria-label="กำลังลบ">
                         <span className="w-4 h-4 rounded-full border-2 border-white/15 border-t-red-400 animate-spin" />

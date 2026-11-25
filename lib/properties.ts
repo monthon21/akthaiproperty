@@ -24,6 +24,8 @@ export interface Property {
   baths?: number;
   sqft: number;
   noFloor?: number;
+  /** condo / apartment: the floor the unit is on */
+  unitFloor?: string;
   maidRoom?: number;
   parkingLot?: number;
   facing?: string;

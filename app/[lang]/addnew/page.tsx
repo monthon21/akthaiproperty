@@ -22,7 +22,7 @@ import FormSectionNav, { FormSection } from "@/components/FormSectionNav";
 import { FileText, Banknote, Handshake, Sparkles, MapPin, UserRound, Navigation, Images } from "lucide-react";
 import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone } from "@/lib/format";
 import SpecFieldsGroup from "@/components/SpecFieldsGroup";
-import { isIndustrialType, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
+import { isIndustrialType, isCondoType, condoFieldsFor, publicTypeSpecFields, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 import { useProjectTemplateAutocomplete, templatePlacesToAssetPlaces, ProjectTemplateOption } from "@/lib/useProjectTemplateAutocomplete";
 import { getProjectTemplatesListAction } from "@/lib/actions/project-template";
 
@@ -81,6 +81,8 @@ export default function AddNewAssetPage() {
   const [amenities, setAmenities] = useState<string[]>([]);
   const [specs, setSpecs] = useState<IndustrialSpecs>({});
   const isIndustrial = isIndustrialType(formData.type);
+  // condo / apartment: a unit in a building — no land size or house floors, and its own set of fields
+  const isCondo = isCondoType(formData.type);
   const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -386,6 +388,7 @@ export default function AddNewAssetPage() {
                         <option className="bg-[#112240]" value="RETAIL">ร้านค้า (Retail)</option>
                         <option className="bg-[#112240]" value="LAND">ที่ดินเปล่า (Land)</option>
                         <option className="bg-[#112240]" value="COMMERCIAL">อาคารพาณิชย์ (Commercial Building)</option>
+                        <option className="bg-[#112240]" value="CONDO">คอนโดมิเนียม / ห้องชุด (Condominium)</option>
                         <option className="bg-[#112240]" value="APARTMENT">อพาร์ทเม้นท์ (Apartment)</option>
                         <option className="bg-[#112240]" value="OTHER">อื่นๆ (Other)</option>
                       </select>
@@ -512,6 +515,7 @@ export default function AddNewAssetPage() {
 
 
                 <div className="grid grid-cols-2 gap-5">
+                  {!isCondo && (
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ไร่ / งาน / ตร.วา)</label>
                     <LandSizeInput
@@ -523,8 +527,9 @@ export default function AddNewAssetPage() {
                     }}
                   />
                   </div>
+                  )}
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : isCondo ? "ขนาดห้อง (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
                     <input type="text" inputMode="decimal" name="usableArea" placeholder="e.g. 200" value={formData.usableArea} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
@@ -545,11 +550,13 @@ export default function AddNewAssetPage() {
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                   </>)}
+                  {!isCondo && (
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนชั้น (Floors)</label>
                     <input type="number" name="noFloor" placeholder="e.g. 2" value={formData.noFloor} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-2 gap-5">
@@ -569,7 +576,7 @@ export default function AddNewAssetPage() {
 
                 <div className="grid grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">หน้าบ้านหันไปทางทิศ (Facing Direction)</label>
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isCondo ? "ห้องหันไปทางทิศ (Facing Direction)" : "หน้าบ้านหันไปทางทิศ (Facing Direction)"}</label>
                     <select name="facing" value={formData.facing} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white appearance-none cursor-pointer">
                       <option className="bg-[#112240]" value="">ไม่ระบุ</option>
@@ -592,6 +599,9 @@ export default function AddNewAssetPage() {
                 {isIndustrial && (
                 <SpecFieldsGroup title="ข้อมูลโกดัง / โรงงาน" subtitle="Industrial Specs" fields={INDUSTRIAL_SPEC_FIELDS} specs={specs} onChange={setSpecs} />
               )}
+                {isCondo && (
+                  <SpecFieldsGroup title="ข้อมูลห้องชุด" subtitle="Condo Specs" fields={condoFieldsFor(formData.type)} specs={specs} onChange={setSpecs} />
+                )}
             </div>
 
               {/* Deal Terms */}
@@ -1154,7 +1164,7 @@ export default function AddNewAssetPage() {
                   <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
                     <p className="whitespace-pre-line bg-white/2.5 p-4 rounded-xl border border-white/5">{formData.description || "ยังไม่มีข้อมูลรายละเอียดทรัพย์สิน"}</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
-                      {isIndustrial && formatSpecs(specs, "th").map((sp) => (
+                      {formatSpecs(specs, "th", publicTypeSpecFields(formData.type)).map((sp) => (
                         <div key={sp.key} className="bg-white/5 p-3.5 rounded-xl border border-white/5">
                           <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{sp.label}</span>
                           <span className="text-sm font-bold text-accent">{sp.value} {sp.unit && <span className="text-xs font-normal text-white/70">{sp.unit}</span>}</span>

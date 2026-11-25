@@ -116,6 +116,19 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
     ],
   },
   {
+    id: "building",
+    title: "อาคาร & ส่วนกลาง",
+    titleEn: "Building & Common Areas",
+    titleZh: "楼宇与公共区域",
+    items: [
+      { key: "lobby",             label: "ล็อบบี้ / ห้องรับรอง",         labelEn: "Lobby",              labelZh: "大堂" },
+      { key: "elevator",          label: "ลิฟต์โดยสาร",                  labelEn: "Elevator",           labelZh: "电梯" },
+      { key: "common_parking",    label: "ที่จอดรถส่วนกลาง",             labelEn: "Common Parking",     labelZh: "公共停车场" },
+      { key: "near_transit",      label: "ใกล้รถไฟฟ้า BTS / MRT",        labelEn: "Near BTS / MRT",     labelZh: "近轻轨/地铁" },
+      { key: "juristic_office",   label: "นิติบุคคลดูแล",                labelEn: "Juristic Office",    labelZh: "物业管理处" },
+    ],
+  },
+  {
     id: "others",
     title: "อื่นๆ",
     titleEn: "Others",
