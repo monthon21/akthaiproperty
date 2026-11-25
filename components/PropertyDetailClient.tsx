@@ -407,7 +407,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.land_size")}</span>
-              <span className="text-sm font-black text-white leading-none">{formatLandSize(property.landSize, currentLang)}</span>
+              <span className="text-sm font-black text-white leading-none">{formatLandSize(property.landSize, currentLang, property.landParts)}</span>
             </div>
           </div>
         ) : null}
@@ -683,7 +683,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.land_size")}</span>
                         <span className="text-sm font-black text-accent truncate">
-                          {formatLandSize(property.landSize, currentLang)}
+                          {formatLandSize(property.landSize, currentLang, property.landParts)}
                         </span>
                       </div>
                     </div>
@@ -1441,7 +1441,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
                         </svg>
                       </div>
-                      <span className="text-[11px] font-black text-gray-900 leading-none">{formatLandSize(property.landSize, currentLang)}</span>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{formatLandSize(property.landSize, currentLang, property.landParts)}</span>
                     </div>
                   ) : null}
 

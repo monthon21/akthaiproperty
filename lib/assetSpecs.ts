@@ -252,6 +252,8 @@ export function applicableSpecFields(ctx: { type?: string | null; isRent?: boole
   ];
 }
 
+const ALWAYS_KEPT_KEYS = ["landParts"];
+
 /** Keep only applicable, non-empty keys. Returns null when nothing is filled. */
 export function serializeSpecs(
   specs: AssetSpecs | null | undefined,
@@ -263,6 +265,11 @@ export function serializeSpecs(
     const v = specs[f.key];
     if (v === undefined || v === null || String(v).trim() === "") continue;
     clean[f.key] = f.input === "number" ? stripCommas(String(v).trim()) : String(v).trim();
+  }
+  // not form fields, but kept for every asset type (landParts: land size boxes as typed)
+  for (const key of ALWAYS_KEPT_KEYS) {
+    const v = specs[key];
+    if (v !== undefined && v !== null && String(v).trim() !== "") clean[key] = String(v).trim();
   }
   return Object.keys(clean).length > 0 ? JSON.stringify(clean) : null;
 }

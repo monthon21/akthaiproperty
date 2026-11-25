@@ -187,6 +187,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     otherFeatures: asset.otherFeatures || undefined,
     googleMap: asset.googleMap || undefined,
     landSize: asset.landSize ? Number(asset.landSize) : undefined,
+    landParts: parseSpecs(asset.specs).landParts,
     usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
     image: featureImage,
     description: description,

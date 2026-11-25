@@ -21,6 +21,7 @@ interface PropertyProps {
   ceilingHeight?: string;
   sqft: number;
   landSize?: number | null;
+  landParts?: string;
   usableArea?: number | null;
   image: string;
 }
@@ -149,7 +150,7 @@ export default async function PropertyCard({ property, lang = "th" }: { property
               <Maximize className="w-4 h-4 text-accent" />
               <span>
                 {property.category === "Land"
-                  ? formatLandSize(property.landSize || property.sqft, lang)
+                  ? formatLandSize(property.landSize || property.sqft, lang, property.landParts)
                   : `${formatNumber(property.usableArea || property.sqft)} ${dict.property_card.sqm}`}
               </span>
             </div>

@@ -20,6 +20,7 @@ interface PropertyProps {
   ceilingHeight?: string;
   sqft: number;
   landSize?: number | null;
+  landParts?: string;
   usableArea?: number | null;
   noFloor?: number | null;
   parkingLot?: number | null;
@@ -171,7 +172,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{lang === 'th' ? 'ขนาดที่ดิน' : lang === 'zh' ? '土地面积' : 'Land Size'}</span>
-                <span className="text-xs font-black text-white leading-none">{formatLandSize(property.landSize, lang)}</span>
+                <span className="text-xs font-black text-white leading-none">{formatLandSize(property.landSize, lang, property.landParts)}</span>
               </div>
             </div>
           ) : null}

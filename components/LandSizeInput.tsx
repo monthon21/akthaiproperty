@@ -1,32 +1,42 @@
 "use client";
 
 import { useState } from "react";
-import { formatDecimalInput, splitLandSize, stripCommas, SQW_PER_NGAN, SQW_PER_RAI } from "@/lib/format";
+import { formatDecimalInput, landPartsTotal, parseLandParts, stripCommas } from "@/lib/format";
 
 interface Props {
   /** total land size in square wah (ตร.วา), may contain commas */
   value: string;
-  onChange: (totalSqw: string) => void;
+  /** what was typed in each box, "ไร่-งาน-ตร.วา" (Asset.specs.landParts) */
+  parts?: string;
+  onChange: (totalSqw: string, parts: string) => void;
 }
 
 const boxCls =
   "w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl pl-3 pr-12 text-xs focus:outline-none focus:border-accent transition-all text-white";
 
-/** Land size entered as ไร่ / งาน / ตร.วา, reported back as total ตร.วา */
-export default function LandSizeInput({ value, onChange }: Props) {
+const show = (n: number) => (n ? formatDecimalInput(String(n)) : "");
+
+/**
+ * Land size entered as ไร่ / งาน / ตร.วา. Units are never converted: 157 typed in ตร.วา stays 157 ตร.วา.
+ * Reports the total in ตร.วา (for search / sorting) plus the boxes as typed.
+ */
+export default function LandSizeInput({ value, parts: savedParts, onChange }: Props) {
   const [parts, setParts] = useState(() => {
     const total = Number(stripCommas(value));
     if (!total) return { rai: "", ngan: "", sqw: "" };
-    const p = splitLandSize(total);
-    return { rai: p.rai ? String(p.rai) : "", ngan: p.ngan ? String(p.ngan) : "", sqw: p.sqw ? String(p.sqw) : "" };
+    const saved = parseLandParts(savedParts);
+    // older listings only have the total: show it in ตร.วา as it is
+    const p = saved && landPartsTotal(saved) === total ? saved : { rai: 0, ngan: 0, sqw: total };
+    return { rai: show(p.rai), ngan: show(p.ngan), sqw: show(p.sqw) };
   });
 
   const update = (key: "rai" | "ngan" | "sqw", raw: string) => {
     const next = { ...parts, [key]: formatDecimalInput(raw) };
     setParts(next);
     const num = (s: string) => Number(stripCommas(s)) || 0;
-    const total = num(next.rai) * SQW_PER_RAI + num(next.ngan) * SQW_PER_NGAN + num(next.sqw);
-    onChange(total ? String(Math.round(total * 100) / 100) : "");
+    const typed = { rai: num(next.rai), ngan: num(next.ngan), sqw: num(next.sqw) };
+    const total = landPartsTotal(typed);
+    onChange(total ? String(total) : "", total ? `${typed.rai}-${typed.ngan}-${typed.sqw}` : "");
   };
 
   const fields: { key: "rai" | "ngan" | "sqw"; unit: string; placeholder: string }[] = [

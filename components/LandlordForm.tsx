@@ -8,6 +8,8 @@ import { formatThaiPhone, formatNationalId, isValidThaiNationalId } from "@/lib/
 import SavingModal from "@/components/SavingModal";
 import { AddressParts, EMPTY_ADDRESS, composeThaiAddress, hasAddressParts } from "@/lib/address";
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
+import FormSectionNav, { FormSection } from "@/components/FormSectionNav";
+import { UserRound, MapPin } from "lucide-react";
 
 export interface LandlordFormValues extends AddressParts {
   name: string;
@@ -54,6 +56,11 @@ const inputCls =
 const selectCls = `${inputCls} appearance-none cursor-pointer`;
 const labelCls = "text-xs font-bold text-white/50 block";
 const sectionCls = "text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2 flex items-center";
+
+const FORM_SECTIONS: FormSection[] = [
+  { id: "sec-main", label: "Main", title: "ข้อมูลหลัก", Icon: UserRound },
+  { id: "sec-address", label: "Address", title: "ที่อยู่ตามทะเบียนบ้าน", Icon: MapPin },
+];
 
 /** Create / edit form for a landlord (property owner) — used by /manage/landlord/new and /edit/[id] */
 export default function LandlordForm({ lang, landlordId, initial = EMPTY_LANDLORD, assets = [] }: Props) {
@@ -122,12 +129,16 @@ export default function LandlordForm({ lang, landlordId, initial = EMPTY_LANDLOR
   };
 
   return (
-    <form onSubmit={handleSubmit} className="bg-[#112240] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl space-y-8">
+    <form onSubmit={handleSubmit} className="lg:grid lg:grid-cols-[212px_minmax(0,1fr)] lg:gap-6 items-start">
+      {/* requestSubmit() runs the browser's required-field checks, same as the submit button below */}
+      <FormSectionNav sections={FORM_SECTIONS} onSave={(e) => e.currentTarget.form?.requestSubmit()} saving={status !== null} />
+
+      <div className="bg-[#112240] border border-white/10 rounded-2xl p-6 md:p-8 shadow-2xl space-y-8">
       {error && (
         <p className="text-sm text-red-400 bg-red-500/10 border border-red-500/30 rounded-xl px-4 py-3">{error}</p>
       )}
 
-      <section className="space-y-4">
+      <section id="sec-main" className="space-y-4 scroll-mt-32">
         <h2 className={sectionCls}>ข้อมูลติดต่อหลัก</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="space-y-1.5">
@@ -136,7 +147,7 @@ export default function LandlordForm({ lang, landlordId, initial = EMPTY_LANDLOR
           </div>
           <div className="space-y-1.5">
             <label className={labelCls}>เบอร์โทรหลัก</label>
-            <input type="text" inputMode="tel" value={form.phone} onChange={(e) => set("phone", formatThaiPhone(e.target.value))} placeholder="086-888-0196" className={inputCls} />
+            <input type="text" inputMode="tel" value={form.phone} onChange={(e) => set("phone", formatThaiPhone(e.target.value))} placeholder="08x-xxx-xxxx" className={inputCls} />
           </div>
           <div className="space-y-1.5">
             <label className={labelCls}>LINE ID</label>
@@ -190,7 +201,7 @@ export default function LandlordForm({ lang, landlordId, initial = EMPTY_LANDLOR
         </div>
       </section>
 
-      <section className="space-y-4">
+      <section id="sec-address" className="space-y-4 scroll-mt-32">
         <h2 className={sectionCls}>ที่อยู่ตามทะเบียนบ้าน</h2>
         {legacyAddress && (
           <p className="text-xs text-white/50 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3 leading-relaxed">
@@ -315,6 +326,7 @@ export default function LandlordForm({ lang, landlordId, initial = EMPTY_LANDLOR
         >
           บันทึกข้อมูล
         </button>
+      </div>
       </div>
 
       <SavingModal

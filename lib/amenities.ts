@@ -34,6 +34,8 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
       { key: "builtin_fridge",    label: "ตู้เย็นบิ้วท์อิน",         labelEn: "Built-in Refrigerator",labelZh: "嵌入式冰箱" },
       { key: "builtin_kitchen",   label: "เตาครัวบิ้วท์อิน",         labelEn: "Built-in Kitchen",     labelZh: "嵌入式厨房" },
       { key: "hood",              label: "เครื่องดูดควัน",            labelEn: "Range Hood",           labelZh: "抽油烟机" },
+      { key: "builtin_wardrobe",  label: "ตู้เสื้อผ้าบิ้วท์อิน",      labelEn: "Built-in Wardrobe",    labelZh: "嵌入式衣柜" },
+      { key: "curtains",          label: "ผ้าม่าน / มู่ลี่",          labelEn: "Curtains / Blinds",    labelZh: "窗帘 / 百叶窗" },
       { key: "washing_machine",   label: "เครื่องซักผ้า",             labelEn: "Washing Machine",      labelZh: "洗衣机" },
       { key: "smart_home",        label: "Smart Home System",         labelEn: "Smart Home System",    labelZh: "智能家居系统" },
       { key: "cctv_indoor",       label: "ระบบ CCTV ภายใน",          labelEn: "Indoor CCTV",          labelZh: "室内闭路电视" },

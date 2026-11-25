@@ -108,6 +108,8 @@ interface LangTabInputProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   placeholder?: string;
   required?: boolean;
+  /** soft gold tint, gold border and gold text, for the field that matters most (e.g. the asset title) */
+  highlight?: boolean;
 }
 
 export function LangTabInput({
@@ -121,6 +123,7 @@ export function LangTabInput({
   onChange,
   placeholder = "",
   required = false,
+  highlight = false,
 }: LangTabInputProps) {
   const [activeTab, setActiveTab] = useState<LangTab>("th");
 
@@ -168,11 +171,15 @@ export function LangTabInput({
           onChange={onChange}
           required={required && activeTab === "th"}
           placeholder={placeholderMap[activeTab]}
-          className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 pr-16 text-xs focus:outline-none focus:border-accent transition-all text-white"
+          className={`w-full h-11 rounded-xl px-4 pr-16 border focus:outline-none transition-all ${
+            highlight
+              ? "bg-accent/10 border-accent/50 border-l-4 border-l-accent text-accent text-sm font-bold placeholder:text-accent/35 placeholder:font-normal focus:border-accent focus:bg-accent/15"
+              : "bg-black/45 border-white/10 text-xs text-white focus:border-accent"
+          }`}
         />
         {/* Lang indicator badge */}
         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-          <span className="text-[8px] font-black uppercase tracking-widest text-white/15">
+          <span className={`text-[8px] font-black uppercase tracking-widest ${highlight ? "text-accent/40" : "text-white/15"}`}>
             {LANG_TABS.find((t) => t.key === activeTab)?.flag}{" "}
             {LANG_TABS.find((t) => t.key === activeTab)?.label}
           </span>

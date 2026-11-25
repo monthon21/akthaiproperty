@@ -14,6 +14,7 @@ import { AMENITY_GROUPS, parseAmenities, getAmenityGroups } from "@/lib/amenitie
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
 import MapPickerModal from "@/components/MapPickerModal";
 import SavingModal from "@/components/SavingModal";
+import DealPriceFields from "@/components/DealPriceFields";
 import LandSizeInput from "@/components/LandSizeInput";
 import PlaceNameInput from "@/components/PlaceNameInput";
 import NearbyAutoMatch from "@/components/NearbyAutoMatch";
@@ -362,12 +363,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
       return;
     }
 
-    if (!isDrafting) {
-      if (images.length === 0) {
-        setError("กรุณาเพิ่มรูปภาพประกอบอย่างน้อย 1 รูป");
-        return;
-      }
-
+    // images are optional (photos often arrive later); only when there are some, one must be the cover
+    if (!isDrafting && images.length > 0) {
       const hasFeature = images.some((img) => img.isFeature);
       if (!hasFeature) {
         setError("กรุณาเลือกรูปภาพหลัก (Feature Image) 1 รูป");
@@ -495,7 +492,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none text-white/50 cursor-not-allowed font-mono"
                   />
                 </div>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 md:col-span-2">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ประเภททรัพย์สิน</label>
                     <select
                       name="type"
@@ -517,42 +514,17 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                       <option value="OTHER">อื่นๆ (Other)</option>
                     </select>
                   </div>
-                <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขาย / เช่า *</label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {([
-                        { name: "isSell", checked: formData.isSell, label: "ขาย", sub: "Sell" },
-                        { name: "isRent", checked: formData.isRent, label: "เช่า", sub: "Rent" },
-                      ] as const).map((opt) => (
-                        <label
-                          key={opt.name}
-                          className={`flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer select-none transition-all active:scale-95 focus-within:ring-2 focus-within:ring-accent/40 ${
-                            opt.checked
-                              ? "bg-accent border-accent text-primary-dark shadow-lg shadow-accent/20"
-                              : "bg-black/30 border-white/15 text-white/60 hover:border-accent/50 hover:text-white"
-                          }`}
-                        >
-                          <input type="checkbox" name={opt.name} checked={opt.checked} onChange={handleInputChange} className="sr-only" />
-                          <span
-                            className={`flex items-center justify-center w-5 h-5 rounded-md border-2 shrink-0 ${
-                              opt.checked ? "bg-primary-dark border-primary-dark text-accent" : "border-white/30"
-                            }`}
-                          >
-                            {opt.checked && (
-                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={4} stroke="currentColor" className="w-3 h-3">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                              </svg>
-                            )}
-                          </span>
-                          <span className="text-sm font-black">{opt.label}</span>
-                          <span className={`text-[10px] font-bold uppercase tracking-wider ${opt.checked ? "text-primary-dark/60" : "text-white/30"}`}>{opt.sub}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
+                <DealPriceFields
+                  isSell={formData.isSell}
+                  isRent={formData.isRent}
+                  sellPrice={formData.sellPrice}
+                  loanPrice={formData.loanPrice}
+                  onChange={handleInputChange}
+                />
                 {/* Title — Language Tabs */}
                 <div className="md:col-span-3">
                   <LangTabInput
+                    highlight
                     label="ชื่อทรัพย์สิน (Asset Title)*"
                     nameTh="title"
                     nameEn="titleEn"
@@ -670,32 +642,6 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               <h3 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-2">
                 ราคาและข้อมูลทรัพย์สิน (Pricing & Specs)
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ราคาขาย (Sell Price / บาท)</label>
-                  <input
-                    type="text"
-                    name="sellPrice"
-                    placeholder={formData.isSell ? "e.g. 12,500,000" : "กรุณาเลือก สำหรับขาย (Sell) ก่อน"}
-                    value={formData.sellPrice}
-                    onChange={handleInputChange}
-                    disabled={!formData.isSell}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ค่าเช่า / เดือน (Rent Price / Month)</label>
-                  <input
-                    type="text"
-                    name="loanPrice"
-                    placeholder={formData.isRent ? "e.g. 10,000,000" : "กรุณาเลือก สำหรับเช่า (Rent) ก่อน"}
-                    value={formData.loanPrice}
-                    onChange={handleInputChange}
-                    disabled={!formData.isRent}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold focus:outline-none focus:border-accent text-white disabled:opacity-40 disabled:cursor-not-allowed disabled:bg-black/20"
-                  />
-                </div>
-              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {!isIndustrial && (<>
@@ -740,7 +686,14 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ไร่ / งาน / ตร.วา)</label>
-                  <LandSizeInput value={formData.landSize} onChange={(v) => setFormData((prev) => ({ ...prev, landSize: v }))} />
+                  <LandSizeInput
+                    value={formData.landSize}
+                    parts={specs.landParts}
+                    onChange={(v, parts) => {
+                      setFormData((prev) => ({ ...prev, landSize: v }));
+                      setSpecs((prev) => ({ ...prev, landParts: parts }));
+                    }}
+                  />
                 </div>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
@@ -1473,7 +1426,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                       {formData.landSize ? (
                         <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
                           <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">ขนาดที่ดิน</span>
-                          <span className="text-sm font-bold text-accent">{formatLandSize(formData.landSize, "th")}</span>
+                          <span className="text-sm font-bold text-accent">{formatLandSize(formData.landSize, "th", specs.landParts)}</span>
                         </div>
                       ) : null}
                       {formData.usableArea ? (

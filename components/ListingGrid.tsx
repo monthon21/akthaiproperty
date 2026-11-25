@@ -102,6 +102,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
     ceilingHeight: isIndustrialType(asset.type) ? parseSpecs(asset.specs).ceilingHeight : undefined,
     sqft,
     landSize: asset.landSize ? Number(asset.landSize) : undefined,
+    landParts: parseSpecs(asset.specs).landParts,
     usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
     noFloor: asset.noFloor ? Number(asset.noFloor) : undefined,
     parkingLot: asset.parkingLot ? Number(asset.parkingLot) : undefined,

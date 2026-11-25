@@ -30,6 +30,8 @@ export interface Property {
   otherFeatures?: string;
   googleMap?: string;
   landSize?: number;
+  /** land size boxes as typed, "ไร่-งาน-ตร.วา" */
+  landParts?: string;
   usableArea?: number;
   isIndustrial?: boolean;
   ceilingHeight?: string;

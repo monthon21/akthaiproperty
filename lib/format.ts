@@ -26,12 +26,22 @@ export function formatNumber(value: number | string | null | undefined): string 
 export const SQW_PER_RAI = 400;
 export const SQW_PER_NGAN = 100;
 
-/** Split a total in square wah into { rai, ngan, sqw } */
-export function splitLandSize(totalSqw: number) {
-  const rai = Math.floor(totalSqw / SQW_PER_RAI);
-  const ngan = Math.floor((totalSqw % SQW_PER_RAI) / SQW_PER_NGAN);
-  const sqw = Math.round((totalSqw % SQW_PER_NGAN) * 100) / 100;
-  return { rai, ngan, sqw };
+export interface LandParts {
+  rai: number;
+  ngan: number;
+  sqw: number;
+}
+
+/** Total in square wah for what was typed in the ไร่ / งาน / ตร.วา boxes */
+export function landPartsTotal(p: LandParts) {
+  return Math.round((p.rai * SQW_PER_RAI + p.ngan * SQW_PER_NGAN + p.sqw) * 100) / 100;
+}
+
+/** "1-2-50" (ไร่-งาน-ตร.วา as typed, kept in Asset.specs.landParts) -> parts */
+export function parseLandParts(value: string | null | undefined): LandParts | null {
+  const m = (value || "").split("-").map(Number);
+  if (m.length !== 3 || m.some((n) => isNaN(n) || n < 0)) return null;
+  return { rai: m[0], ngan: m[1], sqw: m[2] };
 }
 
 const LAND_UNITS = {
@@ -40,17 +50,24 @@ const LAND_UNITS = {
   zh: { rai: "莱", ngan: "安", sqw: "平方哇" },
 };
 
-/** e.g. 650 -> "1 ไร่ 2 งาน 50 ตร.วา", 300 -> "3 งาน", 200 -> "2 งาน" */
-export function formatLandSize(totalSqw: number | string | null | undefined, lang: string = "th"): string {
+/**
+ * Land size shown the way it was typed — units are never converted.
+ *  typed 157 ตร.วา        -> "157 ตร.วา"   (not "1 งาน 57 ตร.วา")
+ *  typed 1 ไร่ 2 งาน      -> "1 ไร่ 2 งาน"
+ * `parts` is Asset.specs.landParts; without it (older listings) the total is shown in ตร.วา.
+ */
+export function formatLandSize(totalSqw: number | string | null | undefined, lang: string = "th", parts?: string | null): string {
   const n = Number(stripCommas(String(totalSqw ?? "")));
   if (!n || isNaN(n)) return "";
   const u = LAND_UNITS[lang as keyof typeof LAND_UNITS] || LAND_UNITS.th;
-  const { rai, ngan, sqw } = splitLandSize(n);
-  const parts: string[] = [];
-  if (rai) parts.push(`${rai.toLocaleString("en-US")} ${u.rai}`);
-  if (ngan) parts.push(`${ngan} ${u.ngan}`);
-  if (sqw) parts.push(`${formatNumber(sqw)} ${u.sqw}`);
-  return parts.join(" ");
+  const typed = parseLandParts(parts);
+  // ignore parts that no longer add up to the stored total
+  const p = typed && landPartsTotal(typed) === n ? typed : { rai: 0, ngan: 0, sqw: n };
+  const out: string[] = [];
+  if (p.rai) out.push(`${formatNumber(p.rai)} ${u.rai}`);
+  if (p.ngan) out.push(`${formatNumber(p.ngan)} ${u.ngan}`);
+  if (p.sqw) out.push(`${formatNumber(p.sqw)} ${u.sqw}`);
+  return out.join(" ");
 }
 
 /**

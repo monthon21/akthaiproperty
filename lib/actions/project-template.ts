@@ -35,6 +35,20 @@ export async function getAllProjectTemplatesAction() {
   }
 }
 
+/** ดึงโครงการเดียวพร้อม places (สำหรับหน้าแก้ไข) */
+export async function getProjectTemplateAction(id: number) {
+  try {
+    const template = await prisma.projectTemplate.findUnique({
+      where: { id },
+      include: { places: { orderBy: { sortOrder: "asc" } } },
+    });
+    return { success: true, template };
+  } catch (error: any) {
+    console.error("getProjectTemplateAction error:", error);
+    return { success: false, error: error.message, template: null };
+  }
+}
+
 /** ดึงรายชื่อ + googleMap + places (สำหรับ dropdown auto-fill ในฟอร์ม) */
 export async function getProjectTemplatesListAction() {
   try {

@@ -18,6 +18,8 @@ interface Props {
   googleMap: string;
   places: AssetPlaceRow[];
   onChange: (places: AssetPlaceRow[]) => void;
+  /** what the coordinates belong to, for the hint text (default: ทรัพย์) */
+  subject?: string;
 }
 
 const RADIUS_OPTIONS = [3, 5, 10, 15, 20];
@@ -50,7 +52,7 @@ function merge(prev: AssetPlaceRow[], found: NearbyPlace[]) {
  * Runs automatically whenever the coordinates change (not on first load of an existing asset),
  * and on demand with the button.
  */
-export default function NearbyAutoMatch({ googleMap, places: current, onChange }: Props) {
+export default function NearbyAutoMatch({ googleMap, places: current, onChange, subject = "ทรัพย์" }: Props) {
   const [radius, setRadius] = useState(15);
   const [status, setStatus] = useState<{ tone: "ok" | "info"; text: string } | null>(null);
   const [running, setRunning] = useState(false);
@@ -103,8 +105,8 @@ export default function NearbyAutoMatch({ googleMap, places: current, onChange }
       <div className="flex flex-wrap items-center gap-3">
         <span className="text-[11px] text-white/60 flex-1 min-w-[200px]">
           {coords
-            ? "📍 จับคู่สถานที่ใกล้เคียงจากพิกัดทรัพย์อัตโนมัติ (ระยะทางเส้นตรงโดยประมาณ)"
-            : "📍 ใส่พิกัดทรัพย์ (Google Map) แล้วระบบจะเติมสถานที่ใกล้เคียงให้อัตโนมัติ"}
+            ? `📍 จับคู่สถานที่ใกล้เคียงจากพิกัด${subject}อัตโนมัติ (ระยะทางเส้นตรงโดยประมาณ)`
+            : `📍 ใส่พิกัด${subject} (Google Map) แล้วระบบจะเติมสถานที่ใกล้เคียงให้อัตโนมัติ`}
         </span>
         <select
           value={radius}
