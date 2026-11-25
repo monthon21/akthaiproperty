@@ -15,20 +15,21 @@ enum UserRole {
   ADMIN
   LANDLORD
   AGENT
-  MODERATOR  
+  MODERATOR
 }
 
 model User {
-  id            Int       @id @default(autoincrement())
-  username      String    @unique
+  id            Int          @id @default(autoincrement())
+  username      String       @unique
   password      String
   fullname      String?
-  email         String?   @unique
+  email         String?      @unique
   emailVerified DateTime?
   image         String?
-  role          UserRole  @default(USER)
+  role          UserRole     @default(USER)
   accounts      Account[]
   sessions      Session[]
+  profile       UserProfile?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -125,6 +126,7 @@ model Asset {
   facing        String?
   otherFeatures String?  @db.Text
   amenities     String?  @db.Text // JSON array of amenity keys
+  specs         String?  @db.Text // JSON object of type-specific specs (e.g. industrial: ceilingHeight, floorLoad, powerKva)
 
   // Location
   address     String?
@@ -162,14 +164,14 @@ enum AssetType {
 }
 
 model AssetPlaces {
-  id          Int  @id @default(autoincrement())
-  assetId     String
-  asset       Asset   @relation(fields: [assetId], references: [id], onDelete: Cascade)
-  placeName   String
-  distance    String?
-  travelTime  String? // นาที, ชั่วโมง
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  assetId    String
+  asset      Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  placeName  String
+  distance   String?
+  travelTime String? // นาที, ชั่วโมง
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model AssetImage {
@@ -178,7 +180,7 @@ model AssetImage {
   asset     Asset    @relation(fields: [assetId], references: [id], onDelete: Cascade)
   imageUrl  String
   isFeature Boolean  @default(false) // รูปภาพหลัก
-  sortOrder Int      @default(0)     // ลำดับรูปภาพ
+  sortOrder Int      @default(0) // ลำดับรูปภาพ
   createdAt DateTime @default(now())
 }
 
@@ -220,17 +222,27 @@ model Landlord {
 }
 
 model LandlordDetails {
-  id         Int      @id @default(autoincrement())
-  landlordId Int      @unique
-  landlord   Landlord @relation(fields: [landlordId], references: [id], onDelete: Cascade)
-  fullname   String
-  phone      String?
-  idcard     String?
-  email      String?
-  line       String?
-  address    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  landlordId  Int      @unique
+  landlord    Landlord @relation(fields: [landlordId], references: [id], onDelete: Cascade)
+  fullname    String
+  phone       String?
+  idcard      String?
+  email       String?
+  line        String?
+  address     String?
+  // ที่อยู่ตามทะเบียนบ้าน (แยกฟิลด์ — ใช้ออกเอกสาร); `address` เก็บข้อความรวมไว้เพื่อความเข้ากันได้
+  houseNo     String? // บ้านเลขที่
+  moo         String? // หมู่ที่
+  village     String? // ชื่อโครงการ / หมู่บ้าน
+  soi         String? // ซอย
+  road        String? // ถนน
+  subdistrict String? // ตำบล / แขวง
+  district    String? // อำเภอ / เขต
+  province    String? // จังหวัด
+  postCode    String? // รหัสไปรษณีย์
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
 
 enum LandlordRoleType {
@@ -274,24 +286,65 @@ model ProjectTemplatePlace {
 }
 
 model BlogPost {
-  id          String   @id @default(cuid())
-  slug        String   @unique
+  id          String  @id @default(cuid())
+  slug        String  @unique
   imageUrl    String?
-  isPublished Boolean  @default(false)
+  isPublished Boolean @default(false)
 
   // Thai
-  title       String
-  content     String   @db.Text
+  title   String
+  content String @db.Text
 
   // English
-  titleEn     String?
-  contentEn   String?  @db.Text
+  titleEn   String?
+  contentEn String? @db.Text
 
   // Chinese
-  titleZh     String?
-  contentZh   String?  @db.Text
+  titleZh   String?
+  contentZh String? @db.Text
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
+// สถานที่สำคัญ (master list) — ใช้เลือกใน "สถานที่ใกล้เคียง" ของทรัพย์และโครงการ
+model Place {
+  id          Int      @id @default(autoincrement())
+  placeNameTH String // ชื่อสถานที่ (ไทย)
+  placeNameEN String? // ชื่อสถานที่ (อังกฤษ)
+  location    String?  @db.Text // พิกัด / ลิงก์ Google Maps
+  province    String? // จังหวัด
+  postCode    String? // รหัสไปรษณีย์
+  isActive    Boolean  @default(true) // แสดงให้เลือกในฟอร์ม
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([placeNameTH])
+}
+
+// ข้อมูลผู้ช่วยขาย / ตัวแทน — ใช้ออกเอกสารเช่า / ซื้อขาย (PDF)
+model UserProfile {
+  id              Int       @id @default(autoincrement())
+  userId          Int       @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position        String? // ตำแหน่ง เช่น ผู้ช่วยขาย, ตัวแทนขาย
+  prefix          String? // คำนำหน้า นาย / นาง / นางสาว
+  fullnameEn      String? // ชื่อ-นามสกุล (อังกฤษ)
+  nationalId      String? // เลขบัตรประชาชน 13 หลัก (ตัวเลขล้วน)
+  idCardExpiry    DateTime? @db.Date // วันหมดอายุบัตร
+  birthDate       DateTime? @db.Date // วันเดือนปีเกิด
+  nationality     String? // สัญชาติ
+  phone           String?
+  lineId          String?
+  address         String?   @db.Text // บ้านเลขที่ / หมู่ / ซอย / ถนน (ตามบัตร)
+  subdistrict     String?
+  district        String?
+  province        String?
+  postCode        String?
+  bankName        String? // บัญชีรับค่าคอมมิชชั่น
+  bankAccountNo   String?
+  bankAccountName String?
+  signatureUrl    String?   @db.Text // รูปลายเซ็นสำหรับเอกสาร PDF
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}

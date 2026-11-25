@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import PropertyDetailClient from "@/components/PropertyDetailClient";
 import { prisma } from "@/lib/prisma";
 import { parseAmenities, AMENITY_MAP } from "@/lib/amenities";
+import { isIndustrialType, parseSpecs, formatSpecs, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 import type { Metadata } from "next";
 
 interface PageProps {
@@ -172,8 +173,12 @@ function mapAssetToProperty(asset: any, lang: string): Property {
         ? (lang === "en" ? "Rent" : lang === "zh" ? "租" : "เช่า")
         : (lang === "en" ? "Sell" : lang === "zh" ? "售" : "ขาย"),
     category,
-    beds: asset.noBedroom || 0,
-    baths: asset.noBathroom || 0,
+    beds: isIndustrialType(asset.type) ? undefined : asset.noBedroom || 0,
+    baths: isIndustrialType(asset.type) ? undefined : asset.noBathroom || 0,
+    isIndustrial: isIndustrialType(asset.type),
+    specs: isIndustrialType(asset.type) ? formatSpecs(parseSpecs(asset.specs), lang) : undefined,
+    rentTerms: isRent ? formatSpecs(parseSpecs(asset.specs), lang, RENT_TERM_FIELDS) : undefined,
+    saleTerms: isSell ? formatSpecs(parseSpecs(asset.specs), lang, SALE_TERM_FIELDS) : undefined,
     sqft,
     noFloor: asset.noFloor || undefined,
     maidRoom: asset.maidRoom || undefined,
@@ -195,6 +200,7 @@ function mapAssetToProperty(asset: any, lang: string): Property {
         return item.label;
       });
       if (translated.length > 0) return translated;
+      if (isIndustrialType(asset.type)) return [];
 
       // Fallback
       if (lang === "en") return ["24-Hour Security", "CCTV", "Private Parking", "Public Park"];

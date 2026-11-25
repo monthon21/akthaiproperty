@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ManageAssetsClient from "@/components/ManageAssetsClient";
 import { getAllAssetsAction } from "@/lib/actions/asset";
+import AdminNav from "@/components/AdminNav";
 
 export default async function ManageAssetsPage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
@@ -20,56 +21,45 @@ export default async function ManageAssetsPage({ params }: { params: Promise<{ l
   // Fetch all assets from DB
   const { success, assets } = await getAllAssetsAction();
 
+  type AssetSummary = { isSell: boolean; isRent: boolean; isAvailable: boolean; isDraft: boolean };
+  const list: AssetSummary[] = success ? (assets as AssetSummary[]) : [];
+  const stats = [
+    { label: "ทรัพย์ทั้งหมด", value: list.length, tone: "text-white" },
+    { label: "ขาย", value: list.filter((a) => a.isSell).length, tone: "text-accent" },
+    { label: "เช่า", value: list.filter((a) => a.isRent).length, tone: "text-sky-400" },
+    { label: "ออนไลน์", value: list.filter((a) => a.isAvailable && !a.isDraft).length, tone: "text-emerald-400" },
+  ];
+
+
   return (
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
         <div className="max-w-6xl mx-auto px-6">
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-            <div>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 mb-8">
+            <div className="flex-1 min-w-0">
               <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">
                 Admin Panel
               </span>
               <h1 className="text-3xl font-black tracking-tight">Asset Management</h1>
+              <p className="text-sm text-white/50 mt-1.5">
+                สวัสดี{session.user?.name ? `, ${session.user.name}` : ""} — ภาพรวมทรัพย์สินทั้งหมดในระบบ
+              </p>
+
+              <dl className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mt-5 max-w-xl">
+                {stats.map(({ label, value, tone }) => (
+                  <div
+                    key={label}
+                    className="bg-white/[0.03] border border-white/10 rounded-xl px-4 py-3"
+                  >
+                    <dt className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{label}</dt>
+                    <dd className={`text-2xl font-black leading-tight mt-0.5 ${tone}`}>{value.toLocaleString()}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Link
-                href={`/${lang}/myprofile`}
-                className="text-xs font-bold text-white/50 hover:text-white tracking-widest uppercase transition-colors"
-              >
-                กลับหน้า Profile
-              </Link>
-              <Link
-                href={`/${lang}/manage/landlord`}
-                className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
-              >
-                ข้อมูลเจ้าของทรัพย์
-              </Link>
-              <Link
-                href={`/${lang}/manage/inbox`}
-                className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
-              >
-                ✉️ ข้อความคิดต่อ
-              </Link>
-              <Link
-                href={`/${lang}/manage/blog`}
-                className="border border-white/10 hover:border-white/30 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all active:scale-95"
-              >
-                📝 จัดการบล็อก
-              </Link>
-              <Link
-                href={`/${lang}/manage/projects`}
-                className="border border-accent/40 hover:border-accent bg-accent/5 hover:bg-accent/15 text-accent text-xs font-bold px-5 py-3 rounded-xl tracking-widest uppercase transition-all shadow-md active:scale-95"
-              >
-                🏢 จัดการโครงการ
-              </Link>
-              <Link
-                href={`/${lang}/addnew`}
-                className="bg-accent hover:bg-accent-dark text-primary-dark text-xs font-bold px-6 py-3 rounded-xl tracking-widest uppercase transition-all shadow-lg active:scale-95"
-              >
-                + เพิ่มทรัพย์สิน
-              </Link>
-            </div>
+
+            <AdminNav variant="grid" />
           </div>
 
           <ManageAssetsClient

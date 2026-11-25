@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { AssetType } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/auth";
+import { serializeSpecs } from "@/lib/assetSpecs";
 
 export interface AssetImageInput {
   imageUrl: string;
@@ -42,6 +43,7 @@ export interface AssetInput {
   facing?: string;
   otherFeatures?: string;
   amenities?: string[];
+  specs?: Record<string, string>;
   address?: string;
   soi?: string;
   road?: string;
@@ -85,6 +87,7 @@ export async function createAssetAction(input: AssetInput) {
     facing,
     otherFeatures,
     amenities,
+    specs,
     address,
     soi,
     road,
@@ -193,6 +196,7 @@ export async function createAssetAction(input: AssetInput) {
         otherFeatures: otherFeatures || null,
         amenities:
           amenities && amenities.length > 0 ? JSON.stringify(amenities) : null,
+        specs: serializeSpecs(specs, { type, isRent, isSell }),
         address,
         soi: soi || null,
         road: road || null,
@@ -260,6 +264,7 @@ export async function updateAssetAction(id: string, input: AssetInput) {
     facing,
     otherFeatures,
     amenities,
+    specs,
     address,
     soi,
     road,
@@ -408,6 +413,10 @@ export async function updateAssetAction(id: string, input: AssetInput) {
             ? amenities && amenities.length > 0
               ? JSON.stringify(amenities)
               : null
+            : undefined,
+        specs:
+          specs !== undefined
+            ? serializeSpecs(specs, { type, isRent, isSell })
             : undefined,
         address,
         soi: soi || null,

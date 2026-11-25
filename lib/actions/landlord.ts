@@ -1,6 +1,7 @@
 "use server";
 
 import { prisma } from "@/lib/prisma";
+import { AddressParts, ADDRESS_KEYS, composeThaiAddress, hasAddressParts } from "@/lib/address";
 
 // Helper to check admin authorization
 async function checkAdminSession() {
@@ -90,6 +91,18 @@ export async function getLandlordDetailsAction(landlordId: number) {
   }
 }
 
+/**
+ * Address columns for LandlordDetails. When any structured field is filled, `address`
+ * is rebuilt from the parts; otherwise the legacy free-text address is kept as given.
+ */
+function addressData(input: { address?: string } & Partial<AddressParts>) {
+  const parts = Object.fromEntries(ADDRESS_KEYS.map((k) => [k, input[k]?.trim() || null])) as Record<keyof AddressParts, string | null>;
+  return {
+    ...parts,
+    address: hasAddressParts(input) ? composeThaiAddress(input) : input.address?.trim() || null,
+  };
+}
+
 // 3. Update landlord details (upsert LandlordDetails & update Landlord basic info)
 export async function updateLandlordDetailsAction(
   landlordId: number,
@@ -103,7 +116,7 @@ export async function updateLandlordDetailsAction(
     email?: string;
     detailLine?: string;
     address?: string;
-  }
+  } & Partial<AddressParts>
 ) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
@@ -118,8 +131,7 @@ export async function updateLandlordDetailsAction(
     detailPhone,
     idcard,
     email,
-    detailLine,
-    address
+    detailLine
   } = input;
 
   if (!name.trim()) {
@@ -146,7 +158,7 @@ export async function updateLandlordDetailsAction(
         idcard: idcard?.trim() || null,
         email: email?.trim() || null,
         line: detailLine?.trim() || line?.trim() || null,
-        address: address?.trim() || null
+        ...addressData(input)
       },
       create: {
         landlordId: landlordId,
@@ -155,7 +167,7 @@ export async function updateLandlordDetailsAction(
         idcard: idcard?.trim() || null,
         email: email?.trim() || null,
         line: detailLine?.trim() || line?.trim() || null,
-        address: address?.trim() || null
+        ...addressData(input)
       }
     });
 
@@ -178,7 +190,7 @@ export async function createLandlordAction(
     email?: string;
     detailLine?: string;
     address?: string;
-  }
+  } & Partial<AddressParts>
 ) {
   const authCheck = await checkAdminSession();
   if (!authCheck.authorized) {
@@ -193,8 +205,7 @@ export async function createLandlordAction(
     detailPhone,
     idcard,
     email,
-    detailLine,
-    address
+    detailLine
   } = input;
 
   if (!name.trim()) {
@@ -220,7 +231,7 @@ export async function createLandlordAction(
         idcard: idcard?.trim() || null,
         email: email?.trim() || null,
         line: detailLine?.trim() || line?.trim() || null,
-        address: address?.trim() || null
+        ...addressData(input)
       }
     });
 

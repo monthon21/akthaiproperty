@@ -10,9 +10,16 @@ import { getProjectTemplatesListAction } from "@/lib/actions/project-template";
 import { AssetType } from "@prisma/client";
 import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
-import { AMENITY_GROUPS, parseAmenities } from "@/lib/amenities";
+import { AMENITY_GROUPS, parseAmenities, getAmenityGroups } from "@/lib/amenities";
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
 import MapPickerModal from "@/components/MapPickerModal";
+import SavingModal from "@/components/SavingModal";
+import LandSizeInput from "@/components/LandSizeInput";
+import PlaceNameInput from "@/components/PlaceNameInput";
+import NearbyAutoMatch from "@/components/NearbyAutoMatch";
+import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone } from "@/lib/format";
+import SpecFieldsGroup from "@/components/SpecFieldsGroup";
+import { isIndustrialType, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 
 // Define TypeScript interfaces matching database models
 interface DBAssetPrice {
@@ -70,6 +77,7 @@ interface DBAsset {
   zipCode: string | null;
   googleMap: string | null;
   amenities: string | null;
+  specs?: string | null;
   images: DBAssetImage[];
   prices: DBAssetPrice[];
   assetPlaces: DBAssetPlace[];
@@ -135,8 +143,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     noBedroom: asset.noBedroom ? asset.noBedroom.toString() : "",
     noBathroom: asset.noBathroom ? asset.noBathroom.toString() : "",
     noFloor: asset.noFloor ? asset.noFloor.toString() : "",
-    landSize: asset.landSize ? Number(asset.landSize).toString() : "",
-    usableArea: asset.usableArea ? Number(asset.usableArea).toString() : "",
+    landSize: asset.landSize ? formatDecimalInput(Number(asset.landSize).toString()) : "",
+    usableArea: asset.usableArea ? formatDecimalInput(Number(asset.usableArea).toString()) : "",
     maidRoom: asset.maidRoom ? asset.maidRoom.toString() : "",
     parkingLot: asset.parkingLot ? asset.parkingLot.toString() : "",
     facing: asset.facing || "",
@@ -150,7 +158,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     zipCode: asset.zipCode || "",
     googleMap: asset.googleMap || "",
     ownerName: asset.landlord?.name || "",
-    ownerPhone: asset.landlord?.phone || "",
+    ownerPhone: formatThaiPhone(asset.landlord?.phone || ""),
     ownerLine: asset.landlord?.line || ""
   });
 
@@ -166,6 +174,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
   const [amenities, setAmenities] = useState<string[]>(
     parseAmenities(asset.amenities)
   );
+  const [specs, setSpecs] = useState<IndustrialSpecs>(parseSpecs(asset.specs));
+  const isIndustrial = isIndustrialType(formData.type);
   const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>(
     (asset.assetPlaces || []).map(p => {
       let type: "distance" | "time" = "distance";
@@ -288,6 +298,12 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
     if (name === "sellPrice" || name === "loanPrice") {
       finalValue = formatNumberWithCommas(value);
     }
+    if (name === "ownerPhone") {
+      finalValue = formatThaiPhone(value);
+    }
+    if (name === "usableArea") {
+      finalValue = formatDecimalInput(value);
+    }
     setFormData((prev) => {
       const nextState = { ...prev, [name]: finalValue };
       if (name === "isSell" && !checked) {
@@ -347,11 +363,15 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         noBedroom: formData.noBedroom ? Number(formData.noBedroom) : undefined,
         noBathroom: formData.noBathroom ? Number(formData.noBathroom) : undefined,
         noFloor: formData.noFloor ? Number(formData.noFloor) : undefined,
-        landSize: formData.landSize ? Number(formData.landSize) : undefined,
-        usableArea: formData.usableArea ? Number(formData.usableArea) : undefined,
+        landSize: formData.landSize ? Number(stripCommas(formData.landSize)) : undefined,
+        usableArea: formData.usableArea ? Number(stripCommas(formData.usableArea)) : undefined,
         maidRoom: formData.maidRoom ? Number(formData.maidRoom) : undefined,
         parkingLot: formData.parkingLot ? Number(formData.parkingLot) : undefined,
-        amenities,
+        amenities: (() => {
+          const visible = new Set(getAmenityGroups(formData.type).flatMap((g) => g.items.map((i) => i.key)));
+          return amenities.filter((k) => visible.has(k));
+        })(),
+        specs,
         images,
         assetPlaces: assetPlaces
           .filter(p => p.placeName.trim() !== "")
@@ -372,9 +392,11 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         }, 1500);
       } else {
         setError(result.error || "เกิดข้อผิดพลาดในการแก้ไขข้อมูล");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err: any) {
       setError("เกิดข้อผิดพลาดทางเทคนิคในการเชื่อมต่อระบบ");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSubmitting(false);
     }
@@ -647,6 +669,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {!isIndustrial && (<>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องนอน</label>
                   <input
@@ -658,6 +681,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
                   />
                 </div>
+                </>)}
+                {!isIndustrial && (<>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องน้ำ</label>
                   <input
@@ -669,6 +694,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
                   />
                 </div>
+                </>)}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนชั้น (Floors)</label>
                   <input
@@ -684,20 +710,14 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ตร.วา)</label>
-                  <input
-                    type="number"
-                    name="landSize"
-                    placeholder="e.g. 80"
-                    value={formData.landSize}
-                    onChange={handleInputChange}
-                    className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                  />
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ไร่ / งาน / ตร.วา)</label>
+                  <LandSizeInput value={formData.landSize} onChange={(v) => setFormData((prev) => ({ ...prev, landSize: v }))} />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พื้นที่ใช้สอย (ตร.ม.)</label>
+                  <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     name="usableArea"
                     placeholder="e.g. 200"
                     value={formData.usableArea}
@@ -708,6 +728,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
               </div>
 
               <div className="grid grid-cols-2 gap-4">
+                {!isIndustrial && (<>
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องแม่บ้าน (Maid Rooms)</label>
                   <input
@@ -719,6 +740,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
                   />
                 </div>
+                </>)}
                 <div className="space-y-1.5">
                   <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนที่จอดรถ (Parking Lots)</label>
                   <input
@@ -764,6 +786,15 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   />
                 </div>
               </div>
+              {isIndustrial && (
+                <SpecFieldsGroup title="ข้อมูลโกดัง / โรงงาน" subtitle="Industrial Specs" fields={INDUSTRIAL_SPEC_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+              {formData.isSell && (
+                <SpecFieldsGroup title="เงื่อนไขการซื้อขาย" subtitle="Sale Terms" fields={SALE_TERM_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+              {formData.isRent && (
+                <SpecFieldsGroup title="เงื่อนไขการเช่า" subtitle="Rental Terms" fields={RENT_TERM_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
             </div>
 
             {/* Amenities */}
@@ -772,7 +803,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                 สิ่งอำนวยความสะดวก (Amenities)
               </h3>
               <div className="space-y-5">
-                {AMENITY_GROUPS.map((group) => (
+                {getAmenityGroups(formData.type).map((group) => (
                   <div key={group.id}>
                     <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
                       {group.title}
@@ -1066,7 +1097,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                                   setFormData((prev) => ({
                                     ...prev,
                                     ownerName: item.name,
-                                    ownerPhone: item.phone || "",
+                                    ownerPhone: formatThaiPhone(item.phone || ""),
                                     ownerLine: item.line || ""
                                   }));
                                   setShowLandlordSuggestions(false);
@@ -1075,7 +1106,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                               >
                                 <span className="text-xs font-bold text-white">{item.name}</span>
                                 <div className="text-[10px] text-white/40 flex justify-between mt-0.5">
-                                  <span>{item.phone ? `Tel: ${item.phone}` : "No Phone"}</span>
+                                  <span>{item.phone ? `Tel: ${formatThaiPhone(item.phone)}` : "No Phone"}</span>
                                   <span>{item.line ? `Line: ${item.line}` : ""}</span>
                                 </div>
                               </li>
@@ -1091,7 +1122,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   </div>
                   <div className="space-y-1.5 md:col-span-1">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
-                    <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
+                    <input type="text" name="ownerPhone" inputMode="tel" placeholder="e.g. 086-888-0196" value={formData.ownerPhone || ""} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                   <div className="space-y-1.5 md:col-span-1">
@@ -1117,6 +1148,8 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                   </button>
                 </div>
                 
+                <NearbyAutoMatch googleMap={formData.googleMap} places={assetPlaces} onChange={setAssetPlaces} />
+
                 {assetPlaces.length === 0 ? (
                   <p className="text-xs text-white/40 italic">ยังไม่มีข้อมูลสถานที่ใกล้เคียง กด "เพิ่มรายการ" เพื่อระบุสถานที่ ระยะทาง และเวลาเดินทาง</p>
                 ) : (
@@ -1161,7 +1194,7 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                         </div>
                         <div className="md:col-span-5 space-y-1.5">
                           <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ชื่อสถานที่ (Place Name)</label>
-                          <input type="text" placeholder="e.g. ห้างสรรพสินค้าเซ็นทรัล" value={place.placeName} onChange={(e) => updateAssetPlace(place.id, "placeName", e.target.value)}
+                          <PlaceNameInput placeholder="พิมพ์เพื่อค้นหา เช่น เซ็นทรัล" value={place.placeName} onChange={(v) => updateAssetPlace(place.id, "placeName", v)}
                             className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                         </div>
                         <div className="md:col-span-1 flex justify-end md:mt-6">
@@ -1316,16 +1349,20 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     <span className="text-xl md:text-2xl font-black text-accent">{priceStr}</span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  {!isIndustrial && (<>
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">ห้องนอน</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.noBedroom || 0} <span className="text-xs font-normal text-white/50">Beds</span></span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  </>)}
+                  {!isIndustrial && (<>
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">ห้องน้ำ</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.noBathroom || 0} <span className="text-xs font-normal text-white/50">Baths</span></span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  </>)}
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">พื้นที่ใช้สอย</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.usableArea || 0} <span className="text-xs font-normal text-white/50">m²</span></span>
@@ -1386,10 +1423,16 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
                     
                     {/* Specs Grid */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
+                      {isIndustrial && formatSpecs(specs, "th").map((sp) => (
+                        <div key={sp.key} className="bg-white/5 p-3.5 rounded-xl border border-white/5">
+                          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{sp.label}</span>
+                          <span className="text-sm font-bold text-accent">{sp.value} {sp.unit && <span className="text-xs font-normal text-white/70">{sp.unit}</span>}</span>
+                        </div>
+                      ))}
                       {formData.landSize ? (
                         <div className="bg-white/5 p-3.5 rounded-xl border border-white/5">
                           <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">ขนาดที่ดิน</span>
-                          <span className="text-sm font-bold text-accent">{formData.landSize} <span className="text-xs font-normal text-white/70">ตร.วา</span></span>
+                          <span className="text-sm font-bold text-accent">{formatLandSize(formData.landSize, "th")}</span>
                         </div>
                       ) : null}
                       {formData.usableArea ? (
@@ -1519,6 +1562,12 @@ export default function EditAssetClient({ asset }: EditAssetClientProps) {
         </div>
       )}
     </div>
+
+      {/* ── Saving Modal ── */}
+      <SavingModal
+        status={success ? "success" : isSubmitting ? "saving" : null}
+        successTitle="แก้ไขข้อมูลสำเร็จ!"
+      />
 
       {/* ── Map Picker Modal ── */}
       <MapPickerModal

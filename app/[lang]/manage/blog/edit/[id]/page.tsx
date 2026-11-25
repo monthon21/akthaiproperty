@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 import BlogFormClient from "@/components/BlogFormClient";
 import { prisma } from "@/lib/prisma";
@@ -41,6 +42,7 @@ export default async function EditBlogPage({ params }: { params: Promise<{ lang:
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
+        <AdminNav />
         <div className="max-w-6xl mx-auto px-6">
           <div className="mb-8">
             <span className="text-[10px] font-bold text-accent uppercase tracking-[0.4em] block mb-1">

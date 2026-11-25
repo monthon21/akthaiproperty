@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
 import Link from "next/link";
 import { auth } from "@/auth";
+import { isIndustrialType, parseSpecs } from "@/lib/assetSpecs";
 
 interface ListingGridProps {
   type?: "sell" | "rent";
@@ -14,6 +15,7 @@ interface ListingGridProps {
   searchQuery?: string;
   code?: string;
   province?: string;
+  district?: string; // exact match, used by location pages
   zipCode?: string;
   projectName?: string;
   propertyType?: string;
@@ -94,8 +96,10 @@ function mapAssetToProperty(asset: any, lang: string): Property {
         ? (lang === "en" ? "Rent" : lang === "zh" ? "租" : "เช่า") 
         : (lang === "en" ? "Sell" : lang === "zh" ? "售" : "ขาย"),
     category,
-    beds: asset.noBedroom || 0,
-    baths: asset.noBathroom || 0,
+    beds: isIndustrialType(asset.type) ? undefined : asset.noBedroom || 0,
+    baths: isIndustrialType(asset.type) ? undefined : asset.noBathroom || 0,
+    isIndustrial: isIndustrialType(asset.type),
+    ceilingHeight: isIndustrialType(asset.type) ? parseSpecs(asset.specs).ceilingHeight : undefined,
     sqft,
     landSize: asset.landSize ? Number(asset.landSize) : undefined,
     usableArea: asset.usableArea ? Number(asset.usableArea) : undefined,
@@ -126,6 +130,7 @@ export default async function ListingGrid({
   searchQuery = "",
   code,
   province,
+  district,
   zipCode,
   projectName,
   propertyType,
@@ -167,6 +172,9 @@ export default async function ListingGrid({
   }
   if (province && province.trim()) {
     whereConditions.province = { contains: province.trim() };
+  }
+  if (district && district.trim()) {
+    whereConditions.district = district.trim();
   }
   if (zipCode && zipCode.trim()) {
     whereConditions.zipCode = { contains: zipCode.trim() };

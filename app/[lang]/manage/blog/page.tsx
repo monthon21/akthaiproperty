@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 import ManageBlogClient from "@/components/ManageBlogClient";
 import { getBlogPosts } from "@/lib/actions/blog";
@@ -24,6 +25,7 @@ export default async function ManageBlogPage({ params }: { params: Promise<{ lan
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
+        <AdminNav />
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
             <div>

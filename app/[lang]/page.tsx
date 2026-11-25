@@ -2,6 +2,7 @@ import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import ServiceCards from "@/components/ServiceCards";
 import ListingGrid from "@/components/ListingGrid";
+import PopularLocations from "@/components/PopularLocations";
 import LoanSection from "@/components/LoanSection";
 import GreetingPhotos from "@/components/GreetingPhotos";
 import Testimonials from "@/components/Testimonials";
@@ -89,6 +90,9 @@ export default async function Home({ params }: PageProps) {
         
         {/* Direct Listings Selection */}
         <ListingGrid lang={lang} isRecommendedOnly={true} bgColor="bg-primary" />
+
+        {/* Popular Locations */}
+        <PopularLocations lang={lang} bgColor="bg-primary-dark" />
 
         {/* Focus Services */}
         <ServiceCards lang={lang} bgColor="bg-primary-dark" />

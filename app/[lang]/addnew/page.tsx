@@ -4,14 +4,22 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 import { createAssetAction, getNextAssetCodeAction } from "@/lib/actions/asset";
 import { AssetType } from "@prisma/client";
 import ImageUploader, { ImageItem } from "@/components/ImageUploader";
 import { LangTabInput, LangTabTextarea } from "@/components/LangTabInput";
-import { AMENITY_GROUPS } from "@/lib/amenities";
+import { AMENITY_GROUPS, getAmenityGroups } from "@/lib/amenities";
 import { usePostcodeLookup } from "@/lib/usePostcodeLookup";
 import MapPickerModal from "@/components/MapPickerModal";
+import SavingModal from "@/components/SavingModal";
+import LandSizeInput from "@/components/LandSizeInput";
+import PlaceNameInput from "@/components/PlaceNameInput";
+import NearbyAutoMatch from "@/components/NearbyAutoMatch";
+import { formatDecimalInput, stripCommas, formatLandSize, formatThaiPhone } from "@/lib/format";
+import SpecFieldsGroup from "@/components/SpecFieldsGroup";
+import { isIndustrialType, parseSpecs, formatSpecs, IndustrialSpecs, INDUSTRIAL_SPEC_FIELDS, RENT_TERM_FIELDS, SALE_TERM_FIELDS } from "@/lib/assetSpecs";
 import { useProjectTemplateAutocomplete, templatePlacesToAssetPlaces, ProjectTemplateOption } from "@/lib/useProjectTemplateAutocomplete";
 import { getProjectTemplatesListAction } from "@/lib/actions/project-template";
 
@@ -57,10 +65,13 @@ export default function AddNewAssetPage() {
 
   const [images, setImages] = useState<ImageItem[]>([]);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [specs, setSpecs] = useState<IndustrialSpecs>({});
+  const isIndustrial = isIndustrialType(formData.type);
   const [assetPlaces, setAssetPlaces] = useState<{ id: string; type: "distance" | "time"; value: string; unit: string; placeName: string }[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+  const [savingDraft, setSavingDraft] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
 
@@ -183,6 +194,12 @@ export default function AddNewAssetPage() {
     if (name === "sellPrice" || name === "loanPrice") {
       finalValue = formatNumberWithCommas(value);
     }
+    if (name === "ownerPhone") {
+      finalValue = formatThaiPhone(value);
+    }
+    if (name === "usableArea") {
+      finalValue = formatDecimalInput(value);
+    }
     setFormData((prev) => {
       const nextState = { ...prev, [name]: finalValue };
       if (name === "isSell" && !checked) {
@@ -229,6 +246,7 @@ export default function AddNewAssetPage() {
       }
     }
 
+    setSavingDraft(isDrafting);
     setIsSubmitting(true);
     try {
       const submissionData = {
@@ -238,11 +256,15 @@ export default function AddNewAssetPage() {
         noBedroom: formData.noBedroom ? Number(formData.noBedroom) : undefined,
         noBathroom: formData.noBathroom ? Number(formData.noBathroom) : undefined,
         noFloor: formData.noFloor ? Number(formData.noFloor) : undefined,
-        landSize: formData.landSize ? Number(formData.landSize) : undefined,
-        usableArea: formData.usableArea ? Number(formData.usableArea) : undefined,
+        landSize: formData.landSize ? Number(stripCommas(formData.landSize)) : undefined,
+        usableArea: formData.usableArea ? Number(stripCommas(formData.usableArea)) : undefined,
         maidRoom: formData.maidRoom ? Number(formData.maidRoom) : undefined,
         parkingLot: formData.parkingLot ? Number(formData.parkingLot) : undefined,
-        amenities,
+        amenities: (() => {
+          const visible = new Set(getAmenityGroups(formData.type).flatMap((g) => g.items.map((i) => i.key)));
+          return amenities.filter((k) => visible.has(k));
+        })(),
+        specs,
         images,
         assetPlaces: assetPlaces
           .filter(p => p.placeName.trim() !== "")
@@ -260,9 +282,11 @@ export default function AddNewAssetPage() {
         setTimeout(() => { router.push(`/property/list/${result.code || result.id}`); }, 1500);
       } else {
         setError(result.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     } catch (err: any) {
       setError("เกิดข้อผิดพลาดทางเทคนิคในการเชื่อมต่อระบบ");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } finally {
       setIsSubmitting(false);
     }
@@ -288,6 +312,7 @@ export default function AddNewAssetPage() {
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen font-sans">
+        <AdminNav />
         <div className="max-w-4xl mx-auto px-6">
           <div className="flex justify-between items-center mb-8">
             <div>
@@ -507,28 +532,31 @@ export default function AddNewAssetPage() {
 
                 <div className="grid grid-cols-2 gap-5">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ตร.วา)</label>
-                    <input type="number" name="landSize" placeholder="e.g. 80" value={formData.landSize} onChange={handleInputChange}
-                      className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">ขนาดที่ดิน (ไร่ / งาน / ตร.วา)</label>
+                    <LandSizeInput value={formData.landSize} onChange={(v) => setFormData((prev) => ({ ...prev, landSize: v }))} />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">พื้นที่ใช้สอย (ตร.ม.)</label>
-                    <input type="number" name="usableArea" placeholder="e.g. 200" value={formData.usableArea} onChange={handleInputChange}
+                    <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">{isIndustrial ? "พื้นที่อาคารรวม (ตร.ม.)" : "พื้นที่ใช้สอย (ตร.ม.)"}</label>
+                    <input type="text" inputMode="decimal" name="usableArea" placeholder="e.g. 200" value={formData.usableArea} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                  {!isIndustrial && (<>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องนอน (Bedrooms)</label>
                     <input type="number" name="noBedroom" placeholder="e.g. 3" value={formData.noBedroom} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
+                  </>)}
+                  {!isIndustrial && (<>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องน้ำ (Bathrooms)</label>
                     <input type="number" name="noBathroom" placeholder="e.g. 3" value={formData.noBathroom} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
+                  </>)}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนชั้น (Floors)</label>
                     <input type="number" name="noFloor" placeholder="e.g. 2" value={formData.noFloor} onChange={handleInputChange}
@@ -537,11 +565,13 @@ export default function AddNewAssetPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-5">
+                  {!isIndustrial && (<>
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนห้องแม่บ้าน (Maid Rooms)</label>
                     <input type="number" name="maidRoom" placeholder="e.g. 1" value={formData.maidRoom} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
+                  </>)}
                   <div className="space-y-1.5">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">จำนวนที่จอดรถ (Parking Lots)</label>
                     <input type="number" name="parkingLot" placeholder="e.g. 2" value={formData.parkingLot} onChange={handleInputChange}
@@ -571,7 +601,16 @@ export default function AddNewAssetPage() {
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                 </div>
-              </div>
+                {isIndustrial && (
+                <SpecFieldsGroup title="ข้อมูลโกดัง / โรงงาน" subtitle="Industrial Specs" fields={INDUSTRIAL_SPEC_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+              {formData.isSell && (
+                <SpecFieldsGroup title="เงื่อนไขการซื้อขาย" subtitle="Sale Terms" fields={SALE_TERM_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+              {formData.isRent && (
+                <SpecFieldsGroup title="เงื่อนไขการเช่า" subtitle="Rental Terms" fields={RENT_TERM_FIELDS} specs={specs} onChange={setSpecs} />
+              )}
+            </div>
 
               {/* ── 3. Amenities ── */}
               <div className="space-y-4">
@@ -579,7 +618,7 @@ export default function AddNewAssetPage() {
                   สิ่งอำนวยความสะดวก (Amenities)
                 </h3>
                 <div className="space-y-5">
-                  {AMENITY_GROUPS.map((group) => (
+                  {getAmenityGroups(formData.type).map((group) => (
                     <div key={group.id}>
                       <p className="text-xs font-bold text-white/50 uppercase tracking-widest mb-2.5 flex items-center gap-1.5">
                         {group.title}
@@ -859,7 +898,7 @@ export default function AddNewAssetPage() {
                                   setFormData((prev) => ({
                                     ...prev,
                                     ownerName: item.name,
-                                    ownerPhone: item.phone || "",
+                                    ownerPhone: formatThaiPhone(item.phone || ""),
                                     ownerLine: item.line || ""
                                   }));
                                   setShowLandlordSuggestions(false);
@@ -868,7 +907,7 @@ export default function AddNewAssetPage() {
                               >
                                 <span className="text-xs font-bold text-white">{item.name}</span>
                                 <div className="text-[10px] text-white/40 flex justify-between mt-0.5">
-                                  <span>{item.phone ? `Tel: ${item.phone}` : "No Phone"}</span>
+                                  <span>{item.phone ? `Tel: ${formatThaiPhone(item.phone)}` : "No Phone"}</span>
                                   <span>{item.line ? `Line: ${item.line}` : ""}</span>
                                 </div>
                               </li>
@@ -884,7 +923,7 @@ export default function AddNewAssetPage() {
                   </div>
                   <div className="space-y-1.5 md:col-span-1">
                     <label className="text-xs font-bold text-white/40 uppercase tracking-widest block">เบอร์ติดต่อ (Contact Phone)</label>
-                    <input type="text" name="ownerPhone" placeholder="e.g. 0812345678" value={formData.ownerPhone || ""} onChange={handleInputChange}
+                    <input type="text" name="ownerPhone" inputMode="tel" placeholder="e.g. 086-888-0196" value={formData.ownerPhone || ""} onChange={handleInputChange}
                       className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                   </div>
                   <div className="space-y-1.5 md:col-span-1">
@@ -909,6 +948,8 @@ export default function AddNewAssetPage() {
                     เพิ่มรายการ
                   </button>
                 </div>
+
+                <NearbyAutoMatch googleMap={formData.googleMap} places={assetPlaces} onChange={setAssetPlaces} />
 
                 {assetPlaces.length === 0 ? (
                   <p className="text-xs text-white/40 italic">ยังไม่มีข้อมูลสถานที่ใกล้เคียง กด "เพิ่มรายการ" เพื่อระบุสถานที่ ระยะทาง และเวลาเดินทาง</p>
@@ -954,7 +995,7 @@ export default function AddNewAssetPage() {
                         </div>
                         <div className="md:col-span-5 space-y-1.5">
                           <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ชื่อสถานที่ (Place Name)</label>
-                          <input type="text" placeholder="e.g. ห้างสรรพสินค้าเซ็นทรัล" value={place.placeName} onChange={(e) => updateAssetPlace(place.id, "placeName", e.target.value)}
+                          <PlaceNameInput placeholder="พิมพ์เพื่อค้นหา เช่น เซ็นทรัล" value={place.placeName} onChange={(v) => updateAssetPlace(place.id, "placeName", v)}
                             className="w-full h-10 bg-black/45 border border-white/10 rounded-lg px-3 text-xs focus:outline-none focus:border-accent transition-all text-white" />
                         </div>
                         <div className="md:col-span-1 flex justify-end md:mt-6">
@@ -1054,16 +1095,20 @@ export default function AddNewAssetPage() {
                     <span className="text-xl md:text-2xl font-black text-accent">{priceStr}</span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  {!isIndustrial && (<>
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">ห้องนอน</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.noBedroom || 0} <span className="text-xs font-normal text-white/50">Beds</span></span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  </>)}
+                  {!isIndustrial && (<>
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">ห้องน้ำ</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.noBathroom || 0} <span className="text-xs font-normal text-white/50">Baths</span></span>
                   </div>
                   <div className="w-px h-8 bg-white/10 hidden md:block"></div>
+                  </>)}
                   <div>
                     <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block mb-0.5">พื้นที่ใช้สอย</span>
                     <span className="text-xl md:text-2xl font-bold">{formData.usableArea || 0} <span className="text-xs font-normal text-white/50">m²</span></span>
@@ -1108,7 +1153,13 @@ export default function AddNewAssetPage() {
                   <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
                     <p className="whitespace-pre-line bg-white/2.5 p-4 rounded-xl border border-white/5">{formData.description || "ยังไม่มีข้อมูลรายละเอียดทรัพย์สิน"}</p>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 pt-4">
-                      {formData.landSize && <div className="bg-white/5 p-3.5 rounded-xl border border-white/5"><span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">ขนาดที่ดิน</span><span className="text-sm font-bold text-accent">{formData.landSize} <span className="text-xs font-normal text-white/70">ตร.วา</span></span></div>}
+                      {isIndustrial && formatSpecs(specs, "th").map((sp) => (
+                        <div key={sp.key} className="bg-white/5 p-3.5 rounded-xl border border-white/5">
+                          <span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">{sp.label}</span>
+                          <span className="text-sm font-bold text-accent">{sp.value} {sp.unit && <span className="text-xs font-normal text-white/70">{sp.unit}</span>}</span>
+                        </div>
+                      ))}
+                      {formData.landSize && <div className="bg-white/5 p-3.5 rounded-xl border border-white/5"><span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">ขนาดที่ดิน</span><span className="text-sm font-bold text-accent">{formatLandSize(formData.landSize, "th")}</span></div>}
                       {formData.usableArea && <div className="bg-white/5 p-3.5 rounded-xl border border-white/5"><span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">พื้นที่ใช้สอย</span><span className="text-sm font-bold text-accent">{formData.usableArea} <span className="text-xs font-normal text-white/70">ตร.ม.</span></span></div>}
                       {formData.noFloor && <div className="bg-white/5 p-3.5 rounded-xl border border-white/5"><span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">จำนวนชั้น</span><span className="text-sm font-bold text-accent">{formData.noFloor} <span className="text-xs font-normal text-white/70">ชั้น</span></span></div>}
                       {formData.parkingLot && <div className="bg-white/5 p-3.5 rounded-xl border border-white/5"><span className="text-[9px] font-bold text-white/40 uppercase tracking-widest block mb-1">ที่จอดรถ</span><span className="text-sm font-bold text-accent">{formData.parkingLot} <span className="text-xs font-normal text-white/70">คัน</span></span></div>}
@@ -1190,6 +1241,13 @@ export default function AddNewAssetPage() {
           </div>
         </div>
       )}
+
+      {/* ── Saving Modal ── */}
+      <SavingModal
+        status={success ? "success" : isSubmitting ? "saving" : null}
+        savingTitle={savingDraft ? "กำลังบันทึกแบบร่าง..." : "กำลังบันทึกข้อมูล..."}
+        successTitle={savingDraft ? "บันทึกแบบร่างสำเร็จ!" : "เพิ่มทรัพย์สินสำเร็จ!"}
+      />
 
       {/* ── Map Picker Modal ── */}
       <MapPickerModal

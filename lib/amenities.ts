@@ -1,3 +1,5 @@
+import { isIndustrialType } from "./assetSpecs";
+
 // ============================================================
 // Amenities Master Config — สิ่งอำนวยความสะดวก
 // ============================================================
@@ -14,6 +16,8 @@ export interface AmenityGroup {
   title: string;      // ภาษาไทย
   titleEn: string;    // English
   titleZh: string;    // 中文
+  /** Which property group this amenity group applies to (default: "residential") */
+  appliesTo?: "residential" | "industrial" | "all";
   items: AmenityItem[];
 }
 
@@ -66,6 +70,7 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
   },
   {
     id: "energy",
+    appliesTo: "all",
     title: "พลังงาน & เทคโนโลยี",
     titleEn: "Energy & Tech",
     titleZh: "能源与科技",
@@ -80,6 +85,7 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
   },
   {
     id: "security",
+    appliesTo: "all",
     title: "ความปลอดภัย",
     titleEn: "Security",
     titleZh: "安全设施",
@@ -121,6 +127,46 @@ export const AMENITY_GROUPS: AmenityGroup[] = [
       { key: "shuttle",           label: "รับส่งรถ Shuttle",            labelEn: "Shuttle Service",    labelZh: "穿梭巴士服务" },
     ],
   },
+  {
+    id: "industrial_structure",
+    appliesTo: "industrial",
+    title: "โครงสร้าง & การขนส่ง",
+    titleEn: "Structure & Logistics",
+    titleZh: "结构与物流",
+    items: [
+      { key: "loading_dock",      label: "Loading Dock",                 labelEn: "Loading Dock",          labelZh: "装卸平台" },
+      { key: "dock_leveler",      label: "Dock Leveler",                 labelEn: "Dock Leveler",          labelZh: "装卸调节板" },
+      { key: "loading_ramp",      label: "ทางลาดขึ้นลงสินค้า",            labelEn: "Loading Ramp",          labelZh: "装卸坡道" },
+      { key: "no_center_column",  label: "ไม่มีเสากลาง (Clear Span)",      labelEn: "Clear Span (No Columns)", labelZh: "无中柱" },
+      { key: "overhead_crane",    label: "เครนเหนือศีรษะ (Overhead Crane)", labelEn: "Overhead Crane",        labelZh: "桥式起重机" },
+      { key: "mezzanine",         label: "ชั้นลอย (Mezzanine)",            labelEn: "Mezzanine",             labelZh: "夹层" },
+      { key: "epoxy_floor",       label: "พื้นอีพ็อกซี่",                  labelEn: "Epoxy Floor",           labelZh: "环氧地坪" },
+      { key: "roof_insulation",   label: "ฉนวนกันความร้อนหลังคา",         labelEn: "Roof Insulation",       labelZh: "屋顶隔热" },
+      { key: "roof_ventilator",   label: "ระบบระบายอากาศหลังคา",          labelEn: "Roof Ventilation",      labelZh: "屋顶通风" },
+      { key: "truck_yard",        label: "ลานจอด / กลับรถบรรทุก",          labelEn: "Truck Yard",            labelZh: "货车停车/掉头场" },
+      { key: "weighbridge",       label: "เครื่องชั่งรถบรรทุก",             labelEn: "Weighbridge",           labelZh: "地磅" },
+    ],
+  },
+  {
+    id: "industrial_systems",
+    appliesTo: "industrial",
+    title: "ระบบ & ใบอนุญาต",
+    titleEn: "Systems & Permits",
+    titleZh: "系统与许可",
+    items: [
+      { key: "fire_sprinkler",    label: "ระบบสปริงเกอร์ดับเพลิง",         labelEn: "Fire Sprinkler",        labelZh: "消防喷淋系统" },
+      { key: "fire_hydrant",      label: "หัวจ่ายน้ำดับเพลิง (Hydrant)",    labelEn: "Fire Hydrant",          labelZh: "消防栓" },
+      { key: "own_transformer",   label: "หม้อแปลงไฟฟ้าแยก",               labelEn: "Dedicated Transformer", labelZh: "独立变压器" },
+      { key: "wastewater_system", label: "ระบบบำบัดน้ำเสีย",               labelEn: "Wastewater Treatment",  labelZh: "污水处理系统" },
+      { key: "factory_license",   label: "ขอใบ รง.4 ได้",                  labelEn: "Factory License (Ror Ngor 4) Available", labelZh: "可申请工厂执照" },
+      { key: "industrial_estate", label: "อยู่ในนิคมอุตสาหกรรม",           labelEn: "In Industrial Estate",  labelZh: "位于工业园区" },
+      { key: "free_zone",         label: "เขตปลอดอากร (Free Zone)",       labelEn: "Free Zone",             labelZh: "保税区" },
+      { key: "boi_zone",          label: "ได้สิทธิ BOI",                   labelEn: "BOI Eligible",          labelZh: "可享BOI优惠" },
+      { key: "office_in_building",label: "มีสำนักงานในอาคาร",              labelEn: "Built-in Office",       labelZh: "内设办公室" },
+      { key: "staff_restroom",    label: "ห้องน้ำพนักงาน",                 labelEn: "Staff Restrooms",       labelZh: "员工洗手间" },
+      { key: "canteen",           label: "โรงอาหาร / ห้องพักพนักงาน",      labelEn: "Canteen / Staff Room",  labelZh: "食堂/员工休息室" },
+    ],
+  },
 ];
 
 // Flat map: key -> item (for quick lookup)
@@ -137,4 +183,13 @@ export function parseAmenities(jsonStr: string | null | undefined): string[] {
   } catch {
     return [];
   }
+}
+
+/** Amenity groups that apply to the given AssetType */
+export function getAmenityGroups(type: string | null | undefined): AmenityGroup[] {
+  const industrial = isIndustrialType(type);
+  return AMENITY_GROUPS.filter((g) => {
+    const scope = g.appliesTo ?? "residential";
+    return scope === "all" || scope === (industrial ? "industrial" : "residential");
+  });
 }

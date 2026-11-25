@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import EditAssetClient from "@/components/EditAssetClient";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 
 interface PageProps {
@@ -56,6 +57,7 @@ export default async function EditAssetPage({ params }: PageProps) {
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
+        <AdminNav />
         <EditAssetClient asset={serializedAsset} />
       </main>
       <Footer />

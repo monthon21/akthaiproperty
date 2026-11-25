@@ -1,3 +1,5 @@
+import type { DisplaySpec } from "./assetSpecs";
+
 export interface Agent {
   name: string;
   phone: string;
@@ -18,8 +20,8 @@ export interface Property {
   rentPrice?: string | null;
   type: string; // "ขาย" | "เช่า"
   category: string; // "House" | "Condo" | "Villa"
-  beds: number;
-  baths: number;
+  beds?: number;
+  baths?: number;
   sqft: number;
   noFloor?: number;
   maidRoom?: number;
@@ -29,6 +31,11 @@ export interface Property {
   googleMap?: string;
   landSize?: number;
   usableArea?: number;
+  isIndustrial?: boolean;
+  ceilingHeight?: string;
+  specs?: DisplaySpec[];
+  rentTerms?: DisplaySpec[];
+  saleTerms?: DisplaySpec[];
   image: string;
   description: string;
   facilities: string[];

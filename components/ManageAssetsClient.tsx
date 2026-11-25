@@ -13,6 +13,28 @@ const formatNumberWithCommas = (value: string) => {
   return parseInt(clean, 10).toLocaleString();
 };
 
+const ASSET_TYPE_LABELS: Record<string, string> = {
+  DETACHED_HOUSE: "บ้านเดี่ยว",
+  TOWNHOUSE: "ทาวน์เฮาส์",
+  SEMI_DETACHED: "บ้านแฝด",
+  VILLA: "วิลล่า",
+  APARTMENT: "อพาร์ทเม้นท์",
+  WAREHOUSE: "โกดัง",
+  FACTORY: "โรงงาน",
+  OFFICE: "ออฟฟิศ",
+  RETAIL: "ร้านค้า",
+  COMMERCIAL: "อาคารพาณิชย์",
+  LAND: "ที่ดินเปล่า",
+  OTHER: "อื่นๆ",
+};
+
+const ASSET_TYPE_GROUPS: { label: string; types: string[] }[] = [
+  { label: "ที่อยู่อาศัย", types: ["DETACHED_HOUSE", "TOWNHOUSE", "SEMI_DETACHED", "VILLA", "APARTMENT"] },
+  { label: "อุตสาหกรรม", types: ["WAREHOUSE", "FACTORY"] },
+  { label: "พาณิชย์", types: ["OFFICE", "RETAIL", "COMMERCIAL"] },
+  { label: "ที่ดินและอื่นๆ", types: ["LAND", "OTHER"] },
+];
+
 export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin = false }: { initialAssets: any[], currentLang: string, isAdmin?: boolean }) {
   const router = useRouter();
   const [assets, setAssets] = useState(initialAssets);
@@ -22,8 +44,32 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [dealType, setDealType] = useState("all");
+  const [assetType, setAssetType] = useState("all");
+
+  // Filters take effect when "ค้นหา" is pressed (or Enter), not on every keystroke
+  const EMPTY_FILTERS = { searchQuery: "", minPrice: "", maxPrice: "", dealType: "all", assetType: "all" };
+  const [applied, setApplied] = useState(EMPTY_FILTERS);
+  const draft = { searchQuery, minPrice, maxPrice, dealType, assetType };
+  const hasDraft = JSON.stringify(draft) !== JSON.stringify(EMPTY_FILTERS);
+  const hasApplied = JSON.stringify(applied) !== JSON.stringify(EMPTY_FILTERS);
+  const isDirty = JSON.stringify(draft) !== JSON.stringify(applied);
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setMinPrice("");
+    setMaxPrice("");
+    setDealType("all");
+    setAssetType("all");
+    setApplied(EMPTY_FILTERS);
+  };
+
+  const typeCounts = assets.reduce((acc: Record<string, number>, a: { type: string }) => {
+    acc[a.type] = (acc[a.type] || 0) + 1;
+    return acc;
+  }, {});
 
   const filteredAssets = assets.filter((asset) => {
+    const { searchQuery, minPrice, maxPrice, dealType, assetType } = applied;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       const codeMatch = asset.code?.toLowerCase().includes(q);
@@ -35,6 +81,13 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
       const addressMatch = asset.address?.toLowerCase().includes(q);
       
       if (!codeMatch && !titleMatch && !projectMatch && !provinceMatch && !districtMatch && !ownerMatch && !addressMatch) {
+        return false;
+      }
+    }
+
+    if (assetType !== "all") {
+      const group = ASSET_TYPE_GROUPS.find((g) => `group:${g.label}` === assetType);
+      if (group ? !group.types.includes(asset.type) : asset.type !== assetType) {
         return false;
       }
     }
@@ -89,17 +142,23 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
   return (
     <div className="space-y-6">
       {/* Search and Price Filter Controls */}
-      <div className="bg-[#112240] border border-white/10 rounded-2xl p-5 shadow-xl">
+      <form
+        className="bg-[#112240] border border-white/10 rounded-2xl p-5 shadow-xl"
+        onSubmit={(e) => {
+          e.preventDefault();
+          setApplied(draft);
+        }}
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-4 items-end">
-          <div className="md:col-span-2 lg:col-span-5 space-y-1.5 w-full">
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ค้นหาทรัพย์สิน (Search)</label>
+          <div className="md:col-span-2 lg:col-span-3 space-y-1.5 w-full">
+            <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider block whitespace-nowrap truncate">ค้นหา (Search)</label>
             <div className="relative">
               <input
                 type="text"
-                placeholder="ค้นหาด้วยรหัสทรัพย์, ชื่อทรัพย์สิน, โครงการ, จังหวัด, บ้านเลขที่, ชื่อเจ้าของ..."
+                placeholder="รหัส, ชื่อทรัพย์, โครงการ, จังหวัด, เจ้าของ..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-11 pl-10 pr-4 bg-black/45 border border-white/10 rounded-xl text-xs text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full h-11 pl-10 pr-4 bg-black/45 border border-white/10 rounded-xl text-sm text-white placeholder-white/30 focus:outline-none focus:border-accent transition-all"
               />
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-accent">
                 <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -107,76 +166,111 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
             </div>
           </div>
 
-          <div className="col-span-1 lg:col-span-3 space-y-1.5 w-full">
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ลักษณะการทำรายการ (Deal Type)</label>
+          <div className="col-span-1 lg:col-span-2 space-y-1.5 w-full">
+            <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider block whitespace-nowrap truncate">ประเภททรัพย์ (Type)</label>
+            <select
+              value={assetType}
+              onChange={(e) => setAssetType(e.target.value)}
+              className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm text-white cursor-pointer focus:outline-none focus:border-accent appearance-none"
+            >
+              <option className="bg-[#112240]" value="all">ทุกประเภท ({assets.length})</option>
+              {ASSET_TYPE_GROUPS.map((g) => (
+                <optgroup key={g.label} label={g.label} className="bg-[#112240] text-white/50">
+                  <option className="bg-[#112240] text-white" value={`group:${g.label}`}>
+                    {g.label}ทั้งหมด ({g.types.reduce((n, t) => n + (typeCounts[t] || 0), 0)})
+                  </option>
+                  {g.types.map((t) => (
+                    <option key={t} className="bg-[#112240] text-white" value={t}>
+                      {ASSET_TYPE_LABELS[t]} ({typeCounts[t] || 0})
+                    </option>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-span-1 lg:col-span-2 space-y-1.5 w-full">
+            <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider block whitespace-nowrap truncate">ขาย / เช่า (Deal)</label>
             <select
               value={dealType}
               onChange={(e) => setDealType(e.target.value)}
-              className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs text-white cursor-pointer focus:outline-none focus:border-accent appearance-none"
+              className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm text-white cursor-pointer focus:outline-none focus:border-accent appearance-none"
             >
-              <option className="bg-[#112240]" value="all">ทั้งหมด (All)</option>
-              <option className="bg-[#112240]" value="sell">ขาย (For Sell)</option>
-              <option className="bg-[#112240]" value="rent">เช่า (For Rent)</option>
+              <option className="bg-[#112240]" value="all">ทั้งหมด</option>
+              <option className="bg-[#112240]" value="sell">ขาย</option>
+              <option className="bg-[#112240]" value="rent">เช่า</option>
             </select>
           </div>
           
           <div className="col-span-1 lg:col-span-3 space-y-1.5 w-full">
-            <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ช่วงราคาขาย (Sell Price Range)</label>
+            <label className="text-[11px] font-bold text-white/40 uppercase tracking-wider block whitespace-nowrap truncate">ช่วงราคาขาย (Price)</label>
             <div className="flex items-center gap-2">
               <input
                 type="text"
                 inputMode="numeric"
-                placeholder="ราคาต่ำสุด"
+                placeholder="ต่ำสุด"
                 value={minPrice}
                 onChange={(e) => setMinPrice(formatNumberWithCommas(e.target.value))}
-                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/30 focus:outline-none focus:border-accent transition-all"
               />
               <span className="text-white/20 text-xs shrink-0">-</span>
               <input
                 type="text"
                 inputMode="numeric"
-                placeholder="ราคาสูงสุด"
+                placeholder="สูงสุด"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(formatNumberWithCommas(e.target.value))}
-                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm md:text-base font-semibold text-white placeholder-white/20 focus:outline-none focus:border-accent transition-all"
+                className="w-full min-w-0 h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-sm text-white placeholder-white/30 focus:outline-none focus:border-accent transition-all"
               />
             </div>
           </div>
 
-          <div className="col-span-1 lg:col-span-1 w-full">
-            {(searchQuery || minPrice || maxPrice || dealType !== "all") ? (
+          <div className="md:col-span-2 lg:col-span-2 w-full flex gap-2">
+            <button
+              type="submit"
+              className={`h-11 flex-1 inline-flex items-center justify-center gap-2 rounded-xl text-sm font-black tracking-wide transition-all active:scale-95 cursor-pointer bg-accent text-primary-dark hover:bg-accent-dark shadow-lg ${isDirty ? "ring-2 ring-accent/40 ring-offset-2 ring-offset-[#112240]" : ""}`}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                <path strokeLinecap="round" strokeLinejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+              </svg>
+              ค้นหา
+            </button>
+            {(hasDraft || hasApplied) && (
               <button
-                onClick={() => {
-                  setSearchQuery("");
-                  setMinPrice("");
-                  setMaxPrice("");
-                  setDealType("all");
-                }}
-                className="h-11 w-full border border-white/10 text-xs font-bold text-white/70 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all cursor-pointer text-center"
+                type="button"
+                onClick={clearFilters}
+                title="ล้างค่า"
+                aria-label="ล้างค่าตัวกรอง"
+                className="h-11 w-11 shrink-0 inline-flex items-center justify-center border border-white/10 text-white/60 hover:text-white rounded-xl hover:bg-white/5 active:scale-95 transition-all cursor-pointer"
               >
-                ล้างค่า
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
               </button>
-            ) : (
-              <div className="h-11 hidden lg:block"></div>
             )}
           </div>
         </div>
-      </div>
+        {hasApplied && (
+          <p className="text-xs text-white/50 mt-3">
+            พบ <span className="font-bold text-accent">{filteredAssets.length}</span> จาก {assets.length} รายการ
+          </p>
+        )}
+      </form>
 
       <div className="bg-[#112240] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-white min-w-[800px]">
             <thead className="bg-black/40 text-[10px] uppercase text-white/50 tracking-widest border-b border-white/5">
               <tr>
-                <th className="px-6 py-4 font-bold">รูปภาพ (Image)</th>
-                <th className="px-6 py-4 font-bold">รหัส (Code)</th>
-                <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน (Title)</th>
-                <th className="px-6 py-4 font-bold">สถานะ (Status)</th>
-                <th className="px-6 py-4 font-bold">ราคาขาย (Sell Price)</th>
-                <th className="px-6 py-4 font-bold">ราคาเช่า (Rent Price)</th>
-                <th className="px-6 py-4 font-bold text-center">ออนไลน์ (Online)</th>
-                <th className="px-6 py-4 font-bold text-center">หน้าแรก (Home)</th>
-                <th className="px-6 py-4 font-bold text-right">จัดการ (Actions)</th>
+                <th className="px-6 py-4 font-bold">รูปภาพ</th>
+                <th className="px-6 py-4 font-bold">รหัส</th>
+                <th className="px-6 py-4 font-bold">ชื่อทรัพย์สิน</th>
+                <th className="px-6 py-4 font-bold">สถานะ</th>
+                <th className="px-6 py-4 font-bold">ราคาขาย</th>
+                <th className="px-6 py-4 font-bold">ราคาเช่า</th>
+                <th className="px-6 py-4 font-bold text-center">ออนไลน์</th>
+                <th className="px-6 py-4 font-bold text-center">หน้าแรก</th>
+                <th className="px-6 py-4 font-bold text-right">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
@@ -211,20 +305,7 @@ export default function ManageAssetsClient({ initialAssets, currentLang, isAdmin
                     <div className="truncate text-white" title={asset.title}>{asset.title}</div>
                     {asset.titleEn && <div className="truncate text-[10px] text-white/40" title={asset.titleEn}>{asset.titleEn}</div>}
                     <div className="text-[10px] text-accent/80 font-bold mt-1 uppercase tracking-wider">
-                      {{
-                        DETACHED_HOUSE: "บ้านเดี่ยว",
-                        TOWNHOUSE: "ทาวน์เฮาส์",
-                        SEMI_DETACHED: "บ้านแฝด",
-                        VILLA: "วิลล่า",
-                        FACTORY: "โรงงาน",
-                        WAREHOUSE: "โกดัง",
-                        OFFICE: "ออฟฟิศ",
-                        RETAIL: "ร้านค้า",
-                        LAND: "ที่ดินเปล่า",
-                        COMMERCIAL: "อาคารพาณิชย์",
-                        APARTMENT: "อพาร์ทเม้นท์",
-                        OTHER: "อื่นๆ"
-                      }[asset.type as string] || asset.type}
+                      {ASSET_TYPE_LABELS[asset.type as string] || asset.type}
                     </div>
                   </td>
                   <td className="px-6 py-4">

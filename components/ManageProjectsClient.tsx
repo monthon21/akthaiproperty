@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import PlaceNameInput from "@/components/PlaceNameInput";
 import {
   createProjectTemplateAction,
   updateProjectTemplateAction,
@@ -455,7 +456,7 @@ export default function ManageProjectsClient({ initialTemplates }: Props) {
                         </div>
                         <div className="col-span-4 space-y-1">
                           <label className="text-[9px] font-bold text-white/30 uppercase tracking-widest block">ชื่อสถานที่</label>
-                          <input type="text" placeholder="e.g. เซ็นทรัล, BTS อโศก" value={p.placeName} onChange={(e) => updatePlace(p._localId, "placeName", e.target.value)} className={inputCls + " h-9"} />
+                          <PlaceNameInput placeholder="พิมพ์เพื่อค้นหา เช่น เซ็นทรัล" value={p.placeName} onChange={(v) => updatePlace(p._localId, "placeName", v)} className={inputCls + " h-9"} />
                         </div>
                         <div className="col-span-1 flex justify-end mt-5">
                           <button type="button" onClick={() => removePlace(p._localId)} className="w-8 h-8 flex items-center justify-center text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 rounded-lg transition-all">

@@ -2,6 +2,7 @@ import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 import ManageProjectsClient from "@/components/ManageProjectsClient";
 import { getAllProjectTemplatesAction } from "@/lib/actions/project-template";
@@ -23,6 +24,7 @@ export default async function ManageProjectsPage({
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
+        <AdminNav />
         <div className="max-w-4xl mx-auto px-6">
           {/* Page header */}
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">

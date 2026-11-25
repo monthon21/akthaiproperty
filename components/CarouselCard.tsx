@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { formatNumber, formatLandSize } from "@/lib/format";
 import Link from "next/link";
 import AnimatedLink from "./AnimatedLink";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
@@ -14,8 +15,9 @@ interface PropertyProps {
   rentPrice?: string | null;
   type: string;
   category: string;
-  beds: number;
-  baths: number;
+  beds?: number;
+  baths?: number;
+  ceilingHeight?: string;
   sqft: number;
   landSize?: number | null;
   usableArea?: number | null;
@@ -146,6 +148,20 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
             </div>
           ) : null}
 
+          {property.ceilingHeight ? (
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-md bg-white/5 flex items-center justify-center text-accent shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 7.5 7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5" />
+                </svg>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{lang === 'th' ? 'ความสูงใต้จันทัน' : lang === 'zh' ? '檐高' : 'Eave Height'}</span>
+                <span className="text-xs font-black text-white leading-none">{formatNumber(property.ceilingHeight)} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ม.' : lang === 'zh' ? '米' : 'm'}</span></span>
+              </div>
+            </div>
+          ) : null}
+
           {property.landSize ? (
             <div className="flex items-center gap-2.5">
               <div className="w-8 h-8 rounded-md bg-white/5 flex items-center justify-center text-accent shrink-0">
@@ -155,7 +171,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{lang === 'th' ? 'ขนาดที่ดิน' : lang === 'zh' ? '土地面积' : 'Land Size'}</span>
-                <span className="text-xs font-black text-white leading-none">{property.landSize} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ตร.วา' : lang === 'zh' ? '平方哇' : 'sq.w'}</span></span>
+                <span className="text-xs font-black text-white leading-none">{formatLandSize(property.landSize, lang)}</span>
               </div>
             </div>
           ) : null}
@@ -167,7 +183,7 @@ export default async function CarouselCard({ property, lang = "th", cardType = "
               </div>
               <div className="flex flex-col">
                 <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1">{lang === 'th' ? 'พื้นที่ใช้สอย' : lang === 'zh' ? '使用面积' : 'Usable Area'}</span>
-                <span className="text-xs font-black text-white leading-none">{property.usableArea} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ตร.ม.' : lang === 'zh' ? '平方米' : 'sq.m'}</span></span>
+                <span className="text-xs font-black text-white leading-none">{formatNumber(property.usableArea)} <span className="text-[10px] font-bold text-white/70 ml-0.5">{lang === 'th' ? 'ตร.ม.' : lang === 'zh' ? '平方米' : 'sq.m'}</span></span>
               </div>
             </div>
           ) : null}

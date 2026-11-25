@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { formatNumber, formatLandSize } from "@/lib/format";
 import Link from "next/link";
 import AnimatedLink from "./AnimatedLink";
 import { getDictionary, Locale } from "@/lib/i18n/dictionaries";
@@ -15,8 +16,9 @@ interface PropertyProps {
   rentPrice?: string | null;
   type: string;
   category: string;
-  beds: number;
-  baths: number;
+  beds?: number;
+  baths?: number;
+  ceilingHeight?: string;
   sqft: number;
   landSize?: number | null;
   usableArea?: number | null;
@@ -147,8 +149,8 @@ export default async function PropertyCard({ property, lang = "th" }: { property
               <Maximize className="w-4 h-4 text-accent" />
               <span>
                 {property.category === "Land"
-                  ? `${property.landSize || property.sqft} ${lang === "th" ? "ตร.วา" : "Sq.wah"}`
-                  : `${property.usableArea || property.sqft} ${dict.property_card.sqm}`}
+                  ? formatLandSize(property.landSize || property.sqft, lang)
+                  : `${formatNumber(property.usableArea || property.sqft)} ${dict.property_card.sqm}`}
               </span>
             </div>
           </div>

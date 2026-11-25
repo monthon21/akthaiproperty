@@ -1,15 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { formatThaiPhone, phoneDigits } from "@/lib/format";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  getLandlordDetailsAction,
-  updateLandlordDetailsAction,
-  createLandlordAction,
-  deleteLandlordAction
-} from "@/lib/actions/landlord";
-import { Eye, Edit, Trash2 } from "lucide-react";
+import { deleteLandlordAction } from "@/lib/actions/landlord";
+import { Edit, Trash2, ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 
 export default function ManageLandlordsClient({
   initialLandlords,
@@ -27,35 +23,74 @@ export default function ManageLandlordsClient({
   const [actionError, setActionError] = useState(errorMsg);
   const [successMessage, setSuccessMessage] = useState("");
 
-  // Modal states
-  const [showModal, setShowModal] = useState(false);
-  const [isNewLandlord, setIsNewLandlord] = useState(false);
-  const [modalLoading, setModalLoading] = useState(false);
-  const [selectedLandlordId, setSelectedLandlordId] = useState<number | null>(null);
-
-  // Form states
-  const [formName, setFormName] = useState("");
-  const [formPhone, setFormPhone] = useState("");
-  const [formLine, setFormLine] = useState("");
-  const [formFullname, setFormFullname] = useState("");
-  const [formDetailPhone, setFormDetailPhone] = useState("");
-  const [formIdcard, setFormIdcard] = useState("");
-  const [formEmail, setFormEmail] = useState("");
-  const [formDetailLine, setFormDetailLine] = useState("");
-  const [formAddress, setFormAddress] = useState("");
-  const [associatedAssets, setAssociatedAssets] = useState<any[]>([]);
-
   const filteredLandlords = landlords.filter((c) => {
     if (!searchQuery.trim()) return true;
     const q = searchQuery.toLowerCase().trim();
     return (
       c.name?.toLowerCase().includes(q) ||
       c.phone?.toLowerCase().includes(q) ||
+      (phoneDigits(q).length >= 3 && phoneDigits(c.phone).includes(phoneDigits(q))) ||
       c.line?.toLowerCase().includes(q) ||
       c.details?.fullname?.toLowerCase().includes(q) ||
       c.details?.email?.toLowerCase().includes(q)
     );
   });
+
+  // Registration number: oldest landlord (lowest auto-increment id) = 1, fixed regardless of search / sort
+  const regNo = useMemo(() => {
+    const map = new Map<number, number>();
+    [...landlords].sort((a, b) => a.id - b.id).forEach((c, i) => map.set(c.id, i + 1));
+    return map;
+  }, [landlords]);
+
+  type SortKey = "no" | "name" | "phone" | "line" | "fullname" | "assets";
+  const [sort, setSort] = useState<{ key: SortKey; dir: "asc" | "desc" }>({ key: "no", dir: "asc" });
+
+  const toggleSort = (key: SortKey) =>
+    setSort((prev) => (prev.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }));
+
+  const sortedLandlords = useMemo(() => {
+    const text = (v: string | null | undefined) => (v ?? "").trim();
+    const getValue = (c: any): string | number => {
+      switch (sort.key) {
+        case "no": return regNo.get(c.id) ?? 0;
+        case "name": return text(c.name);
+        case "phone": return phoneDigits(c.phone);
+        case "line": return text(c.line);
+        case "fullname": return text(c.details?.fullname);
+        case "assets": return c.assets?.length ?? 0;
+      }
+    };
+    const dir = sort.dir === "asc" ? 1 : -1;
+    return [...filteredLandlords].sort((a, b) => {
+      const va = getValue(a);
+      const vb = getValue(b);
+      // empty text values always go last
+      if (va === "" && vb !== "") return 1;
+      if (vb === "" && va !== "") return -1;
+      const cmp = typeof va === "number" && typeof vb === "number"
+        ? va - vb
+        : String(va).localeCompare(String(vb), "th", { numeric: true });
+      return cmp !== 0 ? cmp * dir : a.id - b.id;
+    });
+  }, [filteredLandlords, sort, regNo]);
+
+  const sortHeader = (k: SortKey, label: string, className = "") => {
+    const active = sort.key === k;
+    const Icon = !active ? ArrowUpDown : sort.dir === "asc" ? ArrowUp : ArrowDown;
+    return (
+      <th key={k} className={`px-6 py-4 ${className}`} aria-sort={active ? (sort.dir === "asc" ? "ascending" : "descending") : "none"}>
+        <button
+          type="button"
+          onClick={() => toggleSort(k)}
+          className={`inline-flex items-center gap-1.5 uppercase tracking-wider font-bold cursor-pointer transition-colors ${active ? "text-accent" : "hover:text-white"}`}
+        >
+          {label}
+          <Icon className={`w-3.5 h-3.5 shrink-0 ${active ? "" : "opacity-40"}`} />
+        </button>
+      </th>
+    );
+  };
 
   const handleDelete = async (id: number, name: string) => {
     if (
@@ -82,116 +117,6 @@ export default function ManageLandlordsClient({
     setIsDeleting(null);
   };
 
-  const handleOpenEdit = async (landlordId: number) => {
-    setActionError("");
-    setSuccessMessage("");
-    setIsNewLandlord(false);
-    setSelectedLandlordId(landlordId);
-    setModalLoading(true);
-    setShowModal(true);
-
-    const res = await getLandlordDetailsAction(landlordId);
-    if (res.success && res.landlord) {
-      const c = res.landlord;
-      setFormName(c.name || "");
-      setFormPhone(c.phone || "");
-      setFormLine(c.line || "");
-      setFormFullname(c.details?.fullname || "");
-      setFormDetailPhone(c.details?.phone || "");
-      setFormIdcard(c.details?.idcard || "");
-      setFormEmail(c.details?.email || "");
-      setFormDetailLine(c.details?.line || "");
-      setFormAddress(c.details?.address || "");
-      setAssociatedAssets(c.assets || []);
-    } else {
-      setActionError(res.error || "ไม่สามารถโหลดข้อมูลเจ้าของทรัพย์ได้");
-      setShowModal(false);
-    }
-    setModalLoading(false);
-  };
-
-  const handleOpenCreate = () => {
-    setActionError("");
-    setSuccessMessage("");
-    setIsNewLandlord(true);
-    setSelectedLandlordId(null);
-    setFormName("");
-    setFormPhone("");
-    setFormLine("");
-    setFormFullname("");
-    setFormDetailPhone("");
-    setFormIdcard("");
-    setFormEmail("");
-    setFormDetailLine("");
-    setFormAddress("");
-    setAssociatedAssets([]);
-    setShowModal(true);
-  };
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setActionError("");
-    setSuccessMessage("");
-
-    if (!formName.trim()) {
-      setActionError("กรุณากรอกชื่อเรียกเจ้าของทรัพย์");
-      return;
-    }
-
-    setModalLoading(true);
-    const payload = {
-      name: formName,
-      phone: formPhone,
-      line: formLine,
-      fullname: formFullname || formName,
-      detailPhone: formDetailPhone || formPhone,
-      idcard: formIdcard,
-      email: formEmail,
-      detailLine: formDetailLine || formLine,
-      address: formAddress
-    };
-
-    if (isNewLandlord) {
-      const res = await createLandlordAction(payload);
-      if (res.success && res.landlord) {
-        const newCust = {
-          ...res.landlord,
-          details: res.details,
-          _count: { assets: 0 }
-        };
-        setLandlords((prev) => [newCust, ...prev]);
-        setSuccessMessage("สร้างข้อมูลเจ้าของทรัพย์สำเร็จ");
-        setShowModal(false);
-        router.refresh();
-      } else {
-        setActionError(res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-      }
-    } else if (selectedLandlordId) {
-      const res = await updateLandlordDetailsAction(selectedLandlordId, payload);
-      if (res.success && res.landlord) {
-        setLandlords((prev) =>
-          prev.map((c) =>
-            c.id === selectedLandlordId
-              ? {
-                  ...c,
-                  name: res.landlord.name,
-                  phone: res.landlord.phone,
-                  line: res.landlord.line,
-                  details: res.details
-                }
-              : c
-          )
-        );
-        setSuccessMessage("อัปเดตรายละเอียดเจ้าของทรัพย์สำเร็จ");
-        setShowModal(false);
-        router.refresh();
-      } else {
-        setActionError(res.error || "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-      }
-    }
-    setModalLoading(false);
-  };
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-2">
@@ -206,12 +131,12 @@ export default function ManageLandlordsClient({
           >
             ← รายการทรัพย์สิน
           </Link>
-          <button
-            onClick={handleOpenCreate}
+          <Link
+            href={`/${currentLang}/manage/landlord/new`}
             className="bg-accent hover:bg-accent-dark text-primary-dark text-xs font-bold px-6 py-3 rounded-xl tracking-widest uppercase transition-all shadow-lg active:scale-95 cursor-pointer"
           >
             + เพิ่มเจ้าของทรัพย์
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -260,26 +185,28 @@ export default function ManageLandlordsClient({
           <table className="w-full text-left text-xs border-collapse">
             <thead>
               <tr className="border-b border-white/10 bg-black/20 text-white/50 font-bold uppercase tracking-wider">
-                <th className="px-6 py-4">ชื่อเรียกในระบบ (Name)</th>
-                <th className="px-6 py-4">เบอร์โทรศัพท์ (Phone)</th>
-                <th className="px-6 py-4">Line ID</th>
-                <th className="px-6 py-4">ชื่อจริง/นามสกุล (Fullname)</th>
-                <th className="px-6 py-4">รายการทรัพย์สิน</th>
-                <th className="px-6 py-4 text-center">การจัดการ (Actions)</th>
+                {sortHeader("no", "ลำดับ", "text-center w-24")}
+                {sortHeader("name", "ชื่อเรียกในระบบ")}
+                {sortHeader("phone", "เบอร์โทรศัพท์")}
+                {sortHeader("line", "Line ID")}
+                {sortHeader("fullname", "ชื่อจริง/นามสกุล")}
+                {sortHeader("assets", "รายการทรัพย์สิน")}
+                <th className="px-6 py-4 text-center">จัดการ</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
               {filteredLandlords.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-10 text-center text-white/40">
+                  <td colSpan={7} className="px-6 py-10 text-center text-white/40">
                     ไม่พบข้อมูลเจ้าของทรัพย์สิน
                   </td>
                 </tr>
               ) : (
-                filteredLandlords.map((c) => (
+                sortedLandlords.map((c) => (
                   <tr key={c.id} className="hover:bg-white/5 transition-colors">
+                    <td className="px-6 py-4 text-center text-white/50 font-mono">{regNo.get(c.id)}</td>
                     <td className="px-6 py-4 font-bold text-white">{c.name}</td>
-                    <td className="px-6 py-4 text-white/70">{c.phone || "-"}</td>
+                    <td className="px-6 py-4 text-white/70">{c.phone ? formatThaiPhone(c.phone) : "-"}</td>
                     <td className="px-6 py-4 text-white/70">{c.line || "-"}</td>
                     <td className="px-6 py-4 text-white/70">{c.details?.fullname || "-"}</td>
                     <td className="px-6 py-4">
@@ -302,20 +229,13 @@ export default function ManageLandlordsClient({
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-center gap-1.5">
-                        <button
-                          onClick={() => handleOpenEdit(c.id)}
-                          title="ดูรายละเอียด"
-                          className="p-1.5 text-white/30 hover:text-white transition-colors cursor-pointer"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleOpenEdit(c.id)}
-                          title="แก้ไข"
+                        <Link
+                          href={`/${currentLang}/manage/landlord/edit/${c.id}`}
+                          title="ดูรายละเอียด / แก้ไข"
                           className="p-1.5 text-white/30 hover:text-blue-400 transition-colors cursor-pointer"
                         >
                           <Edit size={16} />
-                        </button>
+                        </Link>
                         <button
                           onClick={() => handleDelete(c.id, c.name)}
                           disabled={isDeleting === c.id}
@@ -340,214 +260,6 @@ export default function ManageLandlordsClient({
           </table>
         </div>
       </div>
-
-      {/* Detail / Edit Modal */}
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto">
-          <div className="bg-[#112240] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative animate-fade-in flex flex-col">
-            {/* Modal Header */}
-            <div className="sticky top-0 bg-[#112240] px-6 py-4 border-b border-white/10 flex justify-between items-center z-10">
-              <h3 className="font-bold text-base text-white">
-                {isNewLandlord ? "เพิ่มเจ้าของทรัพย์ใหม่" : "ข้อมูลเจ้าของทรัพย์ & รายละเอียดสัญญา"}
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-white/40 hover:text-white text-lg font-bold cursor-pointer"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Modal Content */}
-            {modalLoading && !isNewLandlord ? (
-              <div className="p-10 text-center text-accent animate-pulse font-semibold">
-                กำลังดึงข้อมูล...
-              </div>
-            ) : (
-              <form onSubmit={handleSave} className="p-6 space-y-6 flex-1">
-                {/* 1. Basic Info (Landlord Table) */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
-                    ข้อมูลพื้นฐานติดต่อหลัก (Landlord Basic Info)
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        ชื่อเรียก/ค้นหา (Name)*
-                      </label>
-                      <input
-                        type="text"
-                        required
-                        value={formName}
-                        onChange={(e) => setFormName(e.target.value)}
-                        placeholder="e.g. คุณสมชาย"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        เบอร์ติดต่อหลัก (Phone)
-                      </label>
-                      <input
-                        type="text"
-                        value={formPhone}
-                        onChange={(e) => setFormPhone(e.target.value)}
-                        placeholder="e.g. 0812345678"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        Line ID หลัก
-                      </label>
-                      <input
-                        type="text"
-                        value={formLine}
-                        onChange={(e) => setFormLine(e.target.value)}
-                        placeholder="e.g. somchai_line"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Detailed Info (LandlordDetails Table) */}
-                <div className="space-y-4">
-                  <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
-                    ข้อมูลสัญญา & เอกสารเจ้าของทรัพย์ (Landlord Details - Confidential)
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        ชื่อจริง-นามสกุลตามบัตร (Fullname)
-                      </label>
-                      <input
-                        type="text"
-                        value={formFullname}
-                        onChange={(e) => setFormFullname(e.target.value)}
-                        placeholder="e.g. นายสมชาย อารีย์ดี"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        เลขบัตรประชาชน / Passport (ID Card)
-                      </label>
-                      <input
-                        type="text"
-                        value={formIdcard}
-                        onChange={(e) => setFormIdcard(e.target.value)}
-                        placeholder="e.g. 1100200345678"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        เบอร์ติดต่อสำรอง / เพิ่มเติม
-                      </label>
-                      <input
-                        type="text"
-                        value={formDetailPhone}
-                        onChange={(e) => setFormDetailPhone(e.target.value)}
-                        placeholder="เบอร์ติดต่ออื่นๆ..."
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        อีเมล (Email)
-                      </label>
-                      <input
-                        type="email"
-                        value={formEmail}
-                        onChange={(e) => setFormEmail(e.target.value)}
-                        placeholder="e.g. somchai@example.com"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        Line ID เพิ่มเติม
-                      </label>
-                      <input
-                        type="text"
-                        value={formDetailLine}
-                        onChange={(e) => setFormDetailLine(e.target.value)}
-                        placeholder="e.g. line_id_2"
-                        className="w-full h-11 bg-black/45 border border-white/10 rounded-xl px-4 text-xs focus:outline-none focus:border-accent text-white"
-                      />
-                    </div>
-                    <div className="space-y-1.5 md:col-span-2">
-                      <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">
-                        ที่อยู่สำหรับการจัดส่งเอกสาร / ที่อยู่ตามทะเบียนบ้าน (Address)
-                      </label>
-                      <textarea
-                        rows={3}
-                        value={formAddress}
-                        onChange={(e) => setFormAddress(e.target.value)}
-                        placeholder="กรอกรายละเอียดที่อยู่จัดส่งเอกสารหรือที่อยู่ตามทะเบียนบ้าน..."
-                        className="w-full p-4 bg-black/45 border border-white/10 rounded-xl text-xs focus:outline-none focus:border-accent text-white resize-none"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* 3. Linked Assets (Properties list) */}
-                {!isNewLandlord && (
-                  <div className="space-y-3">
-                    <h4 className="text-xs font-bold text-accent uppercase tracking-widest border-b border-white/5 pb-1">
-                      อสังหาริมทรัพย์ที่ครอบครอง ({associatedAssets.length} รายการ)
-                    </h4>
-                    {associatedAssets.length === 0 ? (
-                      <p className="text-xs text-white/40 italic">ยังไม่มีทรัพย์สินเชื่อมโยงกับเจ้าของท่านนี้</p>
-                    ) : (
-                      <div className="space-y-2 max-h-40 overflow-y-auto pr-1">
-                        {associatedAssets.map((asset) => (
-                          <div
-                            key={asset.id}
-                            className="flex justify-between items-center bg-black/20 border border-white/5 p-3 rounded-xl hover:border-accent/30 transition-all text-xs"
-                          >
-                            <div className="flex flex-col gap-0.5">
-                              <span className="font-bold text-white font-mono">
-                                รหัสทรัพย์ (ID): {asset.code}
-                              </span>
-                            </div>
-                            <Link
-                              href={`/${currentLang}/property/list/${asset.code}`}
-                              target="_blank"
-                              className="text-accent hover:underline font-semibold"
-                            >
-                              เปิดดูหน้าเว็บ →
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Footer Buttons */}
-                <div className="flex justify-end gap-3 pt-4 border-t border-white/5">
-                  <button
-                    type="button"
-                    onClick={() => setShowModal(false)}
-                    className="px-6 h-11 bg-white/5 hover:bg-white/10 rounded-xl text-xs font-bold uppercase transition-all tracking-wider text-white/70 hover:text-white cursor-pointer"
-                  >
-                    ยกเลิก
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={modalLoading}
-                    className="px-10 h-11 bg-accent text-primary-dark rounded-xl font-black text-xs tracking-widest uppercase hover:bg-accent-dark transition-all shadow-lg hover:shadow-accent/15 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                  >
-                    {modalLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

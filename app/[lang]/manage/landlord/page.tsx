@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import Navbar from "@/components/Navbar";
+import AdminNav from "@/components/AdminNav";
 import Footer from "@/components/Footer";
 import ManageLandlordsClient from "@/components/ManageLandlordsClient";
 import { getAllLandlordsAction } from "@/lib/actions/landlord";
@@ -28,6 +29,7 @@ export default async function ManageLandlordsPage({ params }: { params: Promise<
     <>
       <Navbar />
       <main className="pt-32 pb-24 bg-[#0A192F] text-white min-h-screen">
+        <AdminNav />
         <div className="max-w-6xl mx-auto px-6">
           <ManageLandlordsClient 
             initialLandlords={success ? JSON.parse(JSON.stringify(landlords || [])) : []} 

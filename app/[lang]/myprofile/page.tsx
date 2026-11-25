@@ -5,6 +5,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import AvatarUploader from "@/components/AvatarUploader";
 import { prisma } from "@/lib/prisma";
+import AgentProfileForm, { AgentProfileValues } from "@/components/AgentProfileForm";
 
 export default async function MyProfilePage({ params }: { params: Promise<{ lang: string }> | { lang: string } }) {
   const session = await auth();
@@ -22,8 +23,33 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
   }
 
   const userFromDb = await prisma.user.findUnique({
-    where: { id: rawUserId }
+    where: { id: rawUserId },
+    include: { profile: true },
   });
+
+  const pf = userFromDb?.profile;
+  const d = (v: Date | null | undefined) => (v ? v.toISOString().slice(0, 10) : "");
+  const profileValues: AgentProfileValues = {
+    fullname: userFromDb?.fullname || "",
+    position: pf?.position || "",
+    prefix: pf?.prefix || "",
+    fullnameEn: pf?.fullnameEn || "",
+    nationalId: pf?.nationalId || "",
+    idCardExpiry: d(pf?.idCardExpiry),
+    birthDate: d(pf?.birthDate),
+    nationality: pf?.nationality || "ไทย",
+    phone: pf?.phone || "",
+    lineId: pf?.lineId || "",
+    address: pf?.address || "",
+    subdistrict: pf?.subdistrict || "",
+    district: pf?.district || "",
+    province: pf?.province || "",
+    postCode: pf?.postCode || "",
+    bankName: pf?.bankName || "",
+    bankAccountNo: pf?.bankAccountNo || "",
+    bankAccountName: pf?.bankAccountName || "",
+    signatureUrl: pf?.signatureUrl || "",
+  };
 
   return (
     <>
@@ -83,6 +109,12 @@ export default async function MyProfilePage({ params }: { params: Promise<{ lang
                   <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest block">ประเภทผู้ใช้ (Role)</span>
                   <span className="text-xs font-bold text-accent uppercase tracking-wider">ADMIN / AGENT</span>
                 </div>
+              </div>
+
+              {/* Sales assistant details (for documents) */}
+              <div className="pt-4 pb-8 mb-8 border-t border-white/5">
+                <h2 className="text-lg font-black tracking-tight mt-4 mb-6">ข้อมูลผู้ช่วยขาย (สำหรับออกเอกสาร)</h2>
+                <AgentProfileForm initial={profileValues} />
               </div>
 
               {/* Quick Actions Panel */}

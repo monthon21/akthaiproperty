@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Property } from "@/lib/properties";
 import PropertyGallery from "./PropertyGallery";
+import { formatNumber, formatLandSize } from "@/lib/format";
 import FormattedText from "./FormattedText";
 import { getSessionAction } from "@/lib/actions/auth";
 import SearchBox from "./SearchBox";
@@ -406,7 +407,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
             </div>
             <div className="flex flex-col">
               <span className="text-[10px] font-extrabold text-white/40 uppercase tracking-widest leading-none mb-1.5">{t("property_detail.land_size")}</span>
-              <span className="text-sm font-black text-white leading-none">{property.landSize} <span className="text-[10px] font-bold text-white/70 ml-0.5">{t("property_detail.sqw")}</span></span>
+              <span className="text-sm font-black text-white leading-none">{formatLandSize(property.landSize, currentLang)}</span>
             </div>
           </div>
         ) : null}
@@ -581,9 +582,11 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
           <a href="#overview" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
             {currentLang === "th" ? "ภาพรวม" : currentLang === "zh" ? "概览" : "Overview"}
           </a>
-          <a href="#amenities" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
-            {currentLang === "th" ? "สิ่งอำนวยความสะดวก" : currentLang === "zh" ? "设施与特点" : "Property Features"}
-          </a>
+          {property.facilities.length > 0 && (
+            <a href="#amenities" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
+              {currentLang === "th" ? "สิ่งอำนวยความสะดวก" : currentLang === "zh" ? "设施与特点" : "Property Features"}
+            </a>
+          )}
           <a href="#location" className="text-xs font-bold text-white/70 hover:text-accent tracking-widest uppercase transition-colors shrink-0">
             {currentLang === "th" ? "ที่ตั้ง" : currentLang === "zh" ? "位置" : "Location"}
           </a>
@@ -626,6 +629,22 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               <div className="text-sm text-white/80 leading-relaxed font-medium space-y-4">
                 {/* Detailed Specs Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 border-white/5">
+                  {property.specs?.map((sp) => (
+                    <div key={sp.key} className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h12m-.75 4.5H21" />
+                        </svg>
+                      </div>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{sp.label}</span>
+                        <span className="text-sm font-black text-accent truncate" title={sp.value}>
+                          {sp.value} {sp.unit && <span className="text-xs font-normal text-white/60 ml-0.5">{sp.unit}</span>}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+
                   {property.beds !== undefined && property.beds !== null ? (
                     <div className="bg-white/[0.02] hover:bg-white/[0.05] border border-white/10 hover:border-accent/35 rounded-xl p-3.5 flex items-center gap-3.5 transition-all duration-300 shadow-md">
                       <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center text-accent shrink-0">
@@ -664,7 +683,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.land_size")}</span>
                         <span className="text-sm font-black text-accent truncate">
-                          {property.landSize} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.sqw")}</span>
+                          {formatLandSize(property.landSize, currentLang)}
                         </span>
                       </div>
                     </div>
@@ -678,7 +697,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       <div className="flex flex-col min-w-0">
                         <span className="text-[9px] font-extrabold text-white/40 uppercase tracking-widest truncate mb-0.5">{t("property_detail.area_label")}</span>
                         <span className="text-sm font-black text-accent truncate">
-                          {property.usableArea} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.sqm")}</span>
+                          {formatNumber(property.usableArea)} <span className="text-xs font-normal text-white/60 ml-0.5">{t("property_detail.sqm")}</span>
                         </span>
                       </div>
                     </div>
@@ -769,8 +788,34 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
               </div>
             </section>
 
+            {/* Deal Terms Sections */}
+            {([
+              { id: "sale-terms", items: property.saleTerms, th: "เงื่อนไขการซื้อขาย", en: "Sale Terms", zh: "买卖条件" },
+              { id: "rent-terms", items: property.rentTerms, th: "เงื่อนไขการเช่า", en: "Rental Terms", zh: "租赁条件" },
+            ]).filter((sec) => sec.items && sec.items.length > 0).map((sec) => (
+              <section key={sec.id} id={sec.id} className="scroll-mt-36 pt-4 space-y-6">
+                <h2 className="text-lg font-bold text-white tracking-wide border-l-2 border-accent pl-3">
+                  {currentLang === "th" ? sec.th : currentLang === "zh" ? sec.zh : sec.en}
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-1 gap-x-12 bg-white/5 border border-white/10 rounded-xl p-6">
+                  {sec.items!.map((t) => (
+                    <div key={t.key} className={`py-2.5 border-b border-white/5 ${t.long ? "sm:col-span-2 space-y-1.5" : "flex justify-between items-center gap-4"}`}>
+                      <span className="text-xs font-semibold text-white/50">{t.label}</span>
+                      {t.long ? (
+                        <p className="text-sm text-white/85 whitespace-pre-line leading-relaxed">{t.value}</p>
+                      ) : (
+                        <span className="text-sm font-bold text-accent text-right">
+                          {t.value} {t.unit && <span className="text-xs font-normal text-white/60">{t.unit}</span>}
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+
             {/* Amenities Section */}
-            <section id="amenities" className="scroll-mt-36 pt-4 space-y-6">
+            {property.facilities.length > 0 && <section id="amenities" className="scroll-mt-36 pt-4 space-y-6">
               <h2 className="text-lg font-bold text-white tracking-wide border-l-2 border-accent pl-3">
                 {currentLang === "th" ? "สิ่งอำนวยความสะดวก" : currentLang === "zh" ? "设施与特点" : "Amenities & Features"}
               </h2>
@@ -786,7 +831,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                   </div>
                 ))}
               </div>
-            </section>
+            </section>}
 
             {/* Location Section */}
             <section id="location" className="scroll-mt-36 pt-4 space-y-6">
@@ -1396,7 +1441,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                           <path strokeLinecap="round" strokeLinejoin="round" d="M9 6.75V15m6-6v8.25m.503 3.498 4.875-2.437c.381-.19.622-.58.622-1.006V4.82c0-.836-.88-1.38-1.628-1.006l-3.869 1.934c-.317.159-.69.159-1.006 0L9.503 3.252a1.125 1.125 0 0 0-1.006 0L3.622 5.61c-.38.19-.622.58-.622 1.006v10.156c0 .836.88 1.38 1.628 1.006l3.869-1.934c.317-.159.69-.159 1.006 0l4.996 2.498a1.125 1.125 0 0 0 1.006 0Z" />
                         </svg>
                       </div>
-                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.landSize} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.sqw")}</span></span>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{formatLandSize(property.landSize, currentLang)}</span>
                     </div>
                   ) : null}
 
@@ -1405,7 +1450,7 @@ export default function PropertyDetailClient({ property, similarProperties }: Pr
                       <div className="w-5 h-5 rounded bg-gray-100 flex items-center justify-center text-gray-500 shrink-0">
                         <Maximize className="w-3 h-3" />
                       </div>
-                      <span className="text-[11px] font-black text-gray-900 leading-none">{property.usableArea} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.sqm")}</span></span>
+                      <span className="text-[11px] font-black text-gray-900 leading-none">{formatNumber(property.usableArea)} <span className="text-[9px] font-bold text-gray-500">{t("property_detail.sqm")}</span></span>
                     </div>
                   ) : null}
 
